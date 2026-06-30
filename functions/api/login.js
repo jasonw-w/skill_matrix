@@ -1,14 +1,30 @@
 import { createClient } from '@libsql/client/web';
 import jwt from '@tsndr/cloudflare-worker-jwt';
 
-// Quick edge-compatible hashing (SHA-256 for simplicity in Edge without heavy bcrypt compilation)
-// Note: In a production Edge environment, you'd use PBKDF2 or WebCrypto's SubtleCrypto for strong password hashing.
-async function hashPassword(password) {
+// Edge-compatible hashing using PBKDF2
+async function hashPassword(password, saltHex = null) {
   const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const passwordKey = await crypto.subtle.importKey(
+    'raw', encoder.encode(password), { name: 'PBKDF2' }, false, ['deriveBits']
+  );
+
+  let salt;
+  if (saltHex) {
+    salt = new Uint8Array(saltHex.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+  } else {
+    salt = crypto.getRandomValues(new Uint8Array(16));
+  }
+
+  const hashBuffer = await crypto.subtle.deriveBits(
+    { name: 'PBKDF2', salt: salt, iterations: 100000, hash: 'SHA-256' },
+    passwordKey, 256
+  );
+
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  const saltHexStr = Array.from(salt).map(b => b.toString(16).padStart(2, '0')).join('');
+  
+  return `${saltHexStr}:${hashHex}`;
 }
 
 const rateLimitMap = new Map();
@@ -59,9 +75,19 @@ export async function onRequestPost(context) {
     }
 
     const user = userRes.rows[0];
-    const passwordHash = await hashPassword(password);
+    const storedHash = user.password_hash;
+    let computedHash;
+    if (storedHash.includes(':')) {
+      const [salt, hash] = storedHash.split(':');
+      computedHash = await hashPassword(password, salt);
+    } else {
+      // Fallback for old SHA-256 hashes
+      const encoder = new TextEncoder();
+      const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(password));
+      computedHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
 
-    if (user.password_hash !== passwordHash) {
+    if (storedHash !== computedHash) {
       return new Response(JSON.stringify({ error: 'Invalid credentials' }), { status: 401 });
     }
 

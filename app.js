@@ -234,7 +234,7 @@ window.exportToCSV = () => {
     let csv = 'Team Member Name,';
     
     // Headers
-    csv += flatSkills.map(s => `"${s.wsName} - ${s.name}"`).join(',') + '\\n';
+    csv += flatSkills.map(s => `"${s.wsName} - ${s.name}"`).join(',') + '\n';
 
     // Rows
     matrixData.members.forEach(member => {
@@ -245,7 +245,7 @@ window.exportToCSV = () => {
             return LEVEL_MAP[level]?.num || '';
         });
         row += levels.join(',');
-        csv += row + '\\n';
+        csv += row + '\n';
     });
 
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -256,6 +256,10 @@ window.exportToCSV = () => {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+};
+
+window.updateZoom = (val) => {
+    document.documentElement.style.setProperty('--cell-width', `${val}px`);
 };
 
 // Modal Handling
@@ -286,6 +290,35 @@ window.submitWorkstation = async () => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': 'true' },
             body: JSON.stringify({ name })
+        });
+        
+        if (res.ok) location.reload();
+        else alert('Error: ' + (await res.json()).error);
+    } catch (e) {
+        alert('Failed to connect to server.');
+    }
+};
+
+window.removeWorkstation = () => {
+    const wsSelect = document.getElementById('removeWsId');
+    wsSelect.innerHTML = '<option value="">Select Workstation</option>';
+    matrixData.skillsTree.forEach(ws => {
+        wsSelect.innerHTML += `<option value="${ws.id}">${ws.name}</option>`;
+    });
+    openModal('removeWsModal');
+};
+
+window.submitRemoveWorkstation = async () => {
+    const wsId = document.getElementById('removeWsId').value;
+    if (!wsId) return;
+
+    if (!confirm(`Are you sure you want to completely remove this workstation? This will delete ALL skills and proficiency records under it.`)) return;
+
+    try {
+        const res = await fetch('/api/admin/workstations', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': 'true' },
+            body: JSON.stringify({ ws_id: wsId })
         });
         
         if (res.ok) location.reload();
@@ -369,6 +402,7 @@ window.submitAddUser = async () => {
     const firstName = document.getElementById('newFirstName').value.trim();
     const lastName = document.getElementById('newLastName').value.trim();
     const email = document.getElementById('newEmail').value.trim();
+    const password = document.getElementById('newPassword').value;
     const role = document.getElementById('newUserRole').value;
 
     if (!firstName || !lastName) {
@@ -380,7 +414,7 @@ window.submitAddUser = async () => {
         const res = await fetch('/api/admin/users', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': 'true' },
-            body: JSON.stringify({ email, firstName, lastName, role })
+            body: JSON.stringify({ email, password, firstName, lastName, role })
         });
         
         if (res.ok) location.reload();

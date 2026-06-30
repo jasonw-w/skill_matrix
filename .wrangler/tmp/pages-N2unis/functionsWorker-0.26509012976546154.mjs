@@ -5979,12 +5979,30 @@ var init_forgot_password = __esm({
 });
 
 // api/login.js
-async function hashPassword(password) {
+async function hashPassword(password, saltHex = null) {
   const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const passwordKey = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(password),
+    { name: "PBKDF2" },
+    false,
+    ["deriveBits"]
+  );
+  let salt;
+  if (saltHex) {
+    salt = new Uint8Array(saltHex.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));
+  } else {
+    salt = crypto.getRandomValues(new Uint8Array(16));
+  }
+  const hashBuffer = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", salt, iterations: 1e5, hash: "SHA-256" },
+    passwordKey,
+    256
+  );
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  const saltHexStr = Array.from(salt).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return `${saltHexStr}:${hashHex}`;
 }
 function isRateLimited2(ip) {
   const now = Date.now();
@@ -6025,8 +6043,17 @@ async function onRequestPost6(context) {
       return new Response(JSON.stringify({ error: "Invalid credentials or unverified email" }), { status: 401 });
     }
     const user = userRes.rows[0];
-    const passwordHash = await hashPassword(password);
-    if (user.password_hash !== passwordHash) {
+    const storedHash = user.password_hash;
+    let computedHash;
+    if (storedHash.includes(":")) {
+      const [salt, hash] = storedHash.split(":");
+      computedHash = await hashPassword(password, salt);
+    } else {
+      const encoder = new TextEncoder();
+      const hashBuffer = await crypto.subtle.digest("SHA-256", encoder.encode(password));
+      computedHash = Array.from(new Uint8Array(hashBuffer)).map((b) => b.toString(16).padStart(2, "0")).join("");
+    }
+    if (storedHash !== computedHash) {
       return new Response(JSON.stringify({ error: "Invalid credentials" }), { status: 401 });
     }
     const token = await index_default.sign({
@@ -6230,7 +6257,25 @@ async function onRequestPost9(context) {
             code_expires_at=excluded.code_expires_at`,
       args: [id, email, verification_code, expiresAt]
     });
-    return new Response(JSON.stringify({ message: "Verification bypassed for testing", dev_code: verification_code }), { status: 200 });
+    const resendRes = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${env.RESEND_AUTH}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        from: "onboarding@resend.dev",
+        // Default testing email
+        to: email,
+        subject: "Skill Matrix - Verification Code",
+        html: `<p>Your verification code is: <strong>${verification_code}</strong></p>`
+      })
+    });
+    if (!resendRes.ok) {
+      console.error("Resend error", await resendRes.text());
+      return new Response(JSON.stringify({ error: "Failed to send email" }), { status: 500 });
+    }
+    return new Response(JSON.stringify({ message: "Verification code sent" }), { status: 200 });
   } catch (err) {
     console.error(err);
     return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
@@ -6248,12 +6293,30 @@ var init_register = __esm({
 });
 
 // api/reset-password.js
-async function hashPassword2(password) {
+async function hashPassword2(password, saltHex = null) {
   const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const passwordKey = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(password),
+    { name: "PBKDF2" },
+    false,
+    ["deriveBits"]
+  );
+  let salt;
+  if (saltHex) {
+    salt = new Uint8Array(saltHex.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));
+  } else {
+    salt = crypto.getRandomValues(new Uint8Array(16));
+  }
+  const hashBuffer = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", salt, iterations: 1e5, hash: "SHA-256" },
+    passwordKey,
+    256
+  );
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  const saltHexStr = Array.from(salt).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return `${saltHexStr}:${hashHex}`;
 }
 async function onRequestPost10(context) {
   const { request, env } = context;
@@ -6336,12 +6399,30 @@ var init_session = __esm({
 });
 
 // api/settings.js
-async function hashPassword3(password) {
+async function hashPassword3(password, saltHex = null) {
   const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const passwordKey = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(password),
+    { name: "PBKDF2" },
+    false,
+    ["deriveBits"]
+  );
+  let salt;
+  if (saltHex) {
+    salt = new Uint8Array(saltHex.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));
+  } else {
+    salt = crypto.getRandomValues(new Uint8Array(16));
+  }
+  const hashBuffer = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", salt, iterations: 1e5, hash: "SHA-256" },
+    passwordKey,
+    256
+  );
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  const saltHexStr = Array.from(salt).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return `${saltHexStr}:${hashHex}`;
 }
 async function onRequestPost11(context) {
   const { request, env } = context;
@@ -6411,12 +6492,30 @@ var init_settings = __esm({
 });
 
 // api/verify.js
-async function hashPassword4(password) {
+async function hashPassword4(password, saltHex = null) {
   const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const passwordKey = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(password),
+    { name: "PBKDF2" },
+    false,
+    ["deriveBits"]
+  );
+  let salt;
+  if (saltHex) {
+    salt = new Uint8Array(saltHex.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));
+  } else {
+    salt = crypto.getRandomValues(new Uint8Array(16));
+  }
+  const hashBuffer = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", salt, iterations: 1e5, hash: "SHA-256" },
+    passwordKey,
+    256
+  );
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  const saltHexStr = Array.from(salt).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return `${saltHexStr}:${hashHex}`;
 }
 async function onRequestPost12(context) {
   const { request, env } = context;
@@ -6622,10 +6721,10 @@ var init_functionsRoutes_0_22217754403411138 = __esm({
   }
 });
 
-// ../.wrangler/tmp/bundle-ra4jeA/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-Uj6Py8/middleware-loader.entry.ts
 init_functionsRoutes_0_22217754403411138();
 
-// ../.wrangler/tmp/bundle-ra4jeA/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-Uj6Py8/middleware-insertion-facade.js
 init_functionsRoutes_0_22217754403411138();
 
 // ../node_modules/wrangler/templates/pages-template-worker.ts
@@ -7121,7 +7220,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-ra4jeA/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-Uj6Py8/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -7154,7 +7253,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-ra4jeA/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-Uj6Py8/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

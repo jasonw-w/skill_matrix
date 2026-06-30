@@ -6239,12 +6239,30 @@ var init_forgot_password = __esm({
     __name2(onRequestPost5, "onRequestPost");
   }
 });
-async function hashPassword(password) {
+async function hashPassword(password, saltHex = null) {
   const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const passwordKey = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(password),
+    { name: "PBKDF2" },
+    false,
+    ["deriveBits"]
+  );
+  let salt;
+  if (saltHex) {
+    salt = new Uint8Array(saltHex.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));
+  } else {
+    salt = crypto.getRandomValues(new Uint8Array(16));
+  }
+  const hashBuffer = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", salt, iterations: 1e5, hash: "SHA-256" },
+    passwordKey,
+    256
+  );
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  const saltHexStr = Array.from(salt).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return `${saltHexStr}:${hashHex}`;
 }
 __name(hashPassword, "hashPassword");
 function isRateLimited2(ip) {
@@ -6287,8 +6305,17 @@ async function onRequestPost6(context) {
       return new Response(JSON.stringify({ error: "Invalid credentials or unverified email" }), { status: 401 });
     }
     const user = userRes.rows[0];
-    const passwordHash = await hashPassword(password);
-    if (user.password_hash !== passwordHash) {
+    const storedHash = user.password_hash;
+    let computedHash;
+    if (storedHash.includes(":")) {
+      const [salt, hash] = storedHash.split(":");
+      computedHash = await hashPassword(password, salt);
+    } else {
+      const encoder = new TextEncoder();
+      const hashBuffer = await crypto.subtle.digest("SHA-256", encoder.encode(password));
+      computedHash = Array.from(new Uint8Array(hashBuffer)).map((b) => b.toString(16).padStart(2, "0")).join("");
+    }
+    if (storedHash !== computedHash) {
       return new Response(JSON.stringify({ error: "Invalid credentials" }), { status: 401 });
     }
     const token = await index_default.sign({
@@ -6489,7 +6516,25 @@ async function onRequestPost9(context) {
             code_expires_at=excluded.code_expires_at`,
       args: [id, email, verification_code, expiresAt]
     });
-    return new Response(JSON.stringify({ message: "Verification bypassed for testing", dev_code: verification_code }), { status: 200 });
+    const resendRes = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${env.RESEND_AUTH}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        from: "onboarding@resend.dev",
+        // Default testing email
+        to: email,
+        subject: "Skill Matrix - Verification Code",
+        html: `<p>Your verification code is: <strong>${verification_code}</strong></p>`
+      })
+    });
+    if (!resendRes.ok) {
+      console.error("Resend error", await resendRes.text());
+      return new Response(JSON.stringify({ error: "Failed to send email" }), { status: 500 });
+    }
+    return new Response(JSON.stringify({ message: "Verification code sent" }), { status: 200 });
   } catch (err) {
     console.error(err);
     return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
@@ -6506,12 +6551,30 @@ var init_register = __esm({
     __name2(onRequestPost9, "onRequestPost");
   }
 });
-async function hashPassword2(password) {
+async function hashPassword2(password, saltHex = null) {
   const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const passwordKey = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(password),
+    { name: "PBKDF2" },
+    false,
+    ["deriveBits"]
+  );
+  let salt;
+  if (saltHex) {
+    salt = new Uint8Array(saltHex.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));
+  } else {
+    salt = crypto.getRandomValues(new Uint8Array(16));
+  }
+  const hashBuffer = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", salt, iterations: 1e5, hash: "SHA-256" },
+    passwordKey,
+    256
+  );
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  const saltHexStr = Array.from(salt).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return `${saltHexStr}:${hashHex}`;
 }
 __name(hashPassword2, "hashPassword2");
 async function onRequestPost10(context) {
@@ -6593,12 +6656,30 @@ var init_session = __esm({
     __name2(onRequestGet3, "onRequestGet");
   }
 });
-async function hashPassword3(password) {
+async function hashPassword3(password, saltHex = null) {
   const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const passwordKey = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(password),
+    { name: "PBKDF2" },
+    false,
+    ["deriveBits"]
+  );
+  let salt;
+  if (saltHex) {
+    salt = new Uint8Array(saltHex.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));
+  } else {
+    salt = crypto.getRandomValues(new Uint8Array(16));
+  }
+  const hashBuffer = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", salt, iterations: 1e5, hash: "SHA-256" },
+    passwordKey,
+    256
+  );
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  const saltHexStr = Array.from(salt).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return `${saltHexStr}:${hashHex}`;
 }
 __name(hashPassword3, "hashPassword3");
 async function onRequestPost11(context) {
@@ -6668,12 +6749,30 @@ var init_settings = __esm({
     __name2(onRequestPost11, "onRequestPost");
   }
 });
-async function hashPassword4(password) {
+async function hashPassword4(password, saltHex = null) {
   const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const passwordKey = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(password),
+    { name: "PBKDF2" },
+    false,
+    ["deriveBits"]
+  );
+  let salt;
+  if (saltHex) {
+    salt = new Uint8Array(saltHex.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));
+  } else {
+    salt = crypto.getRandomValues(new Uint8Array(16));
+  }
+  const hashBuffer = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", salt, iterations: 1e5, hash: "SHA-256" },
+    passwordKey,
+    256
+  );
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  const saltHexStr = Array.from(salt).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return `${saltHexStr}:${hashHex}`;
 }
 __name(hashPassword4, "hashPassword4");
 async function onRequestPost12(context) {

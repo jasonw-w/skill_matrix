@@ -141,7 +141,7 @@ header {
 .matrix-table {
     display: grid;
     /* First column is sticky Member name. Subsequent columns are fixed width for skills */
-    grid-template-columns: 250px repeat(var(--skill-count), 45px);
+    grid-template-columns: 250px repeat(var(--skill-count), var(--cell-width, 45px));
     border-collapse: collapse;
 }
 
@@ -234,14 +234,54 @@ header {
     color: #fff;
     border-radius: 4px;
     cursor: pointer;
-    transition: transform 0.1s, filter 0.2s;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     user-select: none;
+    position: relative;
 }
 
 .prof-indicator:hover {
-    filter: brightness(1.2);
+    filter: brightness(1.15);
+    transform: scale(1.08);
+    z-index: 20;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.prof-indicator:active {
     transform: scale(0.95);
 }
+
+/* CSS Tooltips */
+.prof-indicator::after {
+    content: '';
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: rgba(15, 17, 26, 0.95);
+    color: white;
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.prof-indicator:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+.prof-indicator.level-1::after { content: 'Level 1: Novice'; }
+.prof-indicator.level-2::after { content: 'Level 2: Basic'; }
+.prof-indicator.level-3::after { content: 'Level 3: Intermediate'; }
+.prof-indicator.level-4::after { content: 'Level 4: Expert'; }
+.prof-indicator.level-none::after { content: 'Not Assessed'; }
 
 /* Map 1,2,3,4 colors to match requested palette */
 .prof-indicator.level-1 { background: #ba3f3e; color: #ffffff; } /* Deep Red */

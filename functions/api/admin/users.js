@@ -1,6 +1,32 @@
 import { createClient } from '@libsql/client/web';
 import jwt from '@tsndr/cloudflare-worker-jwt';
 
+// Edge-compatible hashing using PBKDF2
+async function hashPassword(password, saltHex = null) {
+  const encoder = new TextEncoder();
+  const passwordKey = await crypto.subtle.importKey(
+    'raw', encoder.encode(password), { name: 'PBKDF2' }, false, ['deriveBits']
+  );
+
+  let salt;
+  if (saltHex) {
+    salt = new Uint8Array(saltHex.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+  } else {
+    salt = crypto.getRandomValues(new Uint8Array(16));
+  }
+
+  const hashBuffer = await crypto.subtle.deriveBits(
+    { name: 'PBKDF2', salt: salt, iterations: 100000, hash: 'SHA-256' },
+    passwordKey, 256
+  );
+
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  const saltHexStr = Array.from(salt).map(b => b.toString(16).padStart(2, '0')).join('');
+  
+  return `${saltHexStr}:${hashHex}`;
+}
+
 async function requireAdmin(request, env) {
   if (!request.headers.get('X-CSRF-Token')) return false;
 
@@ -38,16 +64,21 @@ export async function onRequestPost(context) {
         return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 403 });
     }
 
-    const { email, firstName, lastName, role } = await request.json();
+    const { email, password, firstName, lastName, role } = await request.json();
 
     const client = createClient({ url: env.TURSO_URL, authToken: env.TURSO_AUTH });
     try {
         const id = crypto.randomUUID();
         const finalEmail = email ? email.toLowerCase() : `no-login-${id}@system.local`;
+        
+        let passwordHash = null;
+        if (password) {
+            passwordHash = await hashPassword(password);
+        }
 
         await client.execute({
-            sql: 'INSERT INTO users (id, email, first_name, last_name, role, is_verified) VALUES (?, ?, ?, ?, ?, 1)',
-            args: [id, finalEmail, firstName || '', lastName || '', role || 'user']
+            sql: 'INSERT INTO users (id, email, password_hash, first_name, last_name, role, is_verified) VALUES (?, ?, ?, ?, ?, ?, 1)',
+            args: [id, finalEmail, passwordHash, firstName || '', lastName || '', role || 'user']
         });
         return new Response(JSON.stringify({ message: 'User added' }), { status: 201 });
     } catch (e) {

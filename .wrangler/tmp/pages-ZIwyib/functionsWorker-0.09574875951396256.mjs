@@ -5731,6 +5731,31 @@ var init_skills = __esm({
 });
 
 // api/admin/users.js
+async function hashPassword(password, saltHex = null) {
+  const encoder = new TextEncoder();
+  const passwordKey = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(password),
+    { name: "PBKDF2" },
+    false,
+    ["deriveBits"]
+  );
+  let salt;
+  if (saltHex) {
+    salt = new Uint8Array(saltHex.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));
+  } else {
+    salt = crypto.getRandomValues(new Uint8Array(16));
+  }
+  const hashBuffer = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", salt, iterations: 1e5, hash: "SHA-256" },
+    passwordKey,
+    256
+  );
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  const saltHexStr = Array.from(salt).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return `${saltHexStr}:${hashHex}`;
+}
 async function requireAdmin2(request, env) {
   if (!request.headers.get("X-CSRF-Token")) return false;
   const cookieHeader = request.headers.get("Cookie");
@@ -5760,14 +5785,18 @@ async function onRequestPost2(context) {
   if (!await requireAdmin2(request, env)) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 403 });
   }
-  const { email, firstName, lastName, role } = await request.json();
+  const { email, password, firstName, lastName, role } = await request.json();
   const client = createClient({ url: env.TURSO_URL, authToken: env.TURSO_AUTH });
   try {
     const id = crypto.randomUUID();
     const finalEmail = email ? email.toLowerCase() : `no-login-${id}@system.local`;
+    let passwordHash = null;
+    if (password) {
+      passwordHash = await hashPassword(password);
+    }
     await client.execute({
-      sql: "INSERT INTO users (id, email, first_name, last_name, role, is_verified) VALUES (?, ?, ?, ?, ?, 1)",
-      args: [id, finalEmail, firstName || "", lastName || "", role || "user"]
+      sql: "INSERT INTO users (id, email, password_hash, first_name, last_name, role, is_verified) VALUES (?, ?, ?, ?, ?, ?, 1)",
+      args: [id, finalEmail, passwordHash, firstName || "", lastName || "", role || "user"]
     });
     return new Response(JSON.stringify({ message: "User added" }), { status: 201 });
   } catch (e) {
@@ -5797,6 +5826,7 @@ var init_users = __esm({
     init_functionsRoutes_0_30977898429902107();
     init_web2();
     init_cloudflare_worker_jwt();
+    __name(hashPassword, "hashPassword");
     __name(requireAdmin2, "requireAdmin");
     __name(onRequestGet, "onRequestGet");
     __name(onRequestPost2, "onRequestPost");
@@ -5845,6 +5875,39 @@ async function onRequestPost3(context) {
     return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
   }
 }
+async function onRequestDelete2(context) {
+  const { request, env } = context;
+  const isAdmin = await requireAdmin3(request, env);
+  if (!isAdmin) {
+    return new Response(JSON.stringify({ error: "Unauthorized. Admin access required." }), { status: 403 });
+  }
+  const { ws_id } = await request.json();
+  if (!ws_id) {
+    return new Response(JSON.stringify({ error: "ws_id is required" }), { status: 400 });
+  }
+  const client = createClient({
+    url: env.TURSO_URL,
+    authToken: env.TURSO_AUTH
+  });
+  try {
+    await client.execute({
+      sql: "DELETE FROM proficiencies WHERE skill_id IN (SELECT id FROM skills WHERE workstation_id = ?)",
+      args: [ws_id]
+    });
+    await client.execute({
+      sql: "DELETE FROM skills WHERE workstation_id = ?",
+      args: [ws_id]
+    });
+    await client.execute({
+      sql: "DELETE FROM workstations WHERE id = ?",
+      args: [ws_id]
+    });
+    return new Response(JSON.stringify({ message: "Workstation deleted successfully" }), { status: 200 });
+  } catch (err) {
+    console.error(err);
+    return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
+  }
+}
 var init_workstations = __esm({
   "api/admin/workstations.js"() {
     init_functionsRoutes_0_30977898429902107();
@@ -5852,6 +5915,7 @@ var init_workstations = __esm({
     init_cloudflare_worker_jwt();
     __name(requireAdmin3, "requireAdmin");
     __name(onRequestPost3, "onRequestPost");
+    __name(onRequestDelete2, "onRequestDelete");
   }
 });
 
@@ -5979,12 +6043,30 @@ var init_forgot_password = __esm({
 });
 
 // api/login.js
-async function hashPassword(password) {
+async function hashPassword2(password, saltHex = null) {
   const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const passwordKey = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(password),
+    { name: "PBKDF2" },
+    false,
+    ["deriveBits"]
+  );
+  let salt;
+  if (saltHex) {
+    salt = new Uint8Array(saltHex.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));
+  } else {
+    salt = crypto.getRandomValues(new Uint8Array(16));
+  }
+  const hashBuffer = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", salt, iterations: 1e5, hash: "SHA-256" },
+    passwordKey,
+    256
+  );
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  const saltHexStr = Array.from(salt).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return `${saltHexStr}:${hashHex}`;
 }
 function isRateLimited2(ip) {
   const now = Date.now();
@@ -6025,8 +6107,17 @@ async function onRequestPost6(context) {
       return new Response(JSON.stringify({ error: "Invalid credentials or unverified email" }), { status: 401 });
     }
     const user = userRes.rows[0];
-    const passwordHash = await hashPassword(password);
-    if (user.password_hash !== passwordHash) {
+    const storedHash = user.password_hash;
+    let computedHash;
+    if (storedHash.includes(":")) {
+      const [salt, hash] = storedHash.split(":");
+      computedHash = await hashPassword2(password, salt);
+    } else {
+      const encoder = new TextEncoder();
+      const hashBuffer = await crypto.subtle.digest("SHA-256", encoder.encode(password));
+      computedHash = Array.from(new Uint8Array(hashBuffer)).map((b) => b.toString(16).padStart(2, "0")).join("");
+    }
+    if (storedHash !== computedHash) {
       return new Response(JSON.stringify({ error: "Invalid credentials" }), { status: 401 });
     }
     const token = await index_default.sign({
@@ -6055,7 +6146,7 @@ var init_login = __esm({
     init_functionsRoutes_0_30977898429902107();
     init_web2();
     init_cloudflare_worker_jwt();
-    __name(hashPassword, "hashPassword");
+    __name(hashPassword2, "hashPassword");
     rateLimitMap2 = /* @__PURE__ */ new Map();
     __name(isRateLimited2, "isRateLimited");
     __name(onRequestPost6, "onRequestPost");
@@ -6230,7 +6321,26 @@ async function onRequestPost9(context) {
             code_expires_at=excluded.code_expires_at`,
       args: [id, email, verification_code, expiresAt]
     });
-    return new Response(JSON.stringify({ message: "Verification bypassed for testing", dev_code: verification_code }), { status: 200 });
+    const resendRes = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${env.RESEND_AUTH}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        from: env.RESEND_FROM || "onboarding@resend.dev",
+        // Use custom domain if verified
+        to: email,
+        subject: "Skill Matrix - Verification Code",
+        html: `<p>Your verification code is: <strong>${verification_code}</strong></p>`
+      })
+    });
+    if (!resendRes.ok) {
+      const errorText = await resendRes.text();
+      console.error("Resend error", errorText);
+      return new Response(JSON.stringify({ error: "Failed to send email", details: errorText }), { status: 500 });
+    }
+    return new Response(JSON.stringify({ message: "Verification code sent" }), { status: 200 });
   } catch (err) {
     console.error(err);
     return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
@@ -6248,12 +6358,30 @@ var init_register = __esm({
 });
 
 // api/reset-password.js
-async function hashPassword2(password) {
+async function hashPassword3(password, saltHex = null) {
   const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const passwordKey = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(password),
+    { name: "PBKDF2" },
+    false,
+    ["deriveBits"]
+  );
+  let salt;
+  if (saltHex) {
+    salt = new Uint8Array(saltHex.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));
+  } else {
+    salt = crypto.getRandomValues(new Uint8Array(16));
+  }
+  const hashBuffer = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", salt, iterations: 1e5, hash: "SHA-256" },
+    passwordKey,
+    256
+  );
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  const saltHexStr = Array.from(salt).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return `${saltHexStr}:${hashHex}`;
 }
 async function onRequestPost10(context) {
   const { request, env } = context;
@@ -6284,7 +6412,7 @@ async function onRequestPost10(context) {
     if (Date.now() > user.reset_expiry) {
       return new Response(JSON.stringify({ error: "Reset code has expired. Please request a new one." }), { status: 400 });
     }
-    const hashedPassword = await hashPassword2(password);
+    const hashedPassword = await hashPassword3(password);
     await client.execute({
       sql: "UPDATE users SET password_hash = ?, reset_code = NULL, reset_expiry = NULL WHERE email = ?",
       args: [hashedPassword, email]
@@ -6302,7 +6430,7 @@ var init_reset_password = __esm({
   "api/reset-password.js"() {
     init_functionsRoutes_0_30977898429902107();
     init_web2();
-    __name(hashPassword2, "hashPassword");
+    __name(hashPassword3, "hashPassword");
     __name(onRequestPost10, "onRequestPost");
   }
 });
@@ -6336,12 +6464,30 @@ var init_session = __esm({
 });
 
 // api/settings.js
-async function hashPassword3(password) {
+async function hashPassword4(password, saltHex = null) {
   const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const passwordKey = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(password),
+    { name: "PBKDF2" },
+    false,
+    ["deriveBits"]
+  );
+  let salt;
+  if (saltHex) {
+    salt = new Uint8Array(saltHex.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));
+  } else {
+    salt = crypto.getRandomValues(new Uint8Array(16));
+  }
+  const hashBuffer = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", salt, iterations: 1e5, hash: "SHA-256" },
+    passwordKey,
+    256
+  );
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  const saltHexStr = Array.from(salt).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return `${saltHexStr}:${hashHex}`;
 }
 async function onRequestPost11(context) {
   const { request, env } = context;
@@ -6369,7 +6515,7 @@ async function onRequestPost11(context) {
       if (password.length < 8 || !/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])/.test(password)) {
         return new Response(JSON.stringify({ error: "Password must be at least 8 characters and contain a mix of uppercase, lowercase, and numbers" }), { status: 400 });
       }
-      const hashedPassword = await hashPassword3(password);
+      const hashedPassword = await hashPassword4(password);
       await client.execute({
         sql: "UPDATE users SET first_name = ?, last_name = ?, password_hash = ? WHERE id = ?",
         args: [firstName, lastName, hashedPassword, userId]
@@ -6405,18 +6551,36 @@ var init_settings = __esm({
     init_functionsRoutes_0_30977898429902107();
     init_web2();
     init_cloudflare_worker_jwt();
-    __name(hashPassword3, "hashPassword");
+    __name(hashPassword4, "hashPassword");
     __name(onRequestPost11, "onRequestPost");
   }
 });
 
 // api/verify.js
-async function hashPassword4(password) {
+async function hashPassword5(password, saltHex = null) {
   const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const passwordKey = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(password),
+    { name: "PBKDF2" },
+    false,
+    ["deriveBits"]
+  );
+  let salt;
+  if (saltHex) {
+    salt = new Uint8Array(saltHex.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));
+  } else {
+    salt = crypto.getRandomValues(new Uint8Array(16));
+  }
+  const hashBuffer = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", salt, iterations: 1e5, hash: "SHA-256" },
+    passwordKey,
+    256
+  );
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  const saltHexStr = Array.from(salt).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return `${saltHexStr}:${hashHex}`;
 }
 async function onRequestPost12(context) {
   const { request, env } = context;
@@ -6447,7 +6611,7 @@ async function onRequestPost12(context) {
     if (Date.now() > user.code_expires_at) {
       return new Response(JSON.stringify({ error: "Verification code has expired" }), { status: 400 });
     }
-    const passwordHash = await hashPassword4(password);
+    const passwordHash = await hashPassword5(password);
     const verifiedUsersCount = await client.execute("SELECT COUNT(*) as count FROM users WHERE is_verified = 1");
     const role = verifiedUsersCount.rows[0].count === 0 ? "admin" : "user";
     await client.execute({
@@ -6472,7 +6636,7 @@ var init_verify = __esm({
   "api/verify.js"() {
     init_functionsRoutes_0_30977898429902107();
     init_web2();
-    __name(hashPassword4, "hashPassword");
+    __name(hashPassword5, "hashPassword");
     __name(onRequestPost12, "onRequestPost");
   }
 });
@@ -6486,6 +6650,7 @@ var init_functionsRoutes_0_30977898429902107 = __esm({
     init_users();
     init_users();
     init_users();
+    init_workstations();
     init_workstations();
     init_check_code();
     init_forgot_password();
@@ -6533,6 +6698,13 @@ var init_functionsRoutes_0_30977898429902107 = __esm({
         method: "PUT",
         middlewares: [],
         modules: [onRequestPut]
+      },
+      {
+        routePath: "/api/admin/workstations",
+        mountPath: "/api/admin",
+        method: "DELETE",
+        middlewares: [],
+        modules: [onRequestDelete2]
       },
       {
         routePath: "/api/admin/workstations",
@@ -6622,10 +6794,10 @@ var init_functionsRoutes_0_30977898429902107 = __esm({
   }
 });
 
-// ../.wrangler/tmp/bundle-3MlejK/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-1Uqfn3/middleware-loader.entry.ts
 init_functionsRoutes_0_30977898429902107();
 
-// ../.wrangler/tmp/bundle-3MlejK/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-1Uqfn3/middleware-insertion-facade.js
 init_functionsRoutes_0_30977898429902107();
 
 // ../node_modules/wrangler/templates/pages-template-worker.ts
@@ -7121,7 +7293,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-3MlejK/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-1Uqfn3/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -7154,7 +7326,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-3MlejK/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-1Uqfn3/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

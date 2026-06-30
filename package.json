@@ -12,12 +12,7 @@
   "description": "",
   "dependencies": {
     "@libsql/client": "^0.17.4",
-    "@tsndr/cloudflare-worker-jwt": "^3.2.1",
-    "bcrypt": "^6.0.0",
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "jsonwebtoken": "^9.0.3"
+    "@tsndr/cloudflare-worker-jwt": "^3.2.1"
   },
   "devDependencies": {
     "wrangler": "^4.86.0"

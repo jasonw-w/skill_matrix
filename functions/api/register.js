@@ -58,8 +58,6 @@ export async function onRequestPost(context) {
       args: [id, email, verification_code, expiresAt]
     });
 
-    // --- BYPASS EMAIL SENDING FOR TESTING ---
-    /*
     const resendRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -67,7 +65,7 @@ export async function onRequestPost(context) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'onboarding@resend.dev', // Default testing email
+        from: env.RESEND_FROM || 'onboarding@resend.dev', // Use custom domain if verified
         to: email,
         subject: 'Skill Matrix - Verification Code',
         html: `<p>Your verification code is: <strong>${verification_code}</strong></p>`
@@ -75,13 +73,12 @@ export async function onRequestPost(context) {
     });
 
     if (!resendRes.ok) {
-      console.error('Resend error', await resendRes.text());
-      return new Response(JSON.stringify({ error: 'Failed to send email' }), { status: 500 });
+      const errorText = await resendRes.text();
+      console.error('Resend error', errorText);
+      return new Response(JSON.stringify({ error: 'Failed to send email', details: errorText }), { status: 500 });
     }
-    */
-    // ----------------------------------------
 
-    return new Response(JSON.stringify({ message: 'Verification bypassed for testing', dev_code: verification_code }), { status: 200 });
+    return new Response(JSON.stringify({ message: 'Verification code sent' }), { status: 200 });
   } catch (err) {
     console.error(err);
     return new Response(JSON.stringify({ error: 'Database error' }), { status: 500 });
