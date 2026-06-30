@@ -1,279 +1,255 @@
-// Global State
-let skills = [];
-let users = [];
-let msalInstance;
-let accountId = "";
-let graphAccessToken = "";
+let currentUser = null;
+let currentToken = null;
+let matrixData = { members: [], proficiencies: {}, skillsTree: [] };
+let expandedNodes = new Set();
 
-// Initialize Microsoft Teams SDK and MSAL
-async function initializeApp() {
-  // 1. Initialize Teams (if running inside Teams)
-  try {
-    await microsoftTeams.app.initialize();
-    microsoftTeams.app.registerOnThemeChangeHandler((theme) => {
-      applyTheme(theme);
+document.addEventListener('DOMContentLoaded', async () => {
+    currentToken = localStorage.getItem('token');
+    if (!currentToken) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    // Decode JWT payload (simple base64 decoding for UI logic)
+    try {
+        const payload = JSON.parse(atob(currentToken.split('.')[1]));
+        currentUser = { id: payload.id, username: payload.username, role: payload.role };
+        document.getElementById('userInfo').textContent = `Logged in as: ${currentUser.username} (${currentUser.role})`;
+        
+        if (currentUser.role === 'admin') {
+            document.getElementById('adminControls').style.display = 'flex';
+        }
+    } catch (e) {
+        localStorage.removeItem('token');
+        window.location.href = 'login.html';
+        return;
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        localStorage.removeItem('token');
+        window.location.href = 'login.html';
     });
-    const context = await microsoftTeams.app.getContext();
-    if (context && context.app.theme) applyTheme(context.app.theme);
-  } catch (error) {
-    console.log("Not running inside Teams, using default web mode.");
-  }
 
-  // 2. Initialize MSAL
-  msalInstance = new msal.PublicClientApplication(msalConfig);
-  await msalInstance.initialize();
+    await fetchData();
+});
 
-  // 3. Handle Redirect/Auth State
-  try {
-    const response = await msalInstance.handleRedirectPromise();
-    if (response) {
-      handleLoginResponse(response);
-    } else {
-      const currentAccounts = msalInstance.getAllAccounts();
-      if (currentAccounts.length > 0) {
-        accountId = currentAccounts[0].homeAccountId;
-        showUserInfo(currentAccounts[0].name);
-        await fetchSharePointData();
-      } else {
-        showLoginButton();
-      }
+async function fetchData() {
+    const matrixBody = document.getElementById('matrixBody');
+    try {
+        const response = await fetch('/api/matrix-data', {
+            headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            localStorage.removeItem('token');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        matrixData = await response.json();
+        
+        // Auto-expand all workstations by default
+        matrixData.skillsTree.forEach(ws => expandedNodes.add(ws.id));
+        
+        renderMatrix();
+        populateSkillDropdown();
+    } catch (error) {
+        matrixBody.innerHTML = '<div style="padding: 2rem; color: #ef4444;">Failed to connect to database.</div>';
     }
-  } catch (error) {
-    console.error("Auth error", error);
-    showLoginButton();
-  }
-
-  // Attach login button event
-  document.getElementById('auth-btn').addEventListener('click', () => {
-    msalInstance.loginPopup(graphScopes).then(handleLoginResponse).catch(console.error);
-  });
-  
-  // Search listener
-  document.getElementById('search-input').addEventListener('input', (e) => {
-    renderGrid(e.target.value);
-  });
 }
 
-function showLoginButton() {
-  document.getElementById('auth-btn').style.display = 'block';
-  document.getElementById('user-info-container').style.display = 'none';
-  document.getElementById('current-user-avatar').style.display = 'none';
-  renderGrid(); // Render empty grid or fallback
-}
+function renderMatrix() {
+    const matrixContainer = document.getElementById('matrixContainer');
+    const matrixHeader = document.getElementById('matrixHeader');
+    const matrixBody = document.getElementById('matrixBody');
 
-function showUserInfo(name) {
-  document.getElementById('auth-btn').style.display = 'none';
-  document.getElementById('user-info-container').style.display = 'flex';
-  document.getElementById('current-user-avatar').style.display = 'flex';
-  document.getElementById('current-user-name').textContent = name;
-  document.getElementById('current-user-avatar').textContent = (name || "U")[0].toUpperCase();
-}
+    matrixContainer.style.setProperty('--member-count', matrixData.members.length);
 
-function handleLoginResponse(response) {
-  if (response !== null) {
-    accountId = response.account.homeAccountId;
-    showUserInfo(response.account.name);
-    fetchSharePointData();
-  } else {
-    showLoginButton();
-  }
-}
-
-async function getToken() {
-  const account = msalInstance.getAccountByHomeId(accountId);
-  if (!account) throw new Error("No active account!");
-  
-  try {
-    const response = await msalInstance.acquireTokenSilent({
-      ...graphScopes,
-      account: account
+    // Header
+    let html = `<div class="grid-row"><div class="cell skill-cell">Skills Domain</div>`;
+    matrixData.members.forEach(member => {
+        const isMe = member.id === currentUser.id;
+        html += `<div class="cell" style="${isMe ? 'color: #a5b4fc; font-weight:bold;' : ''}">${member.name}</div>`;
     });
-    return response.accessToken;
-  } catch (error) {
-    if (error instanceof msal.InteractionRequiredAuthError) {
-      const response = await msalInstance.acquireTokenPopup({
-        ...graphScopes,
-        account: account
-      });
-      return response.accessToken;
+    html += `</div>`;
+    matrixHeader.innerHTML = html;
+
+    // Body
+    html = '';
+    function renderNode(node, depth, parentId) {
+        const hasChildren = node.children && node.children.length > 0;
+        const isExpanded = expandedNodes.has(node.id);
+        
+        let toggleIcon = hasChildren ? `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>` : `<span style="width: 12px; display:inline-block"></span>`;
+        let toggleClass = isExpanded ? 'expanded' : '';
+        
+        let rowClasses = ['grid-row', 'skill-row'];
+        if (hasChildren) rowClasses.push('has-children');
+        
+        html += `
+            <div class="${rowClasses.join(' ')}" data-id="${node.id}" data-parent="${parentId || ''}" style="--depth: ${depth};">
+                <div class="cell skill-cell">
+                    ${hasChildren ? `<button class="toggle-btn ${toggleClass}" data-id="${node.id}">${toggleIcon}</button>` : `<span class="toggle-btn"></span>`}
+                    <span class="skill-name">${node.name}</span>
+                </div>
+        `;
+
+        matrixData.members.forEach(member => {
+            if (hasChildren) {
+                html += `<div class="cell"></div>`;
+            } else {
+                let level = (matrixData.proficiencies[member.id] && matrixData.proficiencies[member.id][node.id]) || 'none';
+                const isMe = member.id === currentUser.id;
+                const interactiveClass = isMe ? 'interactive-dot' : '';
+                html += `<div class="cell"><div class="prof-indicator ${level} ${interactiveClass}" data-skill="${node.id}" data-member="${member.id}" data-level="${level}" title="${member.name}: ${level}"></div></div>`;
+            }
+        });
+
+        html += `</div>`;
+
+        if (hasChildren) {
+            node.children.forEach(child => renderNode(child, depth + 1, node.id));
+        }
     }
-    throw error;
-  }
+
+    matrixData.skillsTree.forEach(node => renderNode(node, 0, null));
+    matrixBody.innerHTML = html;
+    updateVisibility();
 }
 
-// Graph API Interactions
-async function fetchSharePointData() {
-  try {
-    if (m365Config.siteId === "YOUR_SITE_ID_HERE") {
-      console.warn("Config is not set up! Rendering mock data for demonstration.");
-      return loadMockData();
-    }
-
-    const token = await getToken();
-    const endpoint = `https://graph.microsoft.com/v1.0/sites/${m365Config.siteId}/lists/${m365Config.listId}/items?expand=fields`;
-    
-    const response = await fetch(endpoint, {
-      headers: { 'Authorization': `Bearer ${token}` }
+// Tree visibility logic
+function updateVisibility() {
+    const rows = document.querySelectorAll('.skill-row');
+    rows.forEach(row => {
+        const parentId = row.getAttribute('data-parent');
+        let isVisible = true;
+        let currentParent = parentId;
+        while (currentParent) {
+            if (!expandedNodes.has(currentParent)) { isVisible = false; break; }
+            const pRow = document.querySelector(`.skill-row[data-id="${currentParent}"]`);
+            currentParent = pRow ? pRow.getAttribute('data-parent') : null;
+        }
+        if (isVisible) row.classList.remove('hidden');
+        else row.classList.add('hidden');
     });
-    
-    if (!response.ok) throw new Error("Failed to fetch SP list");
-    
-    const data = await response.json();
-    processSharePointItems(data.value);
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    // Fallback for demonstration if it fails
-    loadMockData();
-  }
 }
 
-function processSharePointItems(items) {
-  const userMap = {};
-  const skillSet = new Set();
-
-  items.forEach(item => {
-    const fields = item.fields;
-    // Expected SP Columns: Title (Name), SkillName, ProficiencyLevel
-    const name = fields.Title;
-    const skill = fields.SkillName;
-    const level = parseInt(fields.ProficiencyLevel) || 0;
-
-    if (name && skill) {
-      skillSet.add(skill);
-      if (!userMap[name]) {
-        userMap[name] = { id: item.id, name: name, role: "Team Member", skills: {} };
-      }
-      userMap[name].skills[skill] = level;
+// Global Event Delegation for Matrix
+document.getElementById('matrixBody').addEventListener('click', async (e) => {
+    // Expand/Collapse
+    const btn = e.target.closest('.toggle-btn');
+    if (btn && btn.dataset.id) {
+        const id = btn.dataset.id;
+        if (expandedNodes.has(id)) { expandedNodes.delete(id); btn.classList.remove('expanded'); } 
+        else { expandedNodes.add(id); btn.classList.add('expanded'); }
+        updateVisibility();
+        return;
     }
-  });
 
-  skills = Array.from(skillSet).sort();
-  users = Object.values(userMap);
-  renderGrid();
+    // Proficiency Clicking
+    const dot = e.target.closest('.interactive-dot');
+    if (dot) {
+        const memberId = dot.dataset.member;
+        if (memberId !== currentUser.id) return; // double check
+
+        const skillId = dot.dataset.skill;
+        const currentLevel = dot.dataset.level;
+        
+        const levels = ['none', 'beginner', 'intermediate', 'expert'];
+        const nextLevel = levels[(levels.indexOf(currentLevel) + 1) % levels.length];
+
+        // Optimistic UI update
+        dot.className = `prof-indicator ${nextLevel} interactive-dot`;
+        dot.dataset.level = nextLevel;
+
+        try {
+            await fetch('/api/proficiencies', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentToken}` },
+                body: JSON.stringify({ skill_id: skillId, level: nextLevel })
+            });
+            // Update local memory so re-renders don't flash back
+            if (!matrixData.proficiencies[memberId]) matrixData.proficiencies[memberId] = {};
+            matrixData.proficiencies[memberId][skillId] = nextLevel;
+        } catch (err) {
+            console.error("Failed to update", err);
+            // Revert
+            dot.className = `prof-indicator ${currentLevel} interactive-dot`;
+            dot.dataset.level = currentLevel;
+        }
+    }
+});
+
+// Modals
+window.openModal = function(id) { document.getElementById(id).style.display = 'flex'; }
+window.closeModal = function(id) { document.getElementById(id).style.display = 'none'; }
+
+function populateSkillDropdown() {
+    const select = document.getElementById('skillWsId');
+    select.innerHTML = matrixData.skillsTree.map(ws => `<option value="${ws.id}">${ws.name}</option>`).join('');
 }
 
-async function updateSkillInSharePoint(userName, skillName, newLevel) {
-  if (m365Config.siteId === "YOUR_SITE_ID_HERE") {
-    alert(`(Mock Update) Changed ${skillName} for ${userName} to ${newLevel}`);
-    // Local mock update
-    const user = users.find(u => u.name === userName);
-    if (user) user.skills[skillName] = newLevel;
-    renderGrid(document.getElementById('search-input').value);
-    return;
-  }
-
-  try {
-    const token = await getToken();
-    
-    // In a flat list, we would need to find the specific item ID to PATCH, 
-    // or POST a new item if it doesn't exist.
-    // For simplicity in this demo, we assume we just POST a new entry or we need to query it first.
-    // Ideally, we'd GET the item id, then PATCH it.
-    
-    alert(`Graph API Update triggered for ${userName}: ${skillName} = ${newLevel}\n(Check app.js updateSkillInSharePoint to implement full write logic)`);
-    
-  } catch (error) {
-    console.error("Failed to update:", error);
-    alert("Failed to update skill in SharePoint.");
-  }
+window.addWorkstation = async function() {
+    const name = document.getElementById('wsName').value;
+    if (!name) return;
+    await fetch('/api/workstations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentToken}` },
+        body: JSON.stringify({ name })
+    });
+    document.getElementById('wsName').value = '';
+    closeModal('wsModal');
+    fetchData();
 }
 
-// UI Rendering
-function loadMockData() {
-  skills = ["React", "Node.js", "Azure", "Python", "UX Design"];
-  users = [
-    { id: "u1", name: "Alex Johnson", role: "Frontend Dev", skills: { "React": 5, "Node.js": 2, "Azure": 1, "UX Design": 4 } },
-    { id: "u2", name: "Sarah Smith", role: "Backend Dev", skills: { "Node.js": 5, "Azure": 4, "Python": 4 } }
-  ];
-  renderGrid();
+window.addSkill = async function() {
+    const workstation_id = document.getElementById('skillWsId').value;
+    const name = document.getElementById('skillName').value;
+    if (!name || !workstation_id) return;
+    await fetch('/api/skills', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentToken}` },
+        body: JSON.stringify({ workstation_id, name })
+    });
+    document.getElementById('skillName').value = '';
+    closeModal('skillModal');
+    fetchData();
 }
 
-function applyTheme(theme) {
-  const root = document.documentElement;
-  if (theme === 'default') {
-    root.style.setProperty('--bg-color', '#f3f2f1');
-    root.style.setProperty('--panel-bg', '#ffffff');
-    root.style.setProperty('--text-primary', '#242424');
-    root.style.setProperty('--text-secondary', '#605e5c');
-    root.style.setProperty('--panel-border', '#edebe9');
-  } else if (theme === 'dark') {
-    root.style.setProperty('--bg-color', '#0f0f11');
-    root.style.setProperty('--panel-bg', 'rgba(255, 255, 255, 0.03)');
-    root.style.setProperty('--text-primary', '#ffffff');
-    root.style.setProperty('--text-secondary', '#8b8d98');
-    root.style.setProperty('--panel-border', 'rgba(255, 255, 255, 0.08)');
-  }
+// Admin functions
+window.addUser = async function() {
+    const username = document.getElementById('newUsername').value;
+    const password = document.getElementById('newPassword').value;
+    const role = document.getElementById('newUserRole').value;
+    await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentToken}` },
+        body: JSON.stringify({ username, password, role })
+    });
+    document.getElementById('newUsername').value = '';
+    document.getElementById('newPassword').value = '';
+    closeModal('addUserModal');
+    fetchData(); // to refresh members
 }
 
-function renderGrid(filterText = "") {
-  const grid = document.getElementById('matrix-grid');
-  grid.innerHTML = ''; 
-  
-  if (skills.length === 0) {
-    grid.innerHTML = '<div style="padding: 24px; color: var(--text-secondary);">No data loaded.</div>';
-    return;
-  }
-
-  grid.style.gridTemplateColumns = `200px repeat(${skills.length}, minmax(100px, 1fr))`;
-
-  const headerRow = document.createElement('div');
-  headerRow.className = 'matrix-header-row';
-  
-  const emptyCell = document.createElement('div');
-  emptyCell.className = 'matrix-cell header-cell user-cell';
-  emptyCell.textContent = 'Team Member';
-  headerRow.appendChild(emptyCell);
-  
-  skills.forEach(skill => {
-    const cell = document.createElement('div');
-    cell.className = 'matrix-cell header-cell';
-    cell.textContent = skill;
-    headerRow.appendChild(cell);
-  });
-  
-  grid.appendChild(headerRow);
-
-  const lowerFilter = filterText.toLowerCase();
-  
-  users.forEach(user => {
-    if (filterText && !user.name.toLowerCase().includes(lowerFilter)) return;
-
-    const row = document.createElement('div');
-    row.className = 'matrix-row';
-
-    const userCell = document.createElement('div');
-    userCell.className = 'matrix-cell user-cell';
-    userCell.innerHTML = `
-      <div style="display:flex; align-items:center; gap:12px;">
-        <div class="avatar" style="width:28px; height:28px; font-size:0.75rem;">${user.name[0]}</div>
-        <div style="display:flex; flex-direction:column;">
-          <span style="font-size:0.875rem;">${user.name}</span>
+window.loadUsersAndOpenModal = async function() {
+    const res = await fetch('/api/users', { headers: { 'Authorization': `Bearer ${currentToken}` } });
+    const users = await res.json();
+    const list = document.getElementById('userList');
+    list.innerHTML = users.map(u => `
+        <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.2); padding:0.5rem; border-radius:4px;">
+            <span style="color:white;">${u.username} (${u.role})</span>
+            ${u.role === 'user' ? `<button class="btn btn-admin" style="padding:0.2rem 0.5rem;" onclick="promoteUser('${u.id}')">Make Admin</button>` : '<span></span>'}
         </div>
-      </div>
-    `;
-    row.appendChild(userCell);
-
-    skills.forEach(skill => {
-      const cell = document.createElement('div');
-      cell.className = 'matrix-cell';
-      
-      const level = user.skills[skill] || 0;
-      const badge = document.createElement('div');
-      badge.className = `skill-badge level-${level}`;
-      badge.textContent = level > 0 ? level : '-';
-      
-      badge.onclick = () => {
-        const newLevel = level === 5 ? 0 : level + 1;
-        updateSkillInSharePoint(user.name, skill, newLevel);
-      };
-      
-      cell.appendChild(badge);
-      row.appendChild(cell);
-    });
-
-    grid.appendChild(row);
-  });
+    `).join('');
+    openModal('manageRolesModal');
 }
 
-// Boot
-document.addEventListener('DOMContentLoaded', initializeApp);
+window.promoteUser = async function(id) {
+    await fetch(`/api/users/${id}/role`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentToken}` },
+        body: JSON.stringify({ role: 'admin' })
+    });
+    loadUsersAndOpenModal(); // Refresh modal list
+}

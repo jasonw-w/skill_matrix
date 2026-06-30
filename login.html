@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Team Skill Matrix</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+    <style>
+        .auth-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .auth-box {
+            width: 100%;
+            max-width: 400px;
+            padding: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .auth-box h2 {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #fff, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .form-group label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .form-group input {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-glass);
+            color: var(--text-main);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus {
+            border-color: var(--accent-glow);
+        }
+        .auth-btn {
+            background: rgba(99, 102, 241, 0.8);
+            color: #fff;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 1rem;
+        }
+        .auth-btn:hover {
+            background: rgba(99, 102, 241, 1);
+        }
+        .auth-switch {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 1rem;
+        }
+        .auth-switch a {
+            color: #a5b4fc;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .auth-switch a:hover {
+            text-decoration: underline;
+        }
+        .error-msg {
+            color: #ef4444;
+            font-size: 0.85rem;
+            text-align: center;
+            min-height: 1.2rem;
+        }
+        .success-msg {
+            color: #10b981;
+            font-size: 0.85rem;
+            text-align: center;
+            min-height: 1.2rem;
+        }
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-effects">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+    </div>
+    
+    <div class="auth-container">
+        <div class="glass-panel auth-box">
+            <h2 id="authTitle">Sign In</h2>
+            <div id="statusMsg" class="error-msg"></div>
+            
+            <form id="authForm">
+                <div class="form-group" id="emailGroup">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" required placeholder="name@stfc.ac.uk">
+                </div>
+                
+                <div class="form-group hidden" id="codeGroup">
+                    <label for="code">6-Digit Verification Code</label>
+                    <input type="text" id="code" placeholder="123456" maxlength="6">
+                </div>
+
+                <div class="form-group hidden" id="nameGroup">
+                    <label for="firstName">First Name</label>
+                    <input type="text" id="firstName" placeholder="Jane">
+                    <label for="lastName" style="margin-top: 0.5rem;">Last Name</label>
+                    <input type="text" id="lastName" placeholder="Doe">
+                </div>
+
+                <div class="form-group hidden" id="passwordGroup">
+                    <label for="password">Password</label>
+                    <input type="password" id="password">
+                </div>
+
+                <button type="submit" class="auth-btn" id="submitBtn">Continue</button>
+            </form>
+            
+            <div class="auth-switch">
+                <span id="switchText">Don't have an account? </span>
+                <a id="switchLink">Register here</a>
+            </div>
+        </div>
+    </div>
+    
+    <script src="login.js"></script>
+</body>
+</html>
