@@ -38,15 +38,15 @@ export async function onRequestPost(context) {
     if (level === 'none') {
         // Delete the record if it's none
         await client.execute({
-            sql: 'DELETE FROM user_skills WHERE user_id = ? AND skill_id = ?',
+            sql: 'DELETE FROM proficiencies WHERE member_id = ? AND skill_id = ?',
             args: [memberId, skillId]
         });
     } else {
         // Upsert the new proficiency
         await client.execute({
-            sql: `INSERT INTO user_skills (user_id, skill_id, proficiency_level) 
+            sql: `INSERT INTO proficiencies (member_id, skill_id, level) 
                   VALUES (?, ?, ?)
-                  ON CONFLICT(user_id, skill_id) DO UPDATE SET proficiency_level=excluded.proficiency_level`,
+                  ON CONFLICT(member_id, skill_id) DO UPDATE SET level=excluded.level`,
             args: [memberId, skillId, level]
         });
     }

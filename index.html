@@ -84,11 +84,12 @@
         </header>
 
         <div class="control-panel" id="controlPanel">
-            <button class="btn" onclick="openModal('wsModal')">Add Workstation</button>
-            <button class="btn" onclick="openModal('skillModal')">Add Skill</button>
-            <div id="adminControls" style="display:none; gap: 1rem;">
-                <div style="width: 1px; background: var(--border-glass); margin: 0 0.5rem;"></div>
-                <button class="btn btn-admin" onclick="openModal('addUserModal')">Add User</button>
+            <div id="adminControls" style="display:none; gap: 1rem; align-items: center;">
+                <button class="btn btn-admin" onclick="addWorkstation()">Add Workstation</button>
+                <button class="btn btn-admin" onclick="addSkill()">Add Skill</button>
+                <button class="btn btn-admin" style="background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.5);" onclick="removeSkill()">Remove Skill</button>
+                <div style="width: 1px; background: var(--border-glass); margin: 0 0.5rem; height: 2rem;"></div>
+                <button class="btn btn-admin" onclick="addUser()">Add User</button>
                 <button class="btn btn-admin" onclick="loadUsersAndOpenModal()">Manage Roles</button>
             </div>
         </div>
@@ -96,10 +97,13 @@
         <main>
             <div class="glass-panel" style="margin-bottom: 1rem; padding: 1rem; display: flex; gap: 1rem; align-items: center; justify-content: space-between;">
             <div style="display: flex; gap: 1rem; align-items: center; flex: 1;">
-                <input type="text" id="searchInput" placeholder="Search employees or skills..." style="width: 250px; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-glass); background: rgba(0,0,0,0.2); color: white;">
+                <input type="text" id="searchInput" placeholder="Search employees (e.g. John, Jane)..." style="width: 250px; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-glass); background: rgba(0,0,0,0.2); color: white;">
+                <select id="wsFilterSelect" style="padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-glass); background: rgba(0,0,0,0.2); color: white;">
+                    <option value="all">All Workstations</option>
+                </select>
                 <select id="sortSelect" style="padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-glass); background: rgba(0,0,0,0.2); color: white;">
                     <option value="name">Sort by Name</option>
-                    <option value="score">Sort by Total Proficiency</option>
+                    <option value="score">Sort by Proficiency Score</option>
                 </select>
             </div>
             <button class="btn btn-outline" onclick="exportToCSV()">Export CSV</button>

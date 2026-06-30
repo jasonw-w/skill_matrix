@@ -1,3 +1,4 @@
+import { onRequestDelete as __api_admin_skills_js_onRequestDelete } from "C:\\Users\\User\\Documents\\Project\\skill_matrix\\functions\\api\\admin\\skills.js"
 import { onRequestPost as __api_admin_skills_js_onRequestPost } from "C:\\Users\\User\\Documents\\Project\\skill_matrix\\functions\\api\\admin\\skills.js"
 import { onRequestGet as __api_admin_users_js_onRequestGet } from "C:\\Users\\User\\Documents\\Project\\skill_matrix\\functions\\api\\admin\\users.js"
 import { onRequestPost as __api_admin_users_js_onRequestPost } from "C:\\Users\\User\\Documents\\Project\\skill_matrix\\functions\\api\\admin\\users.js"
@@ -17,6 +18,13 @@ import { onRequestPost as __api_verify_js_onRequestPost } from "C:\\Users\\User\
 
 export const routes = [
     {
+      routePath: "/api/admin/skills",
+      mountPath: "/api/admin",
+      method: "DELETE",
+      middlewares: [],
+      modules: [__api_admin_skills_js_onRequestDelete],
+    },
+  {
       routePath: "/api/admin/skills",
       mountPath: "/api/admin",
       method: "POST",

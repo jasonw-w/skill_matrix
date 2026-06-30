@@ -5950,6 +5950,36 @@ async function onRequestPost(context) {
   }
 }
 __name(onRequestPost, "onRequestPost");
+async function onRequestDelete(context) {
+  const { request, env } = context;
+  const isAdmin = await requireAdmin(request, env);
+  if (!isAdmin) {
+    return new Response(JSON.stringify({ error: "Unauthorized. Admin access required." }), { status: 403 });
+  }
+  const { skill_id } = await request.json();
+  if (!skill_id) {
+    return new Response(JSON.stringify({ error: "skill_id is required" }), { status: 400 });
+  }
+  const client = createClient({
+    url: env.TURSO_URL,
+    authToken: env.TURSO_AUTH
+  });
+  try {
+    await client.execute({
+      sql: "DELETE FROM proficiencies WHERE skill_id = ?",
+      args: [skill_id]
+    });
+    await client.execute({
+      sql: "DELETE FROM skills WHERE id = ?",
+      args: [skill_id]
+    });
+    return new Response(JSON.stringify({ message: "Skill deleted successfully" }), { status: 200 });
+  } catch (err) {
+    console.error(err);
+    return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
+  }
+}
+__name(onRequestDelete, "onRequestDelete");
 var init_skills = __esm({
   "api/admin/skills.js"() {
     init_functionsRoutes_0_22217754403411138();
@@ -5957,6 +5987,7 @@ var init_skills = __esm({
     init_cloudflare_worker_jwt();
     __name2(requireAdmin, "requireAdmin");
     __name2(onRequestPost, "onRequestPost");
+    __name2(onRequestDelete, "onRequestDelete");
   }
 });
 async function requireAdmin2(request, env) {
@@ -5990,14 +6021,14 @@ async function onRequestPost2(context) {
   if (!await requireAdmin2(request, env)) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 403 });
   }
-  const { email, role } = await request.json();
-  if (!email) return new Response(JSON.stringify({ error: "Email required" }), { status: 400 });
+  const { email, firstName, lastName, role } = await request.json();
   const client = createClient({ url: env.TURSO_URL, authToken: env.TURSO_AUTH });
   try {
     const id = crypto.randomUUID();
+    const finalEmail = email ? email.toLowerCase() : `no-login-${id}@system.local`;
     await client.execute({
-      sql: "INSERT INTO users (id, email, role, is_verified) VALUES (?, ?, ?, 1)",
-      args: [id, email.toLowerCase(), role || "user"]
+      sql: "INSERT INTO users (id, email, first_name, last_name, role, is_verified) VALUES (?, ?, ?, ?, ?, 1)",
+      args: [id, finalEmail, firstName || "", lastName || "", role || "user"]
     });
     return new Response(JSON.stringify({ message: "User added" }), { status: 201 });
   } catch (e) {
@@ -6384,14 +6415,14 @@ async function onRequestPost8(context) {
   try {
     if (level === "none") {
       await client.execute({
-        sql: "DELETE FROM user_skills WHERE user_id = ? AND skill_id = ?",
+        sql: "DELETE FROM proficiencies WHERE member_id = ? AND skill_id = ?",
         args: [memberId, skillId]
       });
     } else {
       await client.execute({
-        sql: `INSERT INTO user_skills (user_id, skill_id, proficiency_level) 
+        sql: `INSERT INTO proficiencies (member_id, skill_id, level) 
                   VALUES (?, ?, ?)
-                  ON CONFLICT(user_id, skill_id) DO UPDATE SET proficiency_level=excluded.proficiency_level`,
+                  ON CONFLICT(member_id, skill_id) DO UPDATE SET level=excluded.level`,
         args: [memberId, skillId, level]
       });
     }
@@ -6726,6 +6757,7 @@ var routes;
 var init_functionsRoutes_0_22217754403411138 = __esm({
   "../.wrangler/tmp/pages-N2unis/functionsRoutes-0.22217754403411138.mjs"() {
     init_skills();
+    init_skills();
     init_users();
     init_users();
     init_users();
@@ -6742,6 +6774,13 @@ var init_functionsRoutes_0_22217754403411138 = __esm({
     init_settings();
     init_verify();
     routes = [
+      {
+        routePath: "/api/admin/skills",
+        mountPath: "/api/admin",
+        method: "DELETE",
+        middlewares: [],
+        modules: [onRequestDelete]
+      },
       {
         routePath: "/api/admin/skills",
         mountPath: "/api/admin",

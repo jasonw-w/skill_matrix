@@ -2,6 +2,7 @@ let currentUser = null;
 let matrixData = { members: [], proficiencies: {}, skillsTree: [] };
 let flatSkills = [];
 let searchTerm = '';
+let currentWsFilter = 'all';
 let sortBy = 'name';
 
 // Mapping DB strings to 1-4 levels
@@ -43,6 +44,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderMatrix();
     });
 
+    document.getElementById('wsFilterSelect').addEventListener('change', (e) => {
+        currentWsFilter = e.target.value;
+        renderMatrix();
+    });
+
     document.getElementById('sortSelect').addEventListener('change', (e) => {
         sortBy = e.target.value;
         renderMatrix();
@@ -63,12 +69,18 @@ async function fetchData() {
         matrixData.skillsTree.forEach(ws => {
             if (ws.children && ws.children.length > 0) {
                 ws.children.forEach(skill => {
-                    flatSkills.push({ ...skill, wsName: ws.name });
+                    flatSkills.push({ ...skill, wsName: ws.name, wsId: ws.id });
                 });
             } else {
                 // Keep the workstation visible even if it has no skills
-                flatSkills.push({ id: `empty-${ws.id}`, name: 'No skills added', wsName: ws.name, isEmpty: true });
+                flatSkills.push({ id: `empty-${ws.id}`, name: 'No skills added', wsName: ws.name, wsId: ws.id, isEmpty: true });
             }
+        });
+
+        const wsSelect = document.getElementById('wsFilterSelect');
+        wsSelect.innerHTML = '<option value="all">All Workstations</option>';
+        matrixData.skillsTree.forEach(ws => {
+            wsSelect.innerHTML += `<option value="${ws.id}">${ws.name}</option>`;
         });
     } catch (e) {
         document.getElementById('matrixContainer').innerHTML = `<div style="color: #ef4444; padding: 2rem;">Error: ${e.message}</div>`;
@@ -83,16 +95,28 @@ function renderMatrix() {
         return;
     }
 
+    // Apply WS filter
+    const visibleSkills = currentWsFilter === 'all' 
+        ? flatSkills 
+        : flatSkills.filter(s => s.wsId === currentWsFilter);
+
+    if (visibleSkills.length === 0) {
+        container.innerHTML = '<div style="padding: 2rem;">No skills found for this Workstation.</div>';
+        return;
+    }
+
     // Prepare grid layout
-    let html = `<div class="matrix-table" style="--skill-count: ${flatSkills.length}">`;
+    let html = `<div class="matrix-table" style="--skill-count: ${visibleSkills.length}">`;
     
     // Row 1: Super Headers (Workstations)
     html += `<div class="matrix-row">
         <div class="corner-cell" style="grid-row: span 2;">Employee Name</div>`;
     
-    let currentWs = null;
-    let wsSpan = 0;
-    matrixData.skillsTree.forEach(ws => {
+    const visibleWsList = currentWsFilter === 'all' 
+        ? matrixData.skillsTree 
+        : matrixData.skillsTree.filter(w => w.id === currentWsFilter);
+
+    visibleWsList.forEach(ws => {
         const span = (ws.children && ws.children.length > 0) ? ws.children.length : 1;
         html += `<div class="ws-header" style="grid-column: span ${span}" title="${ws.name}">${ws.name}</div>`;
     });
@@ -100,19 +124,34 @@ function renderMatrix() {
 
     // Row 2: Skill Vertical Headers
     html += `<div class="matrix-row">`;
-    flatSkills.forEach(skill => {
+    visibleSkills.forEach(skill => {
         html += `<div class="skill-header" title="${skill.name}">${skill.name}</div>`;
     });
     html += `</div>`; // End Row 2
 
     // Filter and Sort Members
-    let displayMembers = matrixData.members.filter(m => m.name.toLowerCase().includes(searchTerm));
+    let displayMembers = matrixData.members;
+    if (searchTerm) {
+        const terms = searchTerm.split(',').map(t => t.trim()).filter(t => t);
+        displayMembers = displayMembers.filter(m => {
+            const lowerName = m.name.toLowerCase();
+            return terms.some(t => lowerName.includes(t));
+        });
+    }
 
     displayMembers.sort((a, b) => {
         if (sortBy === 'score') {
-            const scoreA = Object.values(matrixData.proficiencies[a.id] || {}).reduce((acc, val) => acc + (parseInt(LEVEL_MAP[val]?.num) || 0), 0);
-            const scoreB = Object.values(matrixData.proficiencies[b.id] || {}).reduce((acc, val) => acc + (parseInt(LEVEL_MAP[val]?.num) || 0), 0);
-            return scoreB - scoreA; // Descending score
+            const getScore = (memberId) => {
+                let score = 0;
+                visibleSkills.forEach(s => {
+                    if (!s.isEmpty) {
+                        const level = (matrixData.proficiencies[memberId] && matrixData.proficiencies[memberId][s.id]) || 'none';
+                        score += (parseInt(LEVEL_MAP[level]?.num) || 0);
+                    }
+                });
+                return score;
+            };
+            return getScore(b.id) - getScore(a.id);
         } else {
             return a.name.localeCompare(b.name);
         }
@@ -123,7 +162,7 @@ function renderMatrix() {
         html += `<div class="matrix-row">
             <div class="member-cell">${member.name}</div>`;
         
-        flatSkills.forEach(skill => {
+        visibleSkills.forEach(skill => {
             if (skill.isEmpty) {
                 html += `<div class="data-cell"><div class="prof-indicator level-none"></div></div>`;
                 return;
@@ -293,22 +332,85 @@ window.addSkill = async () => {
         alert('Failed to connect to server.');
     }
 };
+
+window.removeSkill = async () => {
+    let wsText = "Select Workstation ID to remove skill from:\\n";
+    matrixData.skillsTree.forEach(ws => {
+        wsText += `${ws.id} - ${ws.name}\\n`;
+    });
+    
+    const wsIdInput = prompt(wsText);
+    if (!wsIdInput) return;
+    
+    const ws = matrixData.skillsTree.find(w => w.id === wsIdInput.trim() || w.name === wsIdInput.trim());
+    if (!ws) {
+        alert('Invalid Workstation selected.');
+        return;
+    }
+
+    if (!ws.children || ws.children.length === 0) {
+        alert('No skills found in this workstation.');
+        return;
+    }
+
+    let skillText = `Select Skill ID to remove from ${ws.name}:\\n`;
+    ws.children.forEach(skill => {
+        skillText += `${skill.id} - ${skill.name}\\n`;
+    });
+
+    const skillIdInput = prompt(skillText);
+    if (!skillIdInput) return;
+
+    const skill = ws.children.find(s => s.id === skillIdInput.trim() || s.name === skillIdInput.trim());
+    if (!skill) {
+        alert('Invalid Skill selected.');
+        return;
+    }
+
+    if (!confirm(`Are you sure you want to completely remove "${skill.name}"? This will delete all associated proficiency records for all users.`)) {
+        return;
+    }
+
+    try {
+        const res = await fetch('/api/admin/skills', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': 'true' },
+            body: JSON.stringify({ skill_id: skill.id })
+        });
+        
+        if (res.ok) {
+            location.reload();
+        } else {
+            const data = await res.json();
+            alert('Error: ' + data.error);
+        }
+    } catch (e) {
+        alert('Failed to connect to server.');
+    }
+};
+
 window.addUser = async () => {
-    const email = prompt("Enter the new user's email address:");
-    if (!email) return;
+    const firstName = prompt("Enter the new user's First Name:");
+    if (!firstName) return;
+
+    const lastName = prompt("Enter the new user's Last Name:");
+    if (!lastName) return;
 
     const role = prompt("Enter role ('admin' or 'user'):", "user");
     if (!role) return;
+
+    const email = prompt("Enter the user's email address (optional for login). Leave blank if not required:");
 
     try {
         const res = await fetch('/api/admin/users', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': 'true' },
-            body: JSON.stringify({ email, role })
+            body: JSON.stringify({ email, firstName, lastName, role })
         });
         
         if (res.ok) {
-            alert('User provisioned successfully! They can now login using "Forgot Password" to set their initial password.');
+            alert('User provisioned successfully!');
+            location.reload();
         } else {
             const data = await res.json();
             alert('Error: ' + data.error);

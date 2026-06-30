@@ -14,12 +14,10 @@ const db = createClient({
 
 async function run() {
     try {
-        await db.execute('ALTER TABLE users ADD COLUMN reset_code TEXT');
-        await db.execute('ALTER TABLE users ADD COLUMN reset_expiry INTEGER');
-        console.log('Migration successful');
-    } catch (e) {
-        // Ignore "duplicate column" errors if they already exist
-        console.log('Migration finished (columns might already exist)', e.message);
+        const res = await db.execute("SELECT name FROM sqlite_master WHERE type='table'");
+        console.log("tables:", res.rows);
+    } catch(e) {
+        console.error(e);
     }
 }
 run();

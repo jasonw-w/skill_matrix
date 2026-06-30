@@ -5690,6 +5690,35 @@ async function onRequestPost(context) {
     return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
   }
 }
+async function onRequestDelete(context) {
+  const { request, env } = context;
+  const isAdmin = await requireAdmin(request, env);
+  if (!isAdmin) {
+    return new Response(JSON.stringify({ error: "Unauthorized. Admin access required." }), { status: 403 });
+  }
+  const { skill_id } = await request.json();
+  if (!skill_id) {
+    return new Response(JSON.stringify({ error: "skill_id is required" }), { status: 400 });
+  }
+  const client = createClient({
+    url: env.TURSO_URL,
+    authToken: env.TURSO_AUTH
+  });
+  try {
+    await client.execute({
+      sql: "DELETE FROM proficiencies WHERE skill_id = ?",
+      args: [skill_id]
+    });
+    await client.execute({
+      sql: "DELETE FROM skills WHERE id = ?",
+      args: [skill_id]
+    });
+    return new Response(JSON.stringify({ message: "Skill deleted successfully" }), { status: 200 });
+  } catch (err) {
+    console.error(err);
+    return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
+  }
+}
 var init_skills = __esm({
   "api/admin/skills.js"() {
     init_functionsRoutes_0_22217754403411138();
@@ -5697,6 +5726,7 @@ var init_skills = __esm({
     init_cloudflare_worker_jwt();
     __name(requireAdmin, "requireAdmin");
     __name(onRequestPost, "onRequestPost");
+    __name(onRequestDelete, "onRequestDelete");
   }
 });
 
@@ -5730,14 +5760,14 @@ async function onRequestPost2(context) {
   if (!await requireAdmin2(request, env)) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 403 });
   }
-  const { email, role } = await request.json();
-  if (!email) return new Response(JSON.stringify({ error: "Email required" }), { status: 400 });
+  const { email, firstName, lastName, role } = await request.json();
   const client = createClient({ url: env.TURSO_URL, authToken: env.TURSO_AUTH });
   try {
     const id = crypto.randomUUID();
+    const finalEmail = email ? email.toLowerCase() : `no-login-${id}@system.local`;
     await client.execute({
-      sql: "INSERT INTO users (id, email, role, is_verified) VALUES (?, ?, ?, 1)",
-      args: [id, email.toLowerCase(), role || "user"]
+      sql: "INSERT INTO users (id, email, first_name, last_name, role, is_verified) VALUES (?, ?, ?, ?, ?, 1)",
+      args: [id, finalEmail, firstName || "", lastName || "", role || "user"]
     });
     return new Response(JSON.stringify({ message: "User added" }), { status: 201 });
   } catch (e) {
@@ -6126,14 +6156,14 @@ async function onRequestPost8(context) {
   try {
     if (level === "none") {
       await client.execute({
-        sql: "DELETE FROM user_skills WHERE user_id = ? AND skill_id = ?",
+        sql: "DELETE FROM proficiencies WHERE member_id = ? AND skill_id = ?",
         args: [memberId, skillId]
       });
     } else {
       await client.execute({
-        sql: `INSERT INTO user_skills (user_id, skill_id, proficiency_level) 
+        sql: `INSERT INTO proficiencies (member_id, skill_id, level) 
                   VALUES (?, ?, ?)
-                  ON CONFLICT(user_id, skill_id) DO UPDATE SET proficiency_level=excluded.proficiency_level`,
+                  ON CONFLICT(member_id, skill_id) DO UPDATE SET level=excluded.level`,
         args: [memberId, skillId, level]
       });
     }
@@ -6470,6 +6500,7 @@ var routes;
 var init_functionsRoutes_0_22217754403411138 = __esm({
   "../.wrangler/tmp/pages-N2unis/functionsRoutes-0.22217754403411138.mjs"() {
     init_skills();
+    init_skills();
     init_users();
     init_users();
     init_users();
@@ -6486,6 +6517,13 @@ var init_functionsRoutes_0_22217754403411138 = __esm({
     init_settings();
     init_verify();
     routes = [
+      {
+        routePath: "/api/admin/skills",
+        mountPath: "/api/admin",
+        method: "DELETE",
+        middlewares: [],
+        modules: [onRequestDelete]
+      },
       {
         routePath: "/api/admin/skills",
         mountPath: "/api/admin",
@@ -6602,10 +6640,10 @@ var init_functionsRoutes_0_22217754403411138 = __esm({
   }
 });
 
-// ../.wrangler/tmp/bundle-2V8So0/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-rvBsQ1/middleware-loader.entry.ts
 init_functionsRoutes_0_22217754403411138();
 
-// ../.wrangler/tmp/bundle-2V8So0/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-rvBsQ1/middleware-insertion-facade.js
 init_functionsRoutes_0_22217754403411138();
 
 // ../node_modules/wrangler/templates/pages-template-worker.ts
@@ -7101,7 +7139,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-2V8So0/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-rvBsQ1/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -7134,7 +7172,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-2V8So0/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-rvBsQ1/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

@@ -38,16 +38,16 @@ export async function onRequestPost(context) {
         return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 403 });
     }
 
-    const { email, role } = await request.json();
-    if (!email) return new Response(JSON.stringify({ error: 'Email required' }), { status: 400 });
+    const { email, firstName, lastName, role } = await request.json();
 
     const client = createClient({ url: env.TURSO_URL, authToken: env.TURSO_AUTH });
     try {
         const id = crypto.randomUUID();
-        // Insert user as already verified since an admin created them
+        const finalEmail = email ? email.toLowerCase() : `no-login-${id}@system.local`;
+
         await client.execute({
-            sql: 'INSERT INTO users (id, email, role, is_verified) VALUES (?, ?, ?, 1)',
-            args: [id, email.toLowerCase(), role || 'user']
+            sql: 'INSERT INTO users (id, email, first_name, last_name, role, is_verified) VALUES (?, ?, ?, ?, ?, 1)',
+            args: [id, finalEmail, firstName || '', lastName || '', role || 'user']
         });
         return new Response(JSON.stringify({ message: 'User added' }), { status: 201 });
     } catch (e) {

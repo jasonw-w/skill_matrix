@@ -52,3 +52,39 @@ export async function onRequestPost(context) {
     return new Response(JSON.stringify({ error: 'Database error' }), { status: 500 });
   }
 }
+
+export async function onRequestDelete(context) {
+  const { request, env } = context;
+
+  const isAdmin = await requireAdmin(request, env);
+  if (!isAdmin) {
+      return new Response(JSON.stringify({ error: 'Unauthorized. Admin access required.' }), { status: 403 });
+  }
+
+  const { skill_id } = await request.json();
+  if (!skill_id) {
+    return new Response(JSON.stringify({ error: 'skill_id is required' }), { status: 400 });
+  }
+
+  const client = createClient({
+    url: env.TURSO_URL,
+    authToken: env.TURSO_AUTH,
+  });
+
+  try {
+    await client.execute({
+      sql: 'DELETE FROM proficiencies WHERE skill_id = ?',
+      args: [skill_id]
+    });
+    
+    await client.execute({
+      sql: 'DELETE FROM skills WHERE id = ?',
+      args: [skill_id]
+    });
+
+    return new Response(JSON.stringify({ message: 'Skill deleted successfully' }), { status: 200 });
+  } catch (err) {
+    console.error(err);
+    return new Response(JSON.stringify({ error: 'Database error' }), { status: 500 });
+  }
+}
