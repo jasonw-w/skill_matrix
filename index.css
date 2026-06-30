@@ -149,6 +149,10 @@ header {
     display: contents;
 }
 
+.matrix-row:hover > div {
+    background: rgba(255, 255, 255, 0.04);
+}
+
 /* Top Super-Header for Workstations */
 .ws-header {
     grid-column: span var(--ws-span);

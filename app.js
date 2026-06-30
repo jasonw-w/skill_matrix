@@ -1,6 +1,8 @@
 let currentUser = null;
 let matrixData = { members: [], proficiencies: {}, skillsTree: [] };
 let flatSkills = [];
+let searchTerm = '';
+let sortBy = 'name';
 
 // Mapping DB strings to 1-4 levels
 const LEVEL_MAP = {
@@ -32,8 +34,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
-        await fetch('/api/logout', { method: 'POST' });
+        await fetch('/api/logout', { method: 'POST', headers: { 'X-CSRF-Token': 'true' } });
         window.location.href = 'login.html';
+    });
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        searchTerm = e.target.value.toLowerCase();
+        renderMatrix();
+    });
+
+    document.getElementById('sortSelect').addEventListener('change', (e) => {
+        sortBy = e.target.value;
+        renderMatrix();
     });
 
     await fetchData();
@@ -93,8 +105,21 @@ function renderMatrix() {
     });
     html += `</div>`; // End Row 2
 
+    // Filter and Sort Members
+    let displayMembers = matrixData.members.filter(m => m.name.toLowerCase().includes(searchTerm));
+
+    displayMembers.sort((a, b) => {
+        if (sortBy === 'score') {
+            const scoreA = Object.values(matrixData.proficiencies[a.id] || {}).reduce((acc, val) => acc + (parseInt(LEVEL_MAP[val]?.num) || 0), 0);
+            const scoreB = Object.values(matrixData.proficiencies[b.id] || {}).reduce((acc, val) => acc + (parseInt(LEVEL_MAP[val]?.num) || 0), 0);
+            return scoreB - scoreA; // Descending score
+        } else {
+            return a.name.localeCompare(b.name);
+        }
+    });
+
     // Member Rows
-    matrixData.members.forEach(member => {
+    displayMembers.forEach(member => {
         html += `<div class="matrix-row">
             <div class="member-cell">${member.name}</div>`;
         
@@ -153,7 +178,7 @@ window.toggleProficiency = async (element) => {
     try {
         await fetch('/api/proficiency', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': 'true' },
             body: JSON.stringify({ memberId, skillId, level: nextLevel })
         });
     } catch (e) {
@@ -164,6 +189,34 @@ window.toggleProficiency = async (element) => {
         element.className = `prof-indicator ${revertMapped.class}`;
         element.textContent = revertMapped.num;
     }
+};
+
+window.exportToCSV = () => {
+    let csv = 'Employee Name,';
+    
+    // Headers
+    csv += flatSkills.map(s => `"${s.wsName} - ${s.name}"`).join(',') + '\\n';
+
+    // Rows
+    matrixData.members.forEach(member => {
+        let row = `"${member.name}",`;
+        let levels = flatSkills.map(skill => {
+            if (skill.isEmpty) return 'N/A';
+            const level = (matrixData.proficiencies[member.id] && matrixData.proficiencies[member.id][skill.id]) || 'none';
+            return LEVEL_MAP[level]?.num || '';
+        });
+        row += levels.join(',');
+        csv += row + '\\n';
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('href', url);
+    a.setAttribute('download', 'skill_matrix_export.csv');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
 };
 
 // Modal Handling
@@ -183,7 +236,122 @@ window.closeModal = (id) => {
     document.getElementById(id).style.display = 'none';
 };
 
-window.addWorkstation = () => alert('Cloudflare API migration in progress. This feature will be available shortly.');
-window.addSkill = () => alert('Cloudflare API migration in progress. This feature will be available shortly.');
-window.addUser = () => alert('Cloudflare API migration in progress. This feature will be available shortly.');
-window.loadUsersAndOpenModal = () => alert('Cloudflare API migration in progress. This feature will be available shortly.');
+window.addWorkstation = async () => {
+    const name = prompt("Enter new Workstation name:");
+    if (!name) return;
+
+    try {
+        const res = await fetch('/api/admin/workstations', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': 'true' },
+            body: JSON.stringify({ name })
+        });
+        
+        if (res.ok) {
+            location.reload();
+        } else {
+            const data = await res.json();
+            alert('Error: ' + data.error);
+        }
+    } catch (e) {
+        alert('Failed to connect to server.');
+    }
+};
+
+window.addSkill = async () => {
+    let wsText = "Select Workstation ID:\n";
+    matrixData.skillsTree.forEach(ws => {
+        wsText += `${ws.id} - ${ws.name}\n`;
+    });
+    
+    const wsIdInput = prompt(wsText);
+    if (!wsIdInput) return;
+    
+    const ws = matrixData.skillsTree.find(w => w.id === wsIdInput.trim() || w.name === wsIdInput.trim());
+    if (!ws) {
+        alert('Invalid Workstation selected.');
+        return;
+    }
+
+    const name = prompt(`Enter new Skill name for ${ws.name}:`);
+    if (!name) return;
+
+    try {
+        const res = await fetch('/api/admin/skills', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': 'true' },
+            body: JSON.stringify({ name, workstation_id: ws.id })
+        });
+        
+        if (res.ok) {
+            location.reload();
+        } else {
+            const data = await res.json();
+            alert('Error: ' + data.error);
+        }
+    } catch (e) {
+        alert('Failed to connect to server.');
+    }
+};
+window.addUser = async () => {
+    const email = prompt("Enter the new user's email address:");
+    if (!email) return;
+
+    const role = prompt("Enter role ('admin' or 'user'):", "user");
+    if (!role) return;
+
+    try {
+        const res = await fetch('/api/admin/users', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': 'true' },
+            body: JSON.stringify({ email, role })
+        });
+        
+        if (res.ok) {
+            alert('User provisioned successfully! They can now login using "Forgot Password" to set their initial password.');
+        } else {
+            const data = await res.json();
+            alert('Error: ' + data.error);
+        }
+    } catch (e) {
+        alert('Failed to connect to server.');
+    }
+};
+
+window.loadUsersAndOpenModal = async () => {
+    try {
+        const res = await fetch('/api/admin/users');
+        if (!res.ok) throw new Error('Unauthorized');
+        const users = await res.json();
+        
+        let text = "Current Users:\\n\\n";
+        users.forEach(u => {
+            text += `- ${u.email} (${u.role})\\n`;
+        });
+        text += "\\nTo change a role, type the email and the new role separated by a comma (e.g. 'bob@test.com,admin'). Leave blank to cancel.";
+        
+        const input = prompt(text);
+        if (!input) return;
+        
+        const [email, role] = input.split(',').map(s => s.trim());
+        const userToUpdate = users.find(u => u.email === email);
+        if (!userToUpdate) {
+            alert('User not found.');
+            return;
+        }
+
+        const updateRes = await fetch('/api/admin/users', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': 'true' },
+            body: JSON.stringify({ userId: userToUpdate.id, role })
+        });
+
+        if (updateRes.ok) {
+            alert('Role updated successfully.');
+        } else {
+            alert('Failed to update role.');
+        }
+    } catch (e) {
+        alert('Failed to load users.');
+    }
+};

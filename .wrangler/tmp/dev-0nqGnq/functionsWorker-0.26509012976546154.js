@@ -1,41 +1,47 @@
-var __create = Object.create;
 var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+
+// .wrangler/tmp/pages-N2unis/functionsWorker-0.26509012976546154.mjs
+var __create = Object.create;
+var __defProp2 = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __esm = (fn, res) => function __init() {
+var __name2 = /* @__PURE__ */ __name((target, value) => __defProp2(target, "name", { value, configurable: true }), "__name");
+var __esm = /* @__PURE__ */ __name((fn, res) => /* @__PURE__ */ __name(function __init() {
   return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
-};
-var __commonJS = (cb, mod) => function __require() {
+}, "__init"), "__esm");
+var __commonJS = /* @__PURE__ */ __name((cb, mod) => /* @__PURE__ */ __name(function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
-};
-var __copyProps = (to, from, except, desc) => {
+}, "__require"), "__commonJS");
+var __copyProps = /* @__PURE__ */ __name((to, from, except, desc) => {
   if (from && typeof from === "object" || typeof from === "function") {
     for (let key of __getOwnPropNames(from))
       if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+        __defProp2(to, key, { get: /* @__PURE__ */ __name(() => from[key], "get"), enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
   }
   return to;
-};
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+}, "__copyProps");
+var __toESM = /* @__PURE__ */ __name((mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
   // If the importer is in node compatibility mode or this is not an ESM
   // file that has been converted to a CommonJS file using a Babel-
   // compatible transform (i.e. "__esModule" has not been set), then set
   // "default" to the CommonJS "module.exports" for node compatibility.
-  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  isNodeMode || !mod || !mod.__esModule ? __defProp2(target, "default", { value: mod, enumerable: true }) : target,
   mod
-));
-
-// ../node_modules/@libsql/core/lib-esm/api.js
-var LibsqlError, LibsqlBatchError;
+)), "__toESM");
+var LibsqlError;
+var LibsqlBatchError;
 var init_api = __esm({
   "../node_modules/@libsql/core/lib-esm/api.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     LibsqlError = class extends Error {
       static {
         __name(this, "LibsqlError");
+      }
+      static {
+        __name2(this, "LibsqlError");
       }
       /** Machine-readable error code. */
       code;
@@ -58,6 +64,9 @@ var init_api = __esm({
       static {
         __name(this, "LibsqlBatchError");
       }
+      static {
+        __name2(this, "LibsqlBatchError");
+      }
       /** The zero-based index of the statement that failed in the batch. */
       statementIndex;
       constructor(message, statementIndex, code, extendedCode, rawCode, cause) {
@@ -68,8 +77,6 @@ var init_api = __esm({
     };
   }
 });
-
-// ../node_modules/@libsql/core/lib-esm/uri.js
 function parseUri(text) {
   const match2 = URI_RE.exec(text);
   if (match2 === null) {
@@ -83,6 +90,7 @@ function parseUri(text) {
   const fragment = groups["fragment"] !== void 0 ? percentDecode(groups["fragment"]) : void 0;
   return { scheme, authority, path, query, fragment };
 }
+__name(parseUri, "parseUri");
 function parseAuthority(text) {
   const match2 = AUTHORITY_RE.exec(text);
   if (match2 === null) {
@@ -97,6 +105,7 @@ function parseAuthority(text) {
   } : void 0;
   return { host, port, userinfo };
 }
+__name(parseAuthority, "parseAuthority");
 function parseQuery(text) {
   const sequences = text.split("&");
   const pairs = [];
@@ -121,6 +130,7 @@ function parseQuery(text) {
   }
   return { pairs };
 }
+__name(parseQuery, "parseQuery");
 function percentDecode(text) {
   try {
     return decodeURIComponent(text);
@@ -131,6 +141,7 @@ function percentDecode(text) {
     throw e;
   }
 }
+__name(percentDecode, "percentDecode");
 function encodeBaseUrl(scheme, authority, path) {
   if (authority === void 0) {
     throw new LibsqlError(`URL with scheme ${JSON.stringify(scheme + ":")} requires authority (the "//" part)`, "URL_INVALID");
@@ -146,12 +157,15 @@ function encodeBaseUrl(scheme, authority, path) {
   }
   return new URL(`${schemeText}${authorityText}${pathText}`);
 }
+__name(encodeBaseUrl, "encodeBaseUrl");
 function encodeHost(host) {
   return host.includes(":") ? `[${encodeURI(host)}]` : encodeURI(host);
 }
+__name(encodeHost, "encodeHost");
 function encodePort(port) {
   return port !== void 0 ? `:${port}` : "";
 }
+__name(encodePort, "encodePort");
 function encodeUserinfo(userinfo) {
   if (userinfo === void 0) {
     return "";
@@ -160,12 +174,14 @@ function encodeUserinfo(userinfo) {
   const passwordText = userinfo.password !== void 0 ? `:${encodeURIComponent(userinfo.password)}` : "";
   return `${usernameText}${passwordText}@`;
 }
-var URI_RE, AUTHORITY_RE;
+__name(encodeUserinfo, "encodeUserinfo");
+var URI_RE;
+var AUTHORITY_RE;
 var init_uri = __esm({
   "../node_modules/@libsql/core/lib-esm/uri.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_api();
-    __name(parseUri, "parseUri");
+    __name2(parseUri, "parseUri");
     URI_RE = (() => {
       const SCHEME = "(?<scheme>[A-Za-z][A-Za-z.+-]*)";
       const AUTHORITY = "(?<authority>[^/?#]*)";
@@ -174,24 +190,60 @@ var init_uri = __esm({
       const FRAGMENT = "(?<fragment>.*)";
       return new RegExp(`^${SCHEME}:(//${AUTHORITY})?${PATH}(\\?${QUERY})?(#${FRAGMENT})?$`, "su");
     })();
-    __name(parseAuthority, "parseAuthority");
+    __name2(parseAuthority, "parseAuthority");
     AUTHORITY_RE = (() => {
       return new RegExp(`^((?<username>[^:]*)(:(?<password>.*))?@)?((?<host>[^:\\[\\]]*)|(\\[(?<host_br>[^\\[\\]]*)\\]))(:(?<port>[0-9]*))?$`, "su");
     })();
-    __name(parseQuery, "parseQuery");
-    __name(percentDecode, "percentDecode");
-    __name(encodeBaseUrl, "encodeBaseUrl");
-    __name(encodeHost, "encodeHost");
-    __name(encodePort, "encodePort");
-    __name(encodeUserinfo, "encodeUserinfo");
+    __name2(parseQuery, "parseQuery");
+    __name2(percentDecode, "percentDecode");
+    __name2(encodeBaseUrl, "encodeBaseUrl");
+    __name2(encodeHost, "encodeHost");
+    __name2(encodePort, "encodePort");
+    __name2(encodeUserinfo, "encodeUserinfo");
   }
 });
-
-// ../node_modules/js-base64/base64.mjs
-var version, VERSION, _hasBuffer, _TD, _TE, b64ch, b64chs, b64tab, b64re, _fromCC, _U8Afrom, _mkUriSafe, _tidyB64, btoaPolyfill, _btoa, _fromUint8Array, fromUint8Array, cb_utob, re_utob, utob, _encode, encode, encodeURI2, re_btou, cb_btou, btou, atobPolyfill, _atob, _toUint8Array, toUint8Array, _decode, _unURI, decode, isValid, _noEnum, extendString, extendUint8Array, extendBuiltins, gBase64;
+var version;
+var VERSION;
+var _hasBuffer;
+var _TD;
+var _TE;
+var b64ch;
+var b64chs;
+var b64tab;
+var b64re;
+var _fromCC;
+var _U8Afrom;
+var _mkUriSafe;
+var _tidyB64;
+var btoaPolyfill;
+var _btoa;
+var _fromUint8Array;
+var fromUint8Array;
+var cb_utob;
+var re_utob;
+var utob;
+var _encode;
+var encode;
+var encodeURI2;
+var re_btou;
+var cb_btou;
+var btou;
+var atobPolyfill;
+var _atob;
+var _toUint8Array;
+var toUint8Array;
+var _decode;
+var _unURI;
+var decode;
+var isValid;
+var _noEnum;
+var extendString;
+var extendUint8Array;
+var extendBuiltins;
+var gBase64;
 var init_base64 = __esm({
   "../node_modules/js-base64/base64.mjs"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     version = "3.8.0";
     VERSION = version;
     _hasBuffer = typeof Buffer === "function";
@@ -207,9 +259,9 @@ var init_base64 = __esm({
     b64re = /^(?:[A-Za-z\d+\/]{4})*?(?:[A-Za-z\d+\/]{2}(?:==)?|[A-Za-z\d+\/]{3}=?)?$/;
     _fromCC = String.fromCharCode.bind(String);
     _U8Afrom = typeof Uint8Array.from === "function" ? Uint8Array.from.bind(Uint8Array) : (it) => new Uint8Array(Array.prototype.slice.call(it, 0));
-    _mkUriSafe = /* @__PURE__ */ __name((src) => src.replace(/=/g, "").replace(/[+\/]/g, (m0) => m0 == "+" ? "-" : "_"), "_mkUriSafe");
-    _tidyB64 = /* @__PURE__ */ __name((s) => s.replace(/[^A-Za-z0-9\+\/]/g, ""), "_tidyB64");
-    btoaPolyfill = /* @__PURE__ */ __name((bin) => {
+    _mkUriSafe = /* @__PURE__ */ __name2((src) => src.replace(/=/g, "").replace(/[+\/]/g, (m0) => m0 == "+" ? "-" : "_"), "_mkUriSafe");
+    _tidyB64 = /* @__PURE__ */ __name2((s) => s.replace(/[^A-Za-z0-9\+\/]/g, ""), "_tidyB64");
+    btoaPolyfill = /* @__PURE__ */ __name2((bin) => {
       let u32, c0, c1, c2, asc = "";
       const pad = bin.length % 3;
       for (let i = 0; i < bin.length; ) {
@@ -229,8 +281,8 @@ var init_base64 = __esm({
       }
       return _btoa(strs.join(""));
     };
-    fromUint8Array = /* @__PURE__ */ __name((u8a, urlsafe = false) => urlsafe ? _mkUriSafe(_fromUint8Array(u8a)) : _fromUint8Array(u8a), "fromUint8Array");
-    cb_utob = /* @__PURE__ */ __name((c) => {
+    fromUint8Array = /* @__PURE__ */ __name2((u8a, urlsafe = false) => urlsafe ? _mkUriSafe(_fromUint8Array(u8a)) : _fromUint8Array(u8a), "fromUint8Array");
+    cb_utob = /* @__PURE__ */ __name2((c) => {
       if (c.length < 2) {
         var cc = c.charCodeAt(0);
         return cc < 128 ? c : cc < 2048 ? _fromCC(192 | cc >>> 6) + _fromCC(128 | cc & 63) : _fromCC(224 | cc >>> 12 & 15) + _fromCC(128 | cc >>> 6 & 63) + _fromCC(128 | cc & 63);
@@ -240,12 +292,12 @@ var init_base64 = __esm({
       }
     }, "cb_utob");
     re_utob = /[\uD800-\uDBFF][\uDC00-\uDFFFF]|[^\x00-\x7F]/g;
-    utob = /* @__PURE__ */ __name((u) => u.replace(re_utob, cb_utob), "utob");
+    utob = /* @__PURE__ */ __name2((u) => u.replace(re_utob, cb_utob), "utob");
     _encode = _hasBuffer ? (s) => Buffer.from(s, "utf8").toString("base64") : _TE ? (s) => _fromUint8Array(_TE.encode(s)) : (s) => _btoa(utob(s));
-    encode = /* @__PURE__ */ __name((src, urlsafe = false) => urlsafe ? _mkUriSafe(_encode(src)) : _encode(src), "encode");
-    encodeURI2 = /* @__PURE__ */ __name((src) => encode(src, true), "encodeURI");
+    encode = /* @__PURE__ */ __name2((src, urlsafe = false) => urlsafe ? _mkUriSafe(_encode(src)) : _encode(src), "encode");
+    encodeURI2 = /* @__PURE__ */ __name2((src) => encode(src, true), "encodeURI");
     re_btou = /[\xC0-\xDF][\x80-\xBF]|[\xE0-\xEF][\x80-\xBF]{2}|[\xF0-\xF7][\x80-\xBF]{3}/g;
-    cb_btou = /* @__PURE__ */ __name((cccc) => {
+    cb_btou = /* @__PURE__ */ __name2((cccc) => {
       switch (cccc.length) {
         case 4:
           var cp = (7 & cccc.charCodeAt(0)) << 18 | (63 & cccc.charCodeAt(1)) << 12 | (63 & cccc.charCodeAt(2)) << 6 | 63 & cccc.charCodeAt(3), offset = cp - 65536;
@@ -256,8 +308,8 @@ var init_base64 = __esm({
           return _fromCC((31 & cccc.charCodeAt(0)) << 6 | 63 & cccc.charCodeAt(1));
       }
     }, "cb_btou");
-    btou = /* @__PURE__ */ __name((b) => b.replace(re_btou, cb_btou), "btou");
-    atobPolyfill = /* @__PURE__ */ __name((asc) => {
+    btou = /* @__PURE__ */ __name2((b) => b.replace(re_btou, cb_btou), "btou");
+    atobPolyfill = /* @__PURE__ */ __name2((asc) => {
       asc = asc.replace(/\s+/g, "");
       if (!b64re.test(asc))
         throw new TypeError("malformed base64.");
@@ -278,17 +330,17 @@ var init_base64 = __esm({
     }, "atobPolyfill");
     _atob = typeof atob === "function" ? (asc) => atob(_tidyB64(asc)) : _hasBuffer ? (asc) => Buffer.from(asc, "base64").toString("binary") : atobPolyfill;
     _toUint8Array = _hasBuffer ? (a) => _U8Afrom(Buffer.from(a, "base64")) : (a) => _U8Afrom(_atob(a).split("").map((c) => c.charCodeAt(0)));
-    toUint8Array = /* @__PURE__ */ __name((a) => _toUint8Array(_unURI(a)), "toUint8Array");
+    toUint8Array = /* @__PURE__ */ __name2((a) => _toUint8Array(_unURI(a)), "toUint8Array");
     _decode = _hasBuffer ? (a) => Buffer.from(a, "base64").toString("utf8") : _TD ? (a) => _TD.decode(_toUint8Array(a)) : (a) => btou(_atob(a));
-    _unURI = /* @__PURE__ */ __name((a) => _tidyB64(a.replace(/[-_]/g, (m0) => m0 == "-" ? "+" : "/")), "_unURI");
-    decode = /* @__PURE__ */ __name((src) => _decode(_unURI(src)), "decode");
-    isValid = /* @__PURE__ */ __name((src) => {
+    _unURI = /* @__PURE__ */ __name2((a) => _tidyB64(a.replace(/[-_]/g, (m0) => m0 == "-" ? "+" : "/")), "_unURI");
+    decode = /* @__PURE__ */ __name2((src) => _decode(_unURI(src)), "decode");
+    isValid = /* @__PURE__ */ __name2((src) => {
       if (typeof src !== "string")
         return false;
       const s = src.replace(/\s+/g, "").replace(/={0,2}$/, "");
       return !/[^\s0-9a-zA-Z\+/]/.test(s) || !/[^\s0-9a-zA-Z\-_]/.test(s);
     }, "isValid");
-    _noEnum = /* @__PURE__ */ __name((v) => {
+    _noEnum = /* @__PURE__ */ __name2((v) => {
       return {
         value: v,
         enumerable: false,
@@ -296,8 +348,8 @@ var init_base64 = __esm({
         configurable: true
       };
     }, "_noEnum");
-    extendString = /* @__PURE__ */ __name(function() {
-      const _add = /* @__PURE__ */ __name((name, body) => Object.defineProperty(String.prototype, name, _noEnum(body)), "_add");
+    extendString = /* @__PURE__ */ __name2(function() {
+      const _add = /* @__PURE__ */ __name2((name, body) => Object.defineProperty(String.prototype, name, _noEnum(body)), "_add");
       _add("fromBase64", function() {
         return decode(this);
       });
@@ -314,8 +366,8 @@ var init_base64 = __esm({
         return toUint8Array(this);
       });
     }, "extendString");
-    extendUint8Array = /* @__PURE__ */ __name(function() {
-      const _add = /* @__PURE__ */ __name((name, body) => Object.defineProperty(Uint8Array.prototype, name, _noEnum(body)), "_add");
+    extendUint8Array = /* @__PURE__ */ __name2(function() {
+      const _add = /* @__PURE__ */ __name2((name, body) => Object.defineProperty(Uint8Array.prototype, name, _noEnum(body)), "_add");
       _add("toBase64", function(urlsafe) {
         return fromUint8Array(this, urlsafe);
       });
@@ -326,7 +378,7 @@ var init_base64 = __esm({
         return fromUint8Array(this, true);
       });
     }, "extendUint8Array");
-    extendBuiltins = /* @__PURE__ */ __name(() => {
+    extendBuiltins = /* @__PURE__ */ __name2(() => {
       extendString();
       extendUint8Array();
     }, "extendBuiltins");
@@ -354,8 +406,6 @@ var init_base64 = __esm({
     };
   }
 });
-
-// ../node_modules/@libsql/core/lib-esm/util.js
 function transactionModeToBegin(mode) {
   if (mode === "write") {
     return "BEGIN IMMEDIATE";
@@ -367,9 +417,11 @@ function transactionModeToBegin(mode) {
     throw RangeError('Unknown transaction mode, supported values are "write", "read" and "deferred"');
   }
 }
+__name(transactionModeToBegin, "transactionModeToBegin");
 function rowToJson(row) {
   return Array.prototype.map.call(row, valueToJson);
 }
+__name(rowToJson, "rowToJson");
 function valueToJson(value) {
   if (typeof value === "bigint") {
     return "" + value;
@@ -379,16 +431,21 @@ function valueToJson(value) {
     return value;
   }
 }
-var supportedUrlLink, ResultSetImpl;
+__name(valueToJson, "valueToJson");
+var supportedUrlLink;
+var ResultSetImpl;
 var init_util = __esm({
   "../node_modules/@libsql/core/lib-esm/util.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_base64();
     supportedUrlLink = "https://github.com/libsql/libsql-client-ts#supported-urls";
-    __name(transactionModeToBegin, "transactionModeToBegin");
+    __name2(transactionModeToBegin, "transactionModeToBegin");
     ResultSetImpl = class {
       static {
         __name(this, "ResultSetImpl");
+      }
+      static {
+        __name2(this, "ResultSetImpl");
       }
       columns;
       columnTypes;
@@ -412,12 +469,10 @@ var init_util = __esm({
         };
       }
     };
-    __name(rowToJson, "rowToJson");
-    __name(valueToJson, "valueToJson");
+    __name2(rowToJson, "rowToJson");
+    __name2(valueToJson, "valueToJson");
   }
 });
-
-// ../node_modules/@libsql/core/lib-esm/config.js
 function expandConfig(config, preferHttp) {
   if (typeof config !== "object") {
     throw new TypeError(`Expected client configuration as object, got ${typeof config}`);
@@ -437,17 +492,17 @@ function expandConfig(config, preferHttp) {
     queryParamsDef = {
       cache: {
         values: ["shared", "private"],
-        update: /* @__PURE__ */ __name((key, value) => connectionQueryParams.push(`${key}=${value}`), "update")
+        update: /* @__PURE__ */ __name2((key, value) => connectionQueryParams.push(`${key}=${value}`), "update")
       }
     };
   } else {
     queryParamsDef = {
       tls: {
         values: ["0", "1"],
-        update: /* @__PURE__ */ __name((_, value) => tls = value === "1", "update")
+        update: /* @__PURE__ */ __name2((_, value) => tls = value === "1", "update")
       },
       authToken: {
-        update: /* @__PURE__ */ __name((_, value) => authToken = value, "update")
+        update: /* @__PURE__ */ __name2((_, value) => authToken = value, "update")
       }
     };
   }
@@ -529,23 +584,22 @@ function expandConfig(config, preferHttp) {
     timeout: config.timeout
   };
 }
+__name(expandConfig, "expandConfig");
 var inMemoryMode;
 var init_config = __esm({
   "../node_modules/@libsql/core/lib-esm/config.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_api();
     init_uri();
     init_util();
     inMemoryMode = ":memory:";
-    __name(expandConfig, "expandConfig");
+    __name2(expandConfig, "expandConfig");
   }
 });
-
-// ../node_modules/@libsql/isomorphic-ws/web.mjs
 var _WebSocket;
 var init_web = __esm({
   "../node_modules/@libsql/isomorphic-ws/web.mjs"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     if (typeof WebSocket !== "undefined") {
       _WebSocket = WebSocket;
     } else if (typeof global !== "undefined") {
@@ -557,15 +611,16 @@ var init_web = __esm({
     }
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/client.js
 var Client;
 var init_client = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/client.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     Client = class {
       static {
         __name(this, "Client");
+      }
+      static {
+        __name2(this, "Client");
       }
       /** @private */
       constructor() {
@@ -580,15 +635,25 @@ var init_client = __esm({
     };
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/errors.js
-var ClientError, ProtoError, ResponseError, ClosedError, WebSocketUnsupportedError, WebSocketError, HttpServerError, ProtocolVersionError, InternalError, MisuseError;
+var ClientError;
+var ProtoError;
+var ResponseError;
+var ClosedError;
+var WebSocketUnsupportedError;
+var WebSocketError;
+var HttpServerError;
+var ProtocolVersionError;
+var InternalError;
+var MisuseError;
 var init_errors = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/errors.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     ClientError = class extends Error {
       static {
         __name(this, "ClientError");
+      }
+      static {
+        __name2(this, "ClientError");
       }
       /** @private */
       constructor(message) {
@@ -600,6 +665,9 @@ var init_errors = __esm({
       static {
         __name(this, "ProtoError");
       }
+      static {
+        __name2(this, "ProtoError");
+      }
       /** @private */
       constructor(message) {
         super(message);
@@ -609,6 +677,9 @@ var init_errors = __esm({
     ResponseError = class extends ClientError {
       static {
         __name(this, "ResponseError");
+      }
+      static {
+        __name2(this, "ResponseError");
       }
       code;
       /** @internal */
@@ -626,6 +697,9 @@ var init_errors = __esm({
       static {
         __name(this, "ClosedError");
       }
+      static {
+        __name2(this, "ClosedError");
+      }
       /** @private */
       constructor(message, cause) {
         if (cause !== void 0) {
@@ -641,6 +715,9 @@ var init_errors = __esm({
       static {
         __name(this, "WebSocketUnsupportedError");
       }
+      static {
+        __name2(this, "WebSocketUnsupportedError");
+      }
       /** @private */
       constructor(message) {
         super(message);
@@ -651,6 +728,9 @@ var init_errors = __esm({
       static {
         __name(this, "WebSocketError");
       }
+      static {
+        __name2(this, "WebSocketError");
+      }
       /** @private */
       constructor(message) {
         super(message);
@@ -660,6 +740,9 @@ var init_errors = __esm({
     HttpServerError = class extends ClientError {
       static {
         __name(this, "HttpServerError");
+      }
+      static {
+        __name2(this, "HttpServerError");
       }
       status;
       /** @private */
@@ -673,6 +756,9 @@ var init_errors = __esm({
       static {
         __name(this, "ProtocolVersionError");
       }
+      static {
+        __name2(this, "ProtocolVersionError");
+      }
       /** @private */
       constructor(message) {
         super(message);
@@ -682,6 +768,9 @@ var init_errors = __esm({
     InternalError = class extends ClientError {
       static {
         __name(this, "InternalError");
+      }
+      static {
+        __name2(this, "InternalError");
       }
       /** @private */
       constructor(message) {
@@ -693,6 +782,9 @@ var init_errors = __esm({
       static {
         __name(this, "MisuseError");
       }
+      static {
+        __name2(this, "MisuseError");
+      }
       /** @private */
       constructor(message) {
         super(message);
@@ -701,14 +793,13 @@ var init_errors = __esm({
     };
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/encoding/json/decode.js
 function string(value) {
   if (typeof value === "string") {
     return value;
   }
   throw typeError(value, "string");
 }
+__name(string, "string");
 function stringOpt(value) {
   if (value === null || value === void 0) {
     return void 0;
@@ -717,33 +808,39 @@ function stringOpt(value) {
   }
   throw typeError(value, "string or null");
 }
+__name(stringOpt, "stringOpt");
 function number(value) {
   if (typeof value === "number") {
     return value;
   }
   throw typeError(value, "number");
 }
+__name(number, "number");
 function boolean(value) {
   if (typeof value === "boolean") {
     return value;
   }
   throw typeError(value, "boolean");
 }
+__name(boolean, "boolean");
 function array(value) {
   if (Array.isArray(value)) {
     return value;
   }
   throw typeError(value, "array");
 }
+__name(array, "array");
 function object(value) {
   if (value !== null && typeof value === "object" && !Array.isArray(value)) {
     return value;
   }
   throw typeError(value, "object");
 }
+__name(object, "object");
 function arrayObjectsMap(value, fun) {
   return array(value).map((elemValue) => fun(object(elemValue)));
 }
+__name(arrayObjectsMap, "arrayObjectsMap");
 function typeError(value, expected) {
   if (value === void 0) {
     return new ProtoError(`Expected ${expected}, but the property was missing`);
@@ -756,26 +853,26 @@ function typeError(value, expected) {
   }
   return new ProtoError(`Expected ${expected}, received ${received}`);
 }
+__name(typeError, "typeError");
 function readJsonObject(value, fun) {
   return fun(object(value));
 }
+__name(readJsonObject, "readJsonObject");
 var init_decode = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/encoding/json/decode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_errors();
-    __name(string, "string");
-    __name(stringOpt, "stringOpt");
-    __name(number, "number");
-    __name(boolean, "boolean");
-    __name(array, "array");
-    __name(object, "object");
-    __name(arrayObjectsMap, "arrayObjectsMap");
-    __name(typeError, "typeError");
-    __name(readJsonObject, "readJsonObject");
+    __name2(string, "string");
+    __name2(stringOpt, "stringOpt");
+    __name2(number, "number");
+    __name2(boolean, "boolean");
+    __name2(array, "array");
+    __name2(object, "object");
+    __name2(arrayObjectsMap, "arrayObjectsMap");
+    __name2(typeError, "typeError");
+    __name2(readJsonObject, "readJsonObject");
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/encoding/json/encode.js
 function writeJsonObject(value, fun) {
   const output = [];
   const writer = new ObjectWriter(output);
@@ -784,13 +881,17 @@ function writeJsonObject(value, fun) {
   writer.end();
   return output.join("");
 }
+__name(writeJsonObject, "writeJsonObject");
 var ObjectWriter;
 var init_encode = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/encoding/json/encode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     ObjectWriter = class {
       static {
         __name(this, "ObjectWriter");
+      }
+      static {
+        __name2(this, "ObjectWriter");
       }
       #output;
       #isFirst;
@@ -854,23 +955,22 @@ var init_encode = __esm({
         this.#output.push("]");
       }
     };
-    __name(writeJsonObject, "writeJsonObject");
+    __name2(writeJsonObject, "writeJsonObject");
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/encoding/protobuf/util.js
-var VARINT, FIXED_64, LENGTH_DELIMITED, FIXED_32;
+var VARINT;
+var FIXED_64;
+var LENGTH_DELIMITED;
+var FIXED_32;
 var init_util2 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/encoding/protobuf/util.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     VARINT = 0;
     FIXED_64 = 1;
     LENGTH_DELIMITED = 2;
     FIXED_32 = 5;
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/encoding/protobuf/decode.js
 function readProtobufMessage(data, def) {
   const msgReader = new MessageReader(data);
   const fieldReader = new FieldReader(msgReader);
@@ -891,15 +991,20 @@ function readProtobufMessage(data, def) {
   }
   return value;
 }
-var MessageReader, FieldReader;
+__name(readProtobufMessage, "readProtobufMessage");
+var MessageReader;
+var FieldReader;
 var init_decode2 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/encoding/protobuf/decode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_errors();
     init_util2();
     MessageReader = class {
       static {
         __name(this, "MessageReader");
+      }
+      static {
+        __name2(this, "MessageReader");
       }
       #array;
       #view;
@@ -959,6 +1064,9 @@ var init_decode2 = __esm({
     FieldReader = class {
       static {
         __name(this, "FieldReader");
+      }
+      static {
+        __name2(this, "FieldReader");
       }
       #reader;
       #wireType;
@@ -1026,24 +1134,26 @@ var init_decode2 = __esm({
         this.#wireType = -1;
       }
     };
-    __name(readProtobufMessage, "readProtobufMessage");
+    __name2(readProtobufMessage, "readProtobufMessage");
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/encoding/protobuf/encode.js
 function writeProtobufMessage(value, fun) {
   const w = new MessageWriter();
   fun(w, value);
   return w.data();
 }
+__name(writeProtobufMessage, "writeProtobufMessage");
 var MessageWriter;
 var init_encode2 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/encoding/protobuf/encode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_util2();
     MessageWriter = class _MessageWriter {
       static {
-        __name(this, "MessageWriter");
+        __name(this, "_MessageWriter");
+      }
+      static {
+        __name2(this, "MessageWriter");
       }
       #buf;
       #array;
@@ -1133,30 +1243,29 @@ var init_encode2 = __esm({
         return new Uint8Array(this.#buf, 0, this.#pos);
       }
     };
-    __name(writeProtobufMessage, "writeProtobufMessage");
+    __name2(writeProtobufMessage, "writeProtobufMessage");
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/encoding/index.js
 var init_encoding = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/encoding/index.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_decode();
     init_encode();
     init_decode2();
     init_encode2();
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/id_alloc.js
 var IdAlloc;
 var init_id_alloc = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/id_alloc.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_errors();
     IdAlloc = class {
       static {
         __name(this, "IdAlloc");
+      }
+      static {
+        __name2(this, "IdAlloc");
       }
       // Set of all allocated ids
       #usedIds;
@@ -1192,20 +1301,17 @@ var init_id_alloc = __esm({
     };
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/util.js
 function impossible(value, message) {
   throw new InternalError(message);
 }
+__name(impossible, "impossible");
 var init_util3 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/util.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_errors();
-    __name(impossible, "impossible");
+    __name2(impossible, "impossible");
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/value.js
 function valueToProto(value) {
   if (value === null) {
     return null;
@@ -1235,6 +1341,7 @@ function valueToProto(value) {
     throw new TypeError("Unsupported type of value");
   }
 }
+__name(valueToProto, "valueToProto");
 function valueFromProto(value, intMode) {
   if (value === null) {
     return null;
@@ -1264,20 +1371,20 @@ function valueFromProto(value, intMode) {
     throw impossible(value, "Impossible type of Value");
   }
 }
-var minInteger, maxInteger;
+__name(valueFromProto, "valueFromProto");
+var minInteger;
+var maxInteger;
 var init_value = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/value.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_errors();
     init_util3();
-    __name(valueToProto, "valueToProto");
+    __name2(valueToProto, "valueToProto");
     minInteger = -9223372036854775808n;
     maxInteger = 9223372036854775807n;
-    __name(valueFromProto, "valueFromProto");
+    __name2(valueFromProto, "valueFromProto");
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/result.js
 function stmtResultFromProto(result) {
   return {
     affectedRowCount: result.affectedRowCount,
@@ -1286,11 +1393,13 @@ function stmtResultFromProto(result) {
     columnDecltypes: result.cols.map((col) => col.decltype)
   };
 }
+__name(stmtResultFromProto, "stmtResultFromProto");
 function rowsResultFromProto(result, intMode) {
   const stmtResult = stmtResultFromProto(result);
   const rows = result.rows.map((row) => rowFromProto(stmtResult.columnNames, row, intMode));
   return { ...stmtResult, rows };
 }
+__name(rowsResultFromProto, "rowsResultFromProto");
 function rowResultFromProto(result, intMode) {
   const stmtResult = stmtResultFromProto(result);
   let row;
@@ -1299,6 +1408,7 @@ function rowResultFromProto(result, intMode) {
   }
   return { ...stmtResult, row };
 }
+__name(rowResultFromProto, "rowResultFromProto");
 function valueResultFromProto(result, intMode) {
   const stmtResult = stmtResultFromProto(result);
   let value;
@@ -1307,6 +1417,7 @@ function valueResultFromProto(result, intMode) {
   }
   return { ...stmtResult, value };
 }
+__name(valueResultFromProto, "valueResultFromProto");
 function rowFromProto(colNames, values, intMode) {
   const row = {};
   Object.defineProperty(row, "length", { value: values.length });
@@ -1320,24 +1431,24 @@ function rowFromProto(colNames, values, intMode) {
   }
   return row;
 }
+__name(rowFromProto, "rowFromProto");
 function errorFromProto(error) {
   return new ResponseError(error.message, error);
 }
+__name(errorFromProto, "errorFromProto");
 var init_result = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/result.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_errors();
     init_value();
-    __name(stmtResultFromProto, "stmtResultFromProto");
-    __name(rowsResultFromProto, "rowsResultFromProto");
-    __name(rowResultFromProto, "rowResultFromProto");
-    __name(valueResultFromProto, "valueResultFromProto");
-    __name(rowFromProto, "rowFromProto");
-    __name(errorFromProto, "errorFromProto");
+    __name2(stmtResultFromProto, "stmtResultFromProto");
+    __name2(rowsResultFromProto, "rowsResultFromProto");
+    __name2(rowResultFromProto, "rowResultFromProto");
+    __name2(valueResultFromProto, "valueResultFromProto");
+    __name2(rowFromProto, "rowFromProto");
+    __name2(errorFromProto, "errorFromProto");
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/sql.js
 function sqlToProto(owner, sql) {
   if (sql instanceof Sql) {
     return { sqlId: sql._getSqlId(owner) };
@@ -1345,14 +1456,18 @@ function sqlToProto(owner, sql) {
     return { sql: "" + sql };
   }
 }
+__name(sqlToProto, "sqlToProto");
 var Sql;
 var init_sql = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/sql.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_errors();
     Sql = class {
       static {
         __name(this, "Sql");
+      }
+      static {
+        __name2(this, "Sql");
       }
       #owner;
       #sqlId;
@@ -1388,18 +1503,19 @@ var init_sql = __esm({
         return this.#closed !== void 0;
       }
     };
-    __name(sqlToProto, "sqlToProto");
+    __name2(sqlToProto, "sqlToProto");
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/queue.js
 var Queue;
 var init_queue = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/queue.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     Queue = class {
       static {
         __name(this, "Queue");
+      }
+      static {
+        __name2(this, "Queue");
       }
       #pushStack;
       #shiftStack;
@@ -1426,8 +1542,6 @@ var init_queue = __esm({
     };
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/stmt.js
 function stmtToProto(sqlOwner, stmt, wantRows) {
   let inSql;
   let args = [];
@@ -1453,15 +1567,19 @@ function stmtToProto(sqlOwner, stmt, wantRows) {
   const { sql, sqlId } = sqlToProto(sqlOwner, inSql);
   return { sql, sqlId, args, namedArgs, wantRows };
 }
+__name(stmtToProto, "stmtToProto");
 var Stmt;
 var init_stmt = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/stmt.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_sql();
     init_value();
     Stmt = class {
       static {
         __name(this, "Stmt");
+      }
+      static {
+        __name2(this, "Stmt");
       }
       /** The SQL statement text. */
       sql;
@@ -1506,11 +1624,9 @@ var init_stmt = __esm({
         return this;
       }
     };
-    __name(stmtToProto, "stmtToProto");
+    __name2(stmtToProto, "stmtToProto");
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/batch.js
 function executeRegular(stream, steps, batch) {
   return stream._batch(batch).then((result) => {
     for (let step = 0; step < steps.length; ++step) {
@@ -1520,6 +1636,7 @@ function executeRegular(stream, steps, batch) {
     }
   });
 }
+__name(executeRegular, "executeRegular");
 async function executeCursor(stream, steps, batch) {
   const cursor = await stream._openCursor(batch);
   try {
@@ -1596,21 +1713,26 @@ async function executeCursor(stream, steps, batch) {
     cursor.close();
   }
 }
+__name(executeCursor, "executeCursor");
 function stepIndex(step) {
   if (step._index === void 0) {
     throw new MisuseError("Cannot add a condition referencing a step that has not been added to the batch");
   }
   return step._index;
 }
+__name(stepIndex, "stepIndex");
 function checkCondBatch(expectedBatch, cond) {
   if (cond._batch !== expectedBatch) {
     throw new MisuseError("Cannot mix BatchCond objects for different Batch objects");
   }
 }
-var Batch, BatchStep, BatchCond;
+__name(checkCondBatch, "checkCondBatch");
+var Batch;
+var BatchStep;
+var BatchCond;
 var init_batch = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/batch.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_errors();
     init_result();
     init_stmt();
@@ -1618,6 +1740,9 @@ var init_batch = __esm({
     Batch = class {
       static {
         __name(this, "Batch");
+      }
+      static {
+        __name2(this, "Batch");
       }
       /** @private */
       _stream;
@@ -1652,11 +1777,14 @@ var init_batch = __esm({
         }
       }
     };
-    __name(executeRegular, "executeRegular");
-    __name(executeCursor, "executeCursor");
+    __name2(executeRegular, "executeRegular");
+    __name2(executeCursor, "executeCursor");
     BatchStep = class {
       static {
         __name(this, "BatchStep");
+      }
+      static {
+        __name2(this, "BatchStep");
       }
       /** @private */
       _batch;
@@ -1706,7 +1834,7 @@ var init_batch = __esm({
         }
         const proto = { stmt, condition };
         return new Promise((outputCallback, errorCallback) => {
-          const callback = /* @__PURE__ */ __name((stepResult, stepError) => {
+          const callback = /* @__PURE__ */ __name2((stepResult, stepError) => {
             if (stepResult !== void 0 && stepError !== void 0) {
               errorCallback(new ProtoError("Server returned both result and error"));
             } else if (stepError !== void 0) {
@@ -1724,7 +1852,10 @@ var init_batch = __esm({
     };
     BatchCond = class _BatchCond {
       static {
-        __name(this, "BatchCond");
+        __name(this, "_BatchCond");
+      }
+      static {
+        __name2(this, "BatchCond");
       }
       /** @private */
       _batch;
@@ -1780,12 +1911,10 @@ var init_batch = __esm({
         return new _BatchCond(batch, { type: "is_autocommit" });
       }
     };
-    __name(stepIndex, "stepIndex");
-    __name(checkCondBatch, "checkCondBatch");
+    __name2(stepIndex, "stepIndex");
+    __name2(checkCondBatch, "checkCondBatch");
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/describe.js
 function describeResultFromProto(result) {
   return {
     paramNames: result.params.map((p) => p.name),
@@ -1794,18 +1923,17 @@ function describeResultFromProto(result) {
     isReadonly: result.isReadonly
   };
 }
+__name(describeResultFromProto, "describeResultFromProto");
 var init_describe = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/describe.js"() {
-    init_functionsRoutes_0_30977898429902107();
-    __name(describeResultFromProto, "describeResultFromProto");
+    init_functionsRoutes_0_22217754403411138();
+    __name2(describeResultFromProto, "describeResultFromProto");
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/stream.js
 var Stream;
 var init_stream = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/stream.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_batch();
     init_describe();
     init_result();
@@ -1814,6 +1942,9 @@ var init_stream = __esm({
     Stream = class {
       static {
         __name(this, "Stream");
+      }
+      static {
+        __name2(this, "Stream");
       }
       /** @private */
       constructor(intMode) {
@@ -1867,25 +1998,26 @@ var init_stream = __esm({
     };
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/cursor.js
 var Cursor;
 var init_cursor = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/cursor.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     Cursor = class {
       static {
         __name(this, "Cursor");
       }
+      static {
+        __name2(this, "Cursor");
+      }
     };
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/ws/cursor.js
-var fetchChunkSize, fetchQueueSize, WsCursor;
+var fetchChunkSize;
+var fetchQueueSize;
+var WsCursor;
 var init_cursor2 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/ws/cursor.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_errors();
     init_cursor();
     init_queue();
@@ -1894,6 +2026,9 @@ var init_cursor2 = __esm({
     WsCursor = class extends Cursor {
       static {
         __name(this, "WsCursor");
+      }
+      static {
+        __name2(this, "WsCursor");
       }
       #client;
       #stream;
@@ -1970,19 +2105,20 @@ var init_cursor2 = __esm({
     };
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/ws/stream.js
 var WsStream;
 var init_stream2 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/ws/stream.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_errors();
     init_queue();
     init_stream();
     init_cursor2();
     WsStream = class _WsStream extends Stream {
       static {
-        __name(this, "WsStream");
+        __name(this, "_WsStream");
+      }
+      static {
+        __name2(this, "WsStream");
       }
       #client;
       #streamId;
@@ -1994,8 +2130,8 @@ var init_stream2 = __esm({
       static open(client) {
         const streamId = client._streamIdAlloc.alloc();
         const stream = new _WsStream(client, streamId);
-        const responseCallback = /* @__PURE__ */ __name(() => void 0, "responseCallback");
-        const errorCallback = /* @__PURE__ */ __name((e) => stream.#setClosed(e), "errorCallback");
+        const responseCallback = /* @__PURE__ */ __name2(() => void 0, "responseCallback");
+        const errorCallback = /* @__PURE__ */ __name2((e) => stream.#setClosed(e), "errorCallback");
         const request = { type: "open_stream", streamId };
         client._sendRequest(request, { responseCallback, errorCallback });
         return stream;
@@ -2138,8 +2274,8 @@ var init_stream2 = __esm({
               cursorId,
               batch
             };
-            const responseCallback = /* @__PURE__ */ __name(() => void 0, "responseCallback");
-            const errorCallback = /* @__PURE__ */ __name((e) => cursor._setClosed(e), "errorCallback");
+            const responseCallback = /* @__PURE__ */ __name2(() => void 0, "responseCallback");
+            const errorCallback = /* @__PURE__ */ __name2((e) => cursor._setClosed(e), "errorCallback");
             this.#client._sendRequest(request, { responseCallback, errorCallback });
             this.#cursor = cursor;
             cursorCallback(cursor);
@@ -2165,8 +2301,8 @@ var init_stream2 = __esm({
           }
         }
         const request = { type: "close_stream", streamId: this.#streamId };
-        const responseCallback = /* @__PURE__ */ __name(() => this.#client._streamIdAlloc.free(this.#streamId), "responseCallback");
-        const errorCallback = /* @__PURE__ */ __name(() => void 0, "errorCallback");
+        const responseCallback = /* @__PURE__ */ __name2(() => this.#client._streamIdAlloc.free(this.#streamId), "responseCallback");
+        const errorCallback = /* @__PURE__ */ __name2(() => void 0, "errorCallback");
         this.#client._sendRequest(request, { responseCallback, errorCallback });
       }
       /** Immediately close the stream. */
@@ -2185,8 +2321,6 @@ var init_stream2 = __esm({
     };
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/shared/json_encode.js
 function Stmt2(w, msg) {
   if (msg.sql !== void 0) {
     w.string("sql", msg.sql);
@@ -2198,19 +2332,23 @@ function Stmt2(w, msg) {
   w.arrayObjects("named_args", msg.namedArgs, NamedArg);
   w.boolean("want_rows", msg.wantRows);
 }
+__name(Stmt2, "Stmt2");
 function NamedArg(w, msg) {
   w.string("name", msg.name);
   w.object("value", msg.value, Value);
 }
+__name(NamedArg, "NamedArg");
 function Batch2(w, msg) {
   w.arrayObjects("steps", msg.steps, BatchStep2);
 }
+__name(Batch2, "Batch2");
 function BatchStep2(w, msg) {
   if (msg.condition !== void 0) {
     w.object("condition", msg.condition, BatchCond2);
   }
   w.object("stmt", msg.stmt, Stmt2);
 }
+__name(BatchStep2, "BatchStep2");
 function BatchCond2(w, msg) {
   w.stringRaw("type", msg.type);
   if (msg.type === "ok" || msg.type === "error") {
@@ -2224,6 +2362,7 @@ function BatchCond2(w, msg) {
     throw impossible(msg, "Impossible type of BatchCond");
   }
 }
+__name(BatchCond2, "BatchCond2");
 function Value(w, msg) {
   if (msg === null) {
     w.stringRaw("type", "null");
@@ -2244,21 +2383,20 @@ function Value(w, msg) {
     throw impossible(msg, "Impossible type of Value");
   }
 }
+__name(Value, "Value");
 var init_json_encode = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/shared/json_encode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_base64();
     init_util3();
-    __name(Stmt2, "Stmt");
-    __name(NamedArg, "NamedArg");
-    __name(Batch2, "Batch");
-    __name(BatchStep2, "BatchStep");
-    __name(BatchCond2, "BatchCond");
-    __name(Value, "Value");
+    __name2(Stmt2, "Stmt");
+    __name2(NamedArg, "NamedArg");
+    __name2(Batch2, "Batch");
+    __name2(BatchStep2, "BatchStep");
+    __name2(BatchCond2, "BatchCond");
+    __name2(Value, "Value");
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/ws/json_encode.js
 function ClientMsg(w, msg) {
   w.stringRaw("type", msg.type);
   if (msg.type === "hello") {
@@ -2272,6 +2410,7 @@ function ClientMsg(w, msg) {
     throw impossible(msg, "Impossible type of ClientMsg");
   }
 }
+__name(ClientMsg, "ClientMsg");
 function Request2(w, msg) {
   w.stringRaw("type", msg.type);
   if (msg.type === "open_stream") {
@@ -2320,17 +2459,16 @@ function Request2(w, msg) {
     throw impossible(msg, "Impossible type of Request");
   }
 }
+__name(Request2, "Request2");
 var init_json_encode2 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/ws/json_encode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_json_encode();
     init_util3();
-    __name(ClientMsg, "ClientMsg");
-    __name(Request2, "Request");
+    __name2(ClientMsg, "ClientMsg");
+    __name2(Request2, "Request");
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/shared/protobuf_encode.js
 function Stmt3(w, msg) {
   if (msg.sql !== void 0) {
     w.string(1, msg.sql);
@@ -2346,21 +2484,25 @@ function Stmt3(w, msg) {
   }
   w.bool(5, msg.wantRows);
 }
+__name(Stmt3, "Stmt3");
 function NamedArg2(w, msg) {
   w.string(1, msg.name);
   w.message(2, msg.value, Value2);
 }
+__name(NamedArg2, "NamedArg2");
 function Batch3(w, msg) {
   for (const step of msg.steps) {
     w.message(1, step, BatchStep3);
   }
 }
+__name(Batch3, "Batch3");
 function BatchStep3(w, msg) {
   if (msg.condition !== void 0) {
     w.message(1, msg.condition, BatchCond3);
   }
   w.message(2, msg.stmt, Stmt3);
 }
+__name(BatchStep3, "BatchStep3");
 function BatchCond3(w, msg) {
   if (msg.type === "ok") {
     w.uint32(1, msg.step);
@@ -2378,11 +2520,13 @@ function BatchCond3(w, msg) {
     throw impossible(msg, "Impossible type of BatchCond");
   }
 }
+__name(BatchCond3, "BatchCond3");
 function BatchCondList(w, msg) {
   for (const cond of msg) {
     w.message(1, cond, BatchCond3);
   }
 }
+__name(BatchCondList, "BatchCondList");
 function Value2(w, msg) {
   if (msg === null) {
     w.message(1, void 0, Empty);
@@ -2399,24 +2543,24 @@ function Value2(w, msg) {
     throw impossible(msg, "Impossible type of Value");
   }
 }
+__name(Value2, "Value2");
 function Empty(_w, _msg) {
 }
+__name(Empty, "Empty");
 var init_protobuf_encode = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/shared/protobuf_encode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_util3();
-    __name(Stmt3, "Stmt");
-    __name(NamedArg2, "NamedArg");
-    __name(Batch3, "Batch");
-    __name(BatchStep3, "BatchStep");
-    __name(BatchCond3, "BatchCond");
-    __name(BatchCondList, "BatchCondList");
-    __name(Value2, "Value");
-    __name(Empty, "Empty");
+    __name2(Stmt3, "Stmt");
+    __name2(NamedArg2, "NamedArg");
+    __name2(Batch3, "Batch");
+    __name2(BatchStep3, "BatchStep");
+    __name2(BatchCond3, "BatchCond");
+    __name2(BatchCondList, "BatchCondList");
+    __name2(Value2, "Value");
+    __name2(Empty, "Empty");
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/ws/protobuf_encode.js
 function ClientMsg2(w, msg) {
   if (msg.type === "hello") {
     w.message(1, msg, HelloMsg);
@@ -2426,11 +2570,13 @@ function ClientMsg2(w, msg) {
     throw impossible(msg, "Impossible type of ClientMsg");
   }
 }
+__name(ClientMsg2, "ClientMsg2");
 function HelloMsg(w, msg) {
   if (msg.jwt !== void 0) {
     w.string(1, msg.jwt);
   }
 }
+__name(HelloMsg, "HelloMsg");
 function RequestMsg(w, msg) {
   w.int32(1, msg.requestId);
   const request = msg.request;
@@ -2462,32 +2608,40 @@ function RequestMsg(w, msg) {
     throw impossible(request, "Impossible type of Request");
   }
 }
+__name(RequestMsg, "RequestMsg");
 function OpenStreamReq(w, msg) {
   w.int32(1, msg.streamId);
 }
+__name(OpenStreamReq, "OpenStreamReq");
 function CloseStreamReq(w, msg) {
   w.int32(1, msg.streamId);
 }
+__name(CloseStreamReq, "CloseStreamReq");
 function ExecuteReq(w, msg) {
   w.int32(1, msg.streamId);
   w.message(2, msg.stmt, Stmt3);
 }
+__name(ExecuteReq, "ExecuteReq");
 function BatchReq(w, msg) {
   w.int32(1, msg.streamId);
   w.message(2, msg.batch, Batch3);
 }
+__name(BatchReq, "BatchReq");
 function OpenCursorReq(w, msg) {
   w.int32(1, msg.streamId);
   w.int32(2, msg.cursorId);
   w.message(3, msg.batch, Batch3);
 }
+__name(OpenCursorReq, "OpenCursorReq");
 function CloseCursorReq(w, msg) {
   w.int32(1, msg.cursorId);
 }
+__name(CloseCursorReq, "CloseCursorReq");
 function FetchCursorReq(w, msg) {
   w.int32(1, msg.cursorId);
   w.uint32(2, msg.maxCount);
 }
+__name(FetchCursorReq, "FetchCursorReq");
 function SequenceReq(w, msg) {
   w.int32(1, msg.streamId);
   if (msg.sql !== void 0) {
@@ -2497,6 +2651,7 @@ function SequenceReq(w, msg) {
     w.int32(3, msg.sqlId);
   }
 }
+__name(SequenceReq, "SequenceReq");
 function DescribeReq(w, msg) {
   w.int32(1, msg.streamId);
   if (msg.sql !== void 0) {
@@ -2506,45 +2661,48 @@ function DescribeReq(w, msg) {
     w.int32(3, msg.sqlId);
   }
 }
+__name(DescribeReq, "DescribeReq");
 function StoreSqlReq(w, msg) {
   w.int32(1, msg.sqlId);
   w.string(2, msg.sql);
 }
+__name(StoreSqlReq, "StoreSqlReq");
 function CloseSqlReq(w, msg) {
   w.int32(1, msg.sqlId);
 }
+__name(CloseSqlReq, "CloseSqlReq");
 function GetAutocommitReq(w, msg) {
   w.int32(1, msg.streamId);
 }
+__name(GetAutocommitReq, "GetAutocommitReq");
 var init_protobuf_encode2 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/ws/protobuf_encode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_protobuf_encode();
     init_util3();
-    __name(ClientMsg2, "ClientMsg");
-    __name(HelloMsg, "HelloMsg");
-    __name(RequestMsg, "RequestMsg");
-    __name(OpenStreamReq, "OpenStreamReq");
-    __name(CloseStreamReq, "CloseStreamReq");
-    __name(ExecuteReq, "ExecuteReq");
-    __name(BatchReq, "BatchReq");
-    __name(OpenCursorReq, "OpenCursorReq");
-    __name(CloseCursorReq, "CloseCursorReq");
-    __name(FetchCursorReq, "FetchCursorReq");
-    __name(SequenceReq, "SequenceReq");
-    __name(DescribeReq, "DescribeReq");
-    __name(StoreSqlReq, "StoreSqlReq");
-    __name(CloseSqlReq, "CloseSqlReq");
-    __name(GetAutocommitReq, "GetAutocommitReq");
+    __name2(ClientMsg2, "ClientMsg");
+    __name2(HelloMsg, "HelloMsg");
+    __name2(RequestMsg, "RequestMsg");
+    __name2(OpenStreamReq, "OpenStreamReq");
+    __name2(CloseStreamReq, "CloseStreamReq");
+    __name2(ExecuteReq, "ExecuteReq");
+    __name2(BatchReq, "BatchReq");
+    __name2(OpenCursorReq, "OpenCursorReq");
+    __name2(CloseCursorReq, "CloseCursorReq");
+    __name2(FetchCursorReq, "FetchCursorReq");
+    __name2(SequenceReq, "SequenceReq");
+    __name2(DescribeReq, "DescribeReq");
+    __name2(StoreSqlReq, "StoreSqlReq");
+    __name2(CloseSqlReq, "CloseSqlReq");
+    __name2(GetAutocommitReq, "GetAutocommitReq");
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/shared/json_decode.js
 function Error2(obj) {
   const message = string(obj["message"]);
   const code = stringOpt(obj["code"]);
   return { message, code };
 }
+__name(Error2, "Error2");
 function StmtResult(obj) {
   const cols = arrayObjectsMap(obj["cols"], Col);
   const rows = array(obj["rows"]).map((rowObj) => arrayObjectsMap(rowObj, Value3));
@@ -2553,11 +2711,13 @@ function StmtResult(obj) {
   const lastInsertRowid = lastInsertRowidStr !== void 0 ? BigInt(lastInsertRowidStr) : void 0;
   return { cols, rows, affectedRowCount, lastInsertRowid };
 }
+__name(StmtResult, "StmtResult");
 function Col(obj) {
   const name = stringOpt(obj["name"]);
   const decltype = stringOpt(obj["decltype"]);
   return { name, decltype };
 }
+__name(Col, "Col");
 function BatchResult(obj) {
   const stepResults = /* @__PURE__ */ new Map();
   array(obj["step_results"]).forEach((value, i) => {
@@ -2573,6 +2733,7 @@ function BatchResult(obj) {
   });
   return { stepResults, stepErrors };
 }
+__name(BatchResult, "BatchResult");
 function CursorEntry(obj) {
   const type = string(obj["type"]);
   if (type === "step_begin") {
@@ -2598,6 +2759,7 @@ function CursorEntry(obj) {
     throw new ProtoError("Unexpected type of CursorEntry");
   }
 }
+__name(CursorEntry, "CursorEntry");
 function DescribeResult(obj) {
   const params = arrayObjectsMap(obj["params"], DescribeParam);
   const cols = arrayObjectsMap(obj["cols"], DescribeCol);
@@ -2605,15 +2767,18 @@ function DescribeResult(obj) {
   const isReadonly = boolean(obj["is_readonly"]);
   return { params, cols, isExplain, isReadonly };
 }
+__name(DescribeResult, "DescribeResult");
 function DescribeParam(obj) {
   const name = stringOpt(obj["name"]);
   return { name };
 }
+__name(DescribeParam, "DescribeParam");
 function DescribeCol(obj) {
   const name = string(obj["name"]);
   const decltype = stringOpt(obj["decltype"]);
   return { name, decltype };
 }
+__name(DescribeCol, "DescribeCol");
 function Value3(obj) {
   const type = string(obj["type"]);
   if (type === "null") {
@@ -2631,25 +2796,24 @@ function Value3(obj) {
     throw new ProtoError("Unexpected type of Value");
   }
 }
+__name(Value3, "Value3");
 var init_json_decode = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/shared/json_decode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_base64();
     init_errors();
     init_decode();
-    __name(Error2, "Error");
-    __name(StmtResult, "StmtResult");
-    __name(Col, "Col");
-    __name(BatchResult, "BatchResult");
-    __name(CursorEntry, "CursorEntry");
-    __name(DescribeResult, "DescribeResult");
-    __name(DescribeParam, "DescribeParam");
-    __name(DescribeCol, "DescribeCol");
-    __name(Value3, "Value");
+    __name2(Error2, "Error");
+    __name2(StmtResult, "StmtResult");
+    __name2(Col, "Col");
+    __name2(BatchResult, "BatchResult");
+    __name2(CursorEntry, "CursorEntry");
+    __name2(DescribeResult, "DescribeResult");
+    __name2(DescribeParam, "DescribeParam");
+    __name2(DescribeCol, "DescribeCol");
+    __name2(Value3, "Value");
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/ws/json_decode.js
 function ServerMsg(obj) {
   const type = string(obj["type"]);
   if (type === "hello_ok") {
@@ -2669,6 +2833,7 @@ function ServerMsg(obj) {
     throw new ProtoError("Unexpected type of ServerMsg");
   }
 }
+__name(ServerMsg, "ServerMsg");
 function Response2(obj) {
   const type = string(obj["type"]);
   if (type === "open_stream") {
@@ -2705,22 +2870,35 @@ function Response2(obj) {
     throw new ProtoError("Unexpected type of Response");
   }
 }
+__name(Response2, "Response2");
 var init_json_decode2 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/ws/json_decode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_errors();
     init_decode();
     init_json_decode();
-    __name(ServerMsg, "ServerMsg");
-    __name(Response2, "Response");
+    __name2(ServerMsg, "ServerMsg");
+    __name2(Response2, "Response");
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/shared/protobuf_decode.js
-var Error3, StmtResult2, Col2, Row, BatchResult2, BatchResultStepResult, BatchResultStepError, CursorEntry2, StepBeginEntry, StepEndEntry, StepErrorEntry, DescribeResult2, DescribeParam2, DescribeCol2, Value4;
+var Error3;
+var StmtResult2;
+var Col2;
+var Row;
+var BatchResult2;
+var BatchResultStepResult;
+var BatchResultStepError;
+var CursorEntry2;
+var StepBeginEntry;
+var StepEndEntry;
+var StepErrorEntry;
+var DescribeResult2;
+var DescribeParam2;
+var DescribeCol2;
+var Value4;
 var init_protobuf_decode = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/shared/protobuf_decode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     Error3 = {
       default() {
         return { message: "", code: void 0 };
@@ -2932,12 +3110,18 @@ var init_protobuf_decode = __esm({
     };
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/ws/protobuf_decode.js
-var ServerMsg2, HelloErrorMsg, ResponseErrorMsg, ResponseOkMsg, ExecuteResp, BatchResp, FetchCursorResp, DescribeResp, GetAutocommitResp;
+var ServerMsg2;
+var HelloErrorMsg;
+var ResponseErrorMsg;
+var ResponseOkMsg;
+var ExecuteResp;
+var BatchResp;
+var FetchCursorResp;
+var DescribeResp;
+var GetAutocommitResp;
 var init_protobuf_decode2 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/ws/protobuf_decode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_protobuf_decode();
     ServerMsg2 = {
       default() {
@@ -3068,12 +3252,12 @@ var init_protobuf_decode2 = __esm({
     };
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/ws/client.js
-var subprotocolsV2, subprotocolsV3, WsClient;
+var subprotocolsV2;
+var subprotocolsV3;
+var WsClient;
 var init_client2 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/ws/client.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_client();
     init_encoding();
     init_errors();
@@ -3099,6 +3283,9 @@ var init_client2 = __esm({
     WsClient = class extends Client {
       static {
         __name(this, "WsClient");
+      }
+      static {
+        __name2(this, "WsClient");
       }
       #socket;
       // List of callbacks that we queue until the socket transitions from the CONNECTING to the OPEN state.
@@ -3158,8 +3345,8 @@ var init_client2 = __esm({
         if (this.#opened) {
           this.#sendToSocket(msg);
         } else {
-          const openCallback = /* @__PURE__ */ __name(() => this.#sendToSocket(msg), "openCallback");
-          const errorCallback = /* @__PURE__ */ __name(() => void 0, "errorCallback");
+          const openCallback = /* @__PURE__ */ __name2(() => this.#sendToSocket(msg), "openCallback");
+          const errorCallback = /* @__PURE__ */ __name2(() => void 0, "errorCallback");
           this.#openCallbacks.push({ openCallback, errorCallback });
         }
       }
@@ -3203,7 +3390,7 @@ var init_client2 = __esm({
           if (this.#closed !== void 0) {
             errorCallback(this.#closed);
           } else if (!this.#opened) {
-            const openCallback = /* @__PURE__ */ __name(() => versionCallback(this.#subprotocol.version), "openCallback");
+            const openCallback = /* @__PURE__ */ __name2(() => versionCallback(this.#subprotocol.version), "openCallback");
             this.#openCallbacks.push({ openCallback, errorCallback });
           } else {
             versionCallback(this.#subprotocol.version);
@@ -3348,8 +3535,8 @@ var init_client2 = __esm({
         this._ensureVersion(2, "storeSql()");
         const sqlId = this.#sqlIdAlloc.alloc();
         const sqlObj = new Sql(this, sqlId);
-        const responseCallback = /* @__PURE__ */ __name(() => void 0, "responseCallback");
-        const errorCallback = /* @__PURE__ */ __name((e) => sqlObj._setClosed(e), "errorCallback");
+        const responseCallback = /* @__PURE__ */ __name2(() => void 0, "responseCallback");
+        const errorCallback = /* @__PURE__ */ __name2((e) => sqlObj._setClosed(e), "errorCallback");
         const request = { type: "store_sql", sqlId, sql };
         this._sendRequest(request, { responseCallback, errorCallback });
         return sqlObj;
@@ -3359,8 +3546,8 @@ var init_client2 = __esm({
         if (this.#closed !== void 0) {
           return;
         }
-        const responseCallback = /* @__PURE__ */ __name(() => this.#sqlIdAlloc.free(sqlId), "responseCallback");
-        const errorCallback = /* @__PURE__ */ __name((e) => this.#setClosed(e), "errorCallback");
+        const responseCallback = /* @__PURE__ */ __name2(() => this.#sqlIdAlloc.free(sqlId), "responseCallback");
+        const errorCallback = /* @__PURE__ */ __name2((e) => this.#setClosed(e), "errorCallback");
         const request = { type: "close_sql", sqlId };
         this._sendRequest(request, { responseCallback, errorCallback });
       }
@@ -3375,31 +3562,30 @@ var init_client2 = __esm({
     };
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/queue_microtask.js
 var _queueMicrotask;
 var init_queue_microtask = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/queue_microtask.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     if (typeof queueMicrotask !== "undefined") {
       _queueMicrotask = queueMicrotask;
     } else {
       const resolved = Promise.resolve();
-      _queueMicrotask = /* @__PURE__ */ __name((callback) => {
+      _queueMicrotask = /* @__PURE__ */ __name2((callback) => {
         resolved.then(callback);
       }, "_queueMicrotask");
     }
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/byte_queue.js
 var ByteQueue;
 var init_byte_queue = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/byte_queue.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     ByteQueue = class {
       static {
         __name(this, "ByteQueue");
+      }
+      static {
+        __name2(this, "ByteQueue");
       }
       #array;
       #shiftPos;
@@ -3445,14 +3631,13 @@ var init_byte_queue = __esm({
     };
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/http/json_decode.js
 function PipelineRespBody(obj) {
   const baton = stringOpt(obj["baton"]);
   const baseUrl = stringOpt(obj["base_url"]);
   const results = arrayObjectsMap(obj["results"], StreamResult);
   return { baton, baseUrl, results };
 }
+__name(PipelineRespBody, "PipelineRespBody");
 function StreamResult(obj) {
   const type = string(obj["type"]);
   if (type === "ok") {
@@ -3465,6 +3650,7 @@ function StreamResult(obj) {
     throw new ProtoError("Unexpected type of StreamResult");
   }
 }
+__name(StreamResult, "StreamResult");
 function StreamResponse(obj) {
   const type = string(obj["type"]);
   if (type === "close") {
@@ -3491,29 +3677,36 @@ function StreamResponse(obj) {
     throw new ProtoError("Unexpected type of StreamResponse");
   }
 }
+__name(StreamResponse, "StreamResponse");
 function CursorRespBody(obj) {
   const baton = stringOpt(obj["baton"]);
   const baseUrl = stringOpt(obj["base_url"]);
   return { baton, baseUrl };
 }
+__name(CursorRespBody, "CursorRespBody");
 var init_json_decode3 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/http/json_decode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_errors();
     init_decode();
     init_json_decode();
-    __name(PipelineRespBody, "PipelineRespBody");
-    __name(StreamResult, "StreamResult");
-    __name(StreamResponse, "StreamResponse");
-    __name(CursorRespBody, "CursorRespBody");
+    __name2(PipelineRespBody, "PipelineRespBody");
+    __name2(StreamResult, "StreamResult");
+    __name2(StreamResponse, "StreamResponse");
+    __name2(CursorRespBody, "CursorRespBody");
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/http/protobuf_decode.js
-var PipelineRespBody2, StreamResult2, StreamResponse2, ExecuteStreamResp, BatchStreamResp, DescribeStreamResp, GetAutocommitStreamResp, CursorRespBody2;
+var PipelineRespBody2;
+var StreamResult2;
+var StreamResponse2;
+var ExecuteStreamResp;
+var BatchStreamResp;
+var DescribeStreamResp;
+var GetAutocommitStreamResp;
+var CursorRespBody2;
 var init_protobuf_decode3 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/http/protobuf_decode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_protobuf_decode();
     PipelineRespBody2 = {
       default() {
@@ -3614,12 +3807,10 @@ var init_protobuf_decode3 = __esm({
     };
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/http/cursor.js
 var HttpCursor;
 var init_cursor3 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/http/cursor.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_byte_queue();
     init_cursor();
     init_decode();
@@ -3633,6 +3824,9 @@ var init_cursor3 = __esm({
     HttpCursor = class extends Cursor {
       static {
         __name(this, "HttpCursor");
+      }
+      static {
+        __name2(this, "HttpCursor");
       }
       #stream;
       #encoding;
@@ -3755,14 +3949,13 @@ var init_cursor3 = __esm({
     };
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/http/json_encode.js
 function PipelineReqBody(w, msg) {
   if (msg.baton !== void 0) {
     w.string("baton", msg.baton);
   }
   w.arrayObjects("requests", msg.requests, StreamRequest);
 }
+__name(PipelineReqBody, "PipelineReqBody");
 function StreamRequest(w, msg) {
   w.stringRaw("type", msg.type);
   if (msg.type === "close") {
@@ -3794,24 +3987,24 @@ function StreamRequest(w, msg) {
     throw impossible(msg, "Impossible type of StreamRequest");
   }
 }
+__name(StreamRequest, "StreamRequest");
 function CursorReqBody(w, msg) {
   if (msg.baton !== void 0) {
     w.string("baton", msg.baton);
   }
   w.object("batch", msg.batch, Batch2);
 }
+__name(CursorReqBody, "CursorReqBody");
 var init_json_encode3 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/http/json_encode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_json_encode();
     init_util3();
-    __name(PipelineReqBody, "PipelineReqBody");
-    __name(StreamRequest, "StreamRequest");
-    __name(CursorReqBody, "CursorReqBody");
+    __name2(PipelineReqBody, "PipelineReqBody");
+    __name2(StreamRequest, "StreamRequest");
+    __name2(CursorReqBody, "CursorReqBody");
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/http/protobuf_encode.js
 function PipelineReqBody2(w, msg) {
   if (msg.baton !== void 0) {
     w.string(1, msg.baton);
@@ -3820,6 +4013,7 @@ function PipelineReqBody2(w, msg) {
     w.message(2, req, StreamRequest2);
   }
 }
+__name(PipelineReqBody2, "PipelineReqBody2");
 function StreamRequest2(w, msg) {
   if (msg.type === "close") {
     w.message(1, msg, CloseStreamReq2);
@@ -3841,14 +4035,18 @@ function StreamRequest2(w, msg) {
     throw impossible(msg, "Impossible type of StreamRequest");
   }
 }
+__name(StreamRequest2, "StreamRequest2");
 function CloseStreamReq2(_w, _msg) {
 }
+__name(CloseStreamReq2, "CloseStreamReq2");
 function ExecuteStreamReq(w, msg) {
   w.message(1, msg.stmt, Stmt3);
 }
+__name(ExecuteStreamReq, "ExecuteStreamReq");
 function BatchStreamReq(w, msg) {
   w.message(1, msg.batch, Batch3);
 }
+__name(BatchStreamReq, "BatchStreamReq");
 function SequenceStreamReq(w, msg) {
   if (msg.sql !== void 0) {
     w.string(1, msg.sql);
@@ -3857,6 +4055,7 @@ function SequenceStreamReq(w, msg) {
     w.int32(2, msg.sqlId);
   }
 }
+__name(SequenceStreamReq, "SequenceStreamReq");
 function DescribeStreamReq(w, msg) {
   if (msg.sql !== void 0) {
     w.string(1, msg.sql);
@@ -3865,41 +4064,44 @@ function DescribeStreamReq(w, msg) {
     w.int32(2, msg.sqlId);
   }
 }
+__name(DescribeStreamReq, "DescribeStreamReq");
 function StoreSqlStreamReq(w, msg) {
   w.int32(1, msg.sqlId);
   w.string(2, msg.sql);
 }
+__name(StoreSqlStreamReq, "StoreSqlStreamReq");
 function CloseSqlStreamReq(w, msg) {
   w.int32(1, msg.sqlId);
 }
+__name(CloseSqlStreamReq, "CloseSqlStreamReq");
 function GetAutocommitStreamReq(_w, _msg) {
 }
+__name(GetAutocommitStreamReq, "GetAutocommitStreamReq");
 function CursorReqBody2(w, msg) {
   if (msg.baton !== void 0) {
     w.string(1, msg.baton);
   }
   w.message(2, msg.batch, Batch3);
 }
+__name(CursorReqBody2, "CursorReqBody2");
 var init_protobuf_encode3 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/http/protobuf_encode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_protobuf_encode();
     init_util3();
-    __name(PipelineReqBody2, "PipelineReqBody");
-    __name(StreamRequest2, "StreamRequest");
-    __name(CloseStreamReq2, "CloseStreamReq");
-    __name(ExecuteStreamReq, "ExecuteStreamReq");
-    __name(BatchStreamReq, "BatchStreamReq");
-    __name(SequenceStreamReq, "SequenceStreamReq");
-    __name(DescribeStreamReq, "DescribeStreamReq");
-    __name(StoreSqlStreamReq, "StoreSqlStreamReq");
-    __name(CloseSqlStreamReq, "CloseSqlStreamReq");
-    __name(GetAutocommitStreamReq, "GetAutocommitStreamReq");
-    __name(CursorReqBody2, "CursorReqBody");
+    __name2(PipelineReqBody2, "PipelineReqBody");
+    __name2(StreamRequest2, "StreamRequest");
+    __name2(CloseStreamReq2, "CloseStreamReq");
+    __name2(ExecuteStreamReq, "ExecuteStreamReq");
+    __name2(BatchStreamReq, "BatchStreamReq");
+    __name2(SequenceStreamReq, "SequenceStreamReq");
+    __name2(DescribeStreamReq, "DescribeStreamReq");
+    __name2(StoreSqlStreamReq, "StoreSqlStreamReq");
+    __name2(CloseSqlStreamReq, "CloseSqlStreamReq");
+    __name2(GetAutocommitStreamReq, "GetAutocommitStreamReq");
+    __name2(CursorReqBody2, "CursorReqBody");
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/http/stream.js
 function handlePipelineResponse(pipeline, respBody) {
   if (respBody.results.length !== pipeline.length) {
     throw new ProtoError("Server returned unexpected number of pipeline results");
@@ -3921,6 +4123,7 @@ function handlePipelineResponse(pipeline, respBody) {
     }
   }
 }
+__name(handlePipelineResponse, "handlePipelineResponse");
 async function decodePipelineResponse(resp, encoding) {
   if (encoding === "json") {
     const respJson = await resp.json();
@@ -3933,6 +4136,7 @@ async function decodePipelineResponse(resp, encoding) {
   await resp.body?.cancel();
   throw impossible(encoding, "Impossible encoding");
 }
+__name(decodePipelineResponse, "decodePipelineResponse");
 async function errorFromResponse(resp) {
   const respType = resp.headers.get("content-type") ?? "text/plain";
   let message = `Server returned HTTP status ${resp.status}`;
@@ -3953,10 +4157,11 @@ async function errorFromResponse(resp) {
   await resp.body?.cancel();
   return new HttpServerError(message, resp.status);
 }
+__name(errorFromResponse, "errorFromResponse");
 var HttpStream;
 var init_stream3 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/http/stream.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_errors();
     init_encoding();
     init_id_alloc();
@@ -3976,6 +4181,9 @@ var init_stream3 = __esm({
     HttpStream = class extends Stream {
       static {
         __name(this, "HttpStream");
+      }
+      static {
+        __name2(this, "HttpStream");
       }
       #client;
       #baseUrl;
@@ -4124,8 +4332,8 @@ var init_stream3 = __esm({
           this.#queue.push({
             type: "pipeline",
             request: { type: "close" },
-            responseCallback: /* @__PURE__ */ __name(() => void 0, "responseCallback"),
-            errorCallback: /* @__PURE__ */ __name(() => void 0, "errorCallback")
+            responseCallback: /* @__PURE__ */ __name2(() => void 0, "responseCallback"),
+            errorCallback: /* @__PURE__ */ __name2(() => void 0, "errorCallback")
           });
           this.#closeQueued = true;
           _queueMicrotask(() => this.#flushQueue());
@@ -4168,8 +4376,8 @@ var init_stream3 = __esm({
               pipeline.push({
                 type: "pipeline",
                 request: { type: "close" },
-                responseCallback: /* @__PURE__ */ __name(() => void 0, "responseCallback"),
-                errorCallback: /* @__PURE__ */ __name(() => void 0, "errorCallback")
+                responseCallback: /* @__PURE__ */ __name2(() => void 0, "responseCallback"),
+                errorCallback: /* @__PURE__ */ __name2(() => void 0, "errorCallback")
               });
               this.#closeQueued = true;
               break;
@@ -4259,13 +4467,11 @@ var init_stream3 = __esm({
         return new Request(url.toString(), { method: "POST", headers, body: bodyData });
       }
     };
-    __name(handlePipelineResponse, "handlePipelineResponse");
-    __name(decodePipelineResponse, "decodePipelineResponse");
-    __name(errorFromResponse, "errorFromResponse");
+    __name2(handlePipelineResponse, "handlePipelineResponse");
+    __name2(decodePipelineResponse, "decodePipelineResponse");
+    __name2(errorFromResponse, "errorFromResponse");
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/http/client.js
 async function findEndpoint(customFetch, clientUrl) {
   const fetch2 = customFetch;
   for (const endpoint of checkEndpoints) {
@@ -4279,10 +4485,13 @@ async function findEndpoint(customFetch, clientUrl) {
   }
   return fallbackEndpoint;
 }
-var checkEndpoints, fallbackEndpoint, HttpClient;
+__name(findEndpoint, "findEndpoint");
+var checkEndpoints;
+var fallbackEndpoint;
+var HttpClient;
 var init_client3 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/http/client.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_client();
     init_errors();
     init_stream3();
@@ -4314,6 +4523,9 @@ var init_client3 = __esm({
     HttpClient = class extends Client {
       static {
         __name(this, "HttpClient");
+      }
+      static {
+        __name2(this, "HttpClient");
       }
       #url;
       #jwt;
@@ -4391,19 +4603,15 @@ var init_client3 = __esm({
         }
       }
     };
-    __name(findEndpoint, "findEndpoint");
+    __name2(findEndpoint, "findEndpoint");
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/libsql_url.js
 var init_libsql_url = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/libsql_url.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_errors();
   }
 });
-
-// ../node_modules/@libsql/hrana-client/lib-esm/index.js
 function openWs(url, jwt, protocolVersion = 2) {
   if (typeof _WebSocket === "undefined") {
     throw new WebSocketUnsupportedError("WebSockets are not supported in this environment");
@@ -4417,12 +4625,14 @@ function openWs(url, jwt, protocolVersion = 2) {
   const socket = new _WebSocket(url, subprotocols);
   return new WsClient(socket, jwt);
 }
+__name(openWs, "openWs");
 function openHttp(url, jwt, customFetch, remoteEncryptionKey, protocolVersion = 2) {
   return new HttpClient(url instanceof URL ? url : new URL(url), jwt, customFetch, remoteEncryptionKey, protocolVersion);
 }
+__name(openHttp, "openHttp");
 var init_lib_esm = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/index.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_web();
     init_client2();
     init_errors();
@@ -4440,12 +4650,10 @@ var init_lib_esm = __esm({
     init_stream3();
     init_client2();
     init_stream2();
-    __name(openWs, "openWs");
-    __name(openHttp, "openHttp");
+    __name2(openWs, "openWs");
+    __name2(openHttp, "openHttp");
   }
 });
-
-// ../node_modules/@libsql/client/lib-esm/hrana.js
 async function executeHranaBatch(mode, version2, batch, hranaStmts, disableForeignKeys = false) {
   if (disableForeignKeys) {
     batch.step().run("PRAGMA foreign_keys=off");
@@ -4496,6 +4704,7 @@ async function executeHranaBatch(mode, version2, batch, hranaStmts, disableForei
   await commitPromise;
   return resultSets;
 }
+__name(executeHranaBatch, "executeHranaBatch");
 function stmtToHrana(stmt) {
   let sql;
   let args;
@@ -4519,6 +4728,7 @@ function stmtToHrana(stmt) {
   }
   return hranaStmt;
 }
+__name(stmtToHrana, "stmtToHrana");
 function resultSetFromHrana(hranaRows) {
   const columns = hranaRows.columnNames.map((c) => c ?? "");
   const columnTypes = hranaRows.columnDecltypes.map((c) => c ?? "");
@@ -4527,6 +4737,7 @@ function resultSetFromHrana(hranaRows) {
   const lastInsertRowid = hranaRows.lastInsertRowid !== void 0 ? hranaRows.lastInsertRowid : void 0;
   return new ResultSetImpl(columns, columnTypes, rows, rowsAffected, lastInsertRowid);
 }
+__name(resultSetFromHrana, "resultSetFromHrana");
 function mapHranaError(e) {
   if (e instanceof ClientError) {
     const code = mapHranaErrorCode(e);
@@ -4534,6 +4745,7 @@ function mapHranaError(e) {
   }
   return e;
 }
+__name(mapHranaError, "mapHranaError");
 function mapHranaErrorCode(e) {
   if (e instanceof ResponseError && e.code !== void 0) {
     return e.code;
@@ -4553,16 +4765,20 @@ function mapHranaErrorCode(e) {
     return "UNKNOWN";
   }
 }
+__name(mapHranaErrorCode, "mapHranaErrorCode");
 var HranaTransaction;
 var init_hrana = __esm({
   "../node_modules/@libsql/client/lib-esm/hrana.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_lib_esm();
     init_api();
     init_util();
     HranaTransaction = class {
       static {
         __name(this, "HranaTransaction");
+      }
+      static {
+        __name2(this, "HranaTransaction");
       }
       #mode;
       #version;
@@ -4722,22 +4938,24 @@ var init_hrana = __esm({
         }
       }
     };
-    __name(executeHranaBatch, "executeHranaBatch");
-    __name(stmtToHrana, "stmtToHrana");
-    __name(resultSetFromHrana, "resultSetFromHrana");
-    __name(mapHranaError, "mapHranaError");
-    __name(mapHranaErrorCode, "mapHranaErrorCode");
+    __name2(executeHranaBatch, "executeHranaBatch");
+    __name2(stmtToHrana, "stmtToHrana");
+    __name2(resultSetFromHrana, "resultSetFromHrana");
+    __name2(mapHranaError, "mapHranaError");
+    __name2(mapHranaErrorCode, "mapHranaErrorCode");
   }
 });
-
-// ../node_modules/@libsql/client/lib-esm/sql_cache.js
-var SqlCache, Lru;
+var SqlCache;
+var Lru;
 var init_sql_cache = __esm({
   "../node_modules/@libsql/client/lib-esm/sql_cache.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     SqlCache = class {
       static {
         __name(this, "SqlCache");
+      }
+      static {
+        __name2(this, "SqlCache");
       }
       #owner;
       #sqls;
@@ -4793,6 +5011,9 @@ var init_sql_cache = __esm({
       static {
         __name(this, "Lru");
       }
+      static {
+        __name2(this, "Lru");
+      }
       // This maps keys to the cache values. The entries are ordered by their last use (entires that were used
       // most recently are at the end).
       #cache;
@@ -4825,11 +5046,9 @@ var init_sql_cache = __esm({
     };
   }
 });
-
-// ../node_modules/promise-limit/index.js
 var require_promise_limit = __commonJS({
   "../node_modules/promise-limit/index.js"(exports, module) {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     function limiter(count) {
       var outstanding = 0;
       var jobs = [];
@@ -4840,6 +5059,7 @@ var require_promise_limit = __commonJS({
         }
       }
       __name(remove, "remove");
+      __name2(remove, "remove");
       function dequeue() {
         var job = jobs.shift();
         semaphore.queue = jobs.length;
@@ -4848,6 +5068,7 @@ var require_promise_limit = __commonJS({
         }
       }
       __name(dequeue, "dequeue");
+      __name2(dequeue, "dequeue");
       function queue(fn) {
         return new Promise(function(resolve, reject) {
           jobs.push({ fn, resolve, reject });
@@ -4855,6 +5076,7 @@ var require_promise_limit = __commonJS({
         });
       }
       __name(queue, "queue");
+      __name2(queue, "queue");
       function run(fn) {
         outstanding++;
         try {
@@ -4871,7 +5093,8 @@ var require_promise_limit = __commonJS({
         }
       }
       __name(run, "run");
-      var semaphore = /* @__PURE__ */ __name(function(fn) {
+      __name2(run, "run");
+      var semaphore = /* @__PURE__ */ __name2(function(fn) {
         if (outstanding >= count) {
           return queue(fn);
         } else {
@@ -4881,6 +5104,7 @@ var require_promise_limit = __commonJS({
       return semaphore;
     }
     __name(limiter, "limiter");
+    __name2(limiter, "limiter");
     function map(items, mapper) {
       var failed = false;
       var limit = this;
@@ -4897,12 +5121,14 @@ var require_promise_limit = __commonJS({
       }));
     }
     __name(map, "map");
+    __name2(map, "map");
     function addExtras(fn) {
       fn.queue = 0;
       fn.map = map;
       return fn;
     }
     __name(addExtras, "addExtras");
+    __name2(addExtras, "addExtras");
     module.exports = function(count) {
       if (count) {
         return addExtras(limiter(count));
@@ -4914,8 +5140,6 @@ var require_promise_limit = __commonJS({
     };
   }
 });
-
-// ../node_modules/@libsql/client/lib-esm/ws.js
 function _createClient(config) {
   if (config.scheme !== "wss" && config.scheme !== "ws") {
     throw new LibsqlError(`The WebSocket client supports only "libsql:", "wss:" and "ws:" URLs, got ${JSON.stringify(config.scheme + ":")}. For more information, please read ${supportedUrlLink}`, "URL_SCHEME_NOT_SUPPORTED");
@@ -4942,10 +5166,15 @@ function _createClient(config) {
   }
   return new WsClient2(client, url, config.authToken, config.intMode, config.concurrency);
 }
-var import_promise_limit, maxConnAgeMillis, sqlCacheCapacity, WsClient2, WsTransaction;
+__name(_createClient, "_createClient");
+var import_promise_limit;
+var maxConnAgeMillis;
+var sqlCacheCapacity;
+var WsClient2;
+var WsTransaction;
 var init_ws = __esm({
   "../node_modules/@libsql/client/lib-esm/ws.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_lib_esm();
     init_api();
     init_config();
@@ -4955,12 +5184,15 @@ var init_ws = __esm({
     init_util();
     import_promise_limit = __toESM(require_promise_limit(), 1);
     init_api();
-    __name(_createClient, "_createClient");
+    __name2(_createClient, "_createClient");
     maxConnAgeMillis = 60 * 1e3;
     sqlCacheCapacity = 100;
     WsClient2 = class {
       static {
-        __name(this, "WsClient");
+        __name(this, "WsClient2");
+      }
+      static {
+        __name2(this, "WsClient");
       }
       #url;
       #authToken;
@@ -5203,6 +5435,9 @@ var init_ws = __esm({
       static {
         __name(this, "WsTransaction");
       }
+      static {
+        __name2(this, "WsTransaction");
+      }
       #client;
       #streamState;
       /** @private */
@@ -5228,8 +5463,6 @@ var init_ws = __esm({
     };
   }
 });
-
-// ../node_modules/@libsql/client/lib-esm/http.js
 function _createClient2(config) {
   if (config.scheme !== "https" && config.scheme !== "http") {
     throw new LibsqlError(`The HTTP client supports only "libsql:", "https:" and "http:" URLs, got ${JSON.stringify(config.scheme + ":")}. For more information, please read ${supportedUrlLink}`, "URL_SCHEME_NOT_SUPPORTED");
@@ -5245,10 +5478,14 @@ function _createClient2(config) {
   const url = encodeBaseUrl(config.scheme, config.authority, config.path);
   return new HttpClient2(url, config.authToken, config.intMode, config.fetch, config.concurrency, config.remoteEncryptionKey);
 }
-var import_promise_limit2, sqlCacheCapacity2, HttpClient2, HttpTransaction;
+__name(_createClient2, "_createClient2");
+var import_promise_limit2;
+var sqlCacheCapacity2;
+var HttpClient2;
+var HttpTransaction;
 var init_http = __esm({
   "../node_modules/@libsql/client/lib-esm/http.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_lib_esm();
     init_api();
     init_config();
@@ -5258,11 +5495,14 @@ var init_http = __esm({
     init_util();
     import_promise_limit2 = __toESM(require_promise_limit(), 1);
     init_api();
-    __name(_createClient2, "_createClient");
+    __name2(_createClient2, "_createClient");
     sqlCacheCapacity2 = 30;
     HttpClient2 = class {
       static {
-        __name(this, "HttpClient");
+        __name(this, "HttpClient2");
+      }
+      static {
+        __name2(this, "HttpClient");
       }
       #client;
       protocol;
@@ -5417,6 +5657,9 @@ var init_http = __esm({
       static {
         __name(this, "HttpTransaction");
       }
+      static {
+        __name2(this, "HttpTransaction");
+      }
       #stream;
       #sqlCache;
       /** @private */
@@ -5442,11 +5685,10 @@ var init_http = __esm({
     };
   }
 });
-
-// ../node_modules/@libsql/client/lib-esm/web.js
 function createClient(config) {
   return _createClient3(expandConfig(config, true));
 }
+__name(createClient, "createClient");
 function _createClient3(config) {
   if (config.scheme === "ws" || config.scheme === "wss") {
     return _createClient(config);
@@ -5456,21 +5698,20 @@ function _createClient3(config) {
     throw new LibsqlError(`The client that uses Web standard APIs supports only "libsql:", "wss:", "ws:", "https:" and "http:" URLs, got ${JSON.stringify(config.scheme + ":")}. For more information, please read ${supportedUrlLink}`, "URL_SCHEME_NOT_SUPPORTED");
   }
 }
+__name(_createClient3, "_createClient3");
 var init_web2 = __esm({
   "../node_modules/@libsql/client/lib-esm/web.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_api();
     init_config();
     init_util();
     init_ws();
     init_http();
     init_api();
-    __name(createClient, "createClient");
-    __name(_createClient3, "_createClient");
+    __name2(createClient, "createClient");
+    __name2(_createClient3, "_createClient");
   }
 });
-
-// ../node_modules/@tsndr/cloudflare-worker-jwt/index.js
 function bytesToByteString(bytes) {
   let byteStr = "";
   for (let i = 0; i < bytes.byteLength; i++) {
@@ -5478,6 +5719,7 @@ function bytesToByteString(bytes) {
   }
   return byteStr;
 }
+__name(bytesToByteString, "bytesToByteString");
 function byteStringToBytes(byteStr) {
   let bytes = new Uint8Array(byteStr.length);
   for (let i = 0; i < byteStr.length; i++) {
@@ -5485,42 +5727,54 @@ function byteStringToBytes(byteStr) {
   }
   return bytes;
 }
+__name(byteStringToBytes, "byteStringToBytes");
 function arrayBufferToBase64String(arrayBuffer) {
   return btoa(bytesToByteString(new Uint8Array(arrayBuffer)));
 }
+__name(arrayBufferToBase64String, "arrayBufferToBase64String");
 function base64StringToUint8Array(b64str) {
   return byteStringToBytes(atob(b64str));
 }
+__name(base64StringToUint8Array, "base64StringToUint8Array");
 function textToUint8Array(str) {
   return byteStringToBytes(str);
 }
+__name(textToUint8Array, "textToUint8Array");
 function arrayBufferToBase64Url(arrayBuffer) {
   return arrayBufferToBase64String(arrayBuffer).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
 }
+__name(arrayBufferToBase64Url, "arrayBufferToBase64Url");
 function base64UrlToUint8Array(b64url) {
   return base64StringToUint8Array(b64url.replace(/-/g, "+").replace(/_/g, "/").replace(/\s/g, ""));
 }
+__name(base64UrlToUint8Array, "base64UrlToUint8Array");
 function textToBase64Url(str) {
   const encoder = new TextEncoder();
   const charCodes = encoder.encode(str);
   const binaryStr = String.fromCharCode(...charCodes);
   return btoa(binaryStr).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
 }
+__name(textToBase64Url, "textToBase64Url");
 function pemToBinary(pem) {
   return base64StringToUint8Array(pem.replace(/-+(BEGIN|END).*/g, "").replace(/\s/g, ""));
 }
+__name(pemToBinary, "pemToBinary");
 async function importTextSecret(key, algorithm, keyUsages) {
   return await crypto.subtle.importKey("raw", textToUint8Array(key), algorithm, true, keyUsages);
 }
+__name(importTextSecret, "importTextSecret");
 async function importJwk(key, algorithm, keyUsages) {
   return await crypto.subtle.importKey("jwk", key, algorithm, true, keyUsages);
 }
+__name(importJwk, "importJwk");
 async function importPublicKey(key, algorithm, keyUsages) {
   return await crypto.subtle.importKey("spki", pemToBinary(key), algorithm, true, keyUsages);
 }
+__name(importPublicKey, "importPublicKey");
 async function importPrivateKey(key, algorithm, keyUsages) {
   return await crypto.subtle.importKey("pkcs8", pemToBinary(key), algorithm, true, keyUsages);
 }
+__name(importPrivateKey, "importPrivateKey");
 async function importKey(key, algorithm, keyUsages) {
   if (typeof key === "object")
     return importJwk(key, algorithm, keyUsages);
@@ -5532,11 +5786,13 @@ async function importKey(key, algorithm, keyUsages) {
     return importPrivateKey(key, algorithm, keyUsages);
   return importTextSecret(key, algorithm, keyUsages);
 }
+__name(importKey, "importKey");
 function decodePayload(raw) {
   const bytes = Array.from(atob(raw), (char) => char.charCodeAt(0));
   const decodedString = new TextDecoder("utf-8").decode(new Uint8Array(bytes));
   return JSON.parse(decodedString);
 }
+__name(decodePayload, "decodePayload");
 async function sign(payload, secret, options = "HS256") {
   if (typeof options === "string")
     options = { algorithm: options };
@@ -5559,6 +5815,7 @@ async function sign(payload, secret, options = "HS256") {
   const signature = await crypto.subtle.sign(algorithm, key, textToUint8Array(partialToken));
   return `${partialToken}.${arrayBufferToBase64Url(signature)}`;
 }
+__name(sign, "sign");
 async function verify(token, secret, options = "HS256") {
   if (typeof options === "string")
     options = { algorithm: options };
@@ -5599,31 +5856,34 @@ async function verify(token, secret, options = "HS256") {
     return;
   }
 }
+__name(verify, "verify");
 function decode2(token) {
   return {
     header: decodePayload(token.split(".")[0].replace(/-/g, "+").replace(/_/g, "/")),
     payload: decodePayload(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))
   };
 }
-var algorithms, index_default;
+__name(decode2, "decode2");
+var algorithms;
+var index_default;
 var init_cloudflare_worker_jwt = __esm({
   "../node_modules/@tsndr/cloudflare-worker-jwt/index.js"() {
-    init_functionsRoutes_0_30977898429902107();
-    __name(bytesToByteString, "bytesToByteString");
-    __name(byteStringToBytes, "byteStringToBytes");
-    __name(arrayBufferToBase64String, "arrayBufferToBase64String");
-    __name(base64StringToUint8Array, "base64StringToUint8Array");
-    __name(textToUint8Array, "textToUint8Array");
-    __name(arrayBufferToBase64Url, "arrayBufferToBase64Url");
-    __name(base64UrlToUint8Array, "base64UrlToUint8Array");
-    __name(textToBase64Url, "textToBase64Url");
-    __name(pemToBinary, "pemToBinary");
-    __name(importTextSecret, "importTextSecret");
-    __name(importJwk, "importJwk");
-    __name(importPublicKey, "importPublicKey");
-    __name(importPrivateKey, "importPrivateKey");
-    __name(importKey, "importKey");
-    __name(decodePayload, "decodePayload");
+    init_functionsRoutes_0_22217754403411138();
+    __name2(bytesToByteString, "bytesToByteString");
+    __name2(byteStringToBytes, "byteStringToBytes");
+    __name2(arrayBufferToBase64String, "arrayBufferToBase64String");
+    __name2(base64StringToUint8Array, "base64StringToUint8Array");
+    __name2(textToUint8Array, "textToUint8Array");
+    __name2(arrayBufferToBase64Url, "arrayBufferToBase64Url");
+    __name2(base64UrlToUint8Array, "base64UrlToUint8Array");
+    __name2(textToBase64Url, "textToBase64Url");
+    __name2(pemToBinary, "pemToBinary");
+    __name2(importTextSecret, "importTextSecret");
+    __name2(importJwk, "importJwk");
+    __name2(importPublicKey, "importPublicKey");
+    __name2(importPrivateKey, "importPrivateKey");
+    __name2(importKey, "importKey");
+    __name2(decodePayload, "decodePayload");
     if (typeof crypto === "undefined" || !crypto.subtle)
       throw new Error("SubtleCrypto not supported!");
     algorithms = {
@@ -5638,9 +5898,9 @@ var init_cloudflare_worker_jwt = __esm({
       RS384: { name: "RSASSA-PKCS1-v1_5", hash: { name: "SHA-384" } },
       RS512: { name: "RSASSA-PKCS1-v1_5", hash: { name: "SHA-512" } }
     };
-    __name(sign, "sign");
-    __name(verify, "verify");
-    __name(decode2, "decode");
+    __name2(sign, "sign");
+    __name2(verify, "verify");
+    __name2(decode2, "decode");
     index_default = {
       sign,
       verify,
@@ -5648,8 +5908,6 @@ var init_cloudflare_worker_jwt = __esm({
     };
   }
 });
-
-// api/admin/skills.js
 async function requireAdmin(request, env) {
   if (!request.headers.get("X-CSRF-Token")) return false;
   const cookieHeader = request.headers.get("Cookie");
@@ -5661,6 +5919,7 @@ async function requireAdmin(request, env) {
   const { payload } = index_default.decode(token);
   return payload.role === "admin";
 }
+__name(requireAdmin, "requireAdmin");
 async function onRequestPost(context) {
   const { request, env } = context;
   const isAdmin = await requireAdmin(request, env);
@@ -5690,17 +5949,16 @@ async function onRequestPost(context) {
     return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
   }
 }
+__name(onRequestPost, "onRequestPost");
 var init_skills = __esm({
   "api/admin/skills.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_web2();
     init_cloudflare_worker_jwt();
-    __name(requireAdmin, "requireAdmin");
-    __name(onRequestPost, "onRequestPost");
+    __name2(requireAdmin, "requireAdmin");
+    __name2(onRequestPost, "onRequestPost");
   }
 });
-
-// api/admin/users.js
 async function requireAdmin2(request, env) {
   if (!request.headers.get("X-CSRF-Token")) return false;
   const cookieHeader = request.headers.get("Cookie");
@@ -5712,6 +5970,7 @@ async function requireAdmin2(request, env) {
   const { payload } = index_default.decode(token);
   return payload.role === "admin";
 }
+__name(requireAdmin2, "requireAdmin2");
 async function onRequestGet(context) {
   const { request, env } = context;
   if (!await requireAdmin2(request, env)) {
@@ -5725,6 +5984,7 @@ async function onRequestGet(context) {
     return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
   }
 }
+__name(onRequestGet, "onRequestGet");
 async function onRequestPost2(context) {
   const { request, env } = context;
   if (!await requireAdmin2(request, env)) {
@@ -5744,6 +6004,7 @@ async function onRequestPost2(context) {
     return new Response(JSON.stringify({ error: "Failed to add user (might already exist)" }), { status: 500 });
   }
 }
+__name(onRequestPost2, "onRequestPost2");
 async function onRequestPut(context) {
   const { request, env } = context;
   if (!await requireAdmin2(request, env)) {
@@ -5762,19 +6023,18 @@ async function onRequestPut(context) {
     return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
   }
 }
+__name(onRequestPut, "onRequestPut");
 var init_users = __esm({
   "api/admin/users.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_web2();
     init_cloudflare_worker_jwt();
-    __name(requireAdmin2, "requireAdmin");
-    __name(onRequestGet, "onRequestGet");
-    __name(onRequestPost2, "onRequestPost");
-    __name(onRequestPut, "onRequestPut");
+    __name2(requireAdmin2, "requireAdmin");
+    __name2(onRequestGet, "onRequestGet");
+    __name2(onRequestPost2, "onRequestPost");
+    __name2(onRequestPut, "onRequestPut");
   }
 });
-
-// api/admin/workstations.js
 async function requireAdmin3(request, env) {
   if (!request.headers.get("X-CSRF-Token")) return false;
   const cookieHeader = request.headers.get("Cookie");
@@ -5786,6 +6046,7 @@ async function requireAdmin3(request, env) {
   const { payload } = index_default.decode(token);
   return payload.role === "admin";
 }
+__name(requireAdmin3, "requireAdmin3");
 async function onRequestPost3(context) {
   const { request, env } = context;
   const isAdmin = await requireAdmin3(request, env);
@@ -5815,17 +6076,16 @@ async function onRequestPost3(context) {
     return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
   }
 }
+__name(onRequestPost3, "onRequestPost3");
 var init_workstations = __esm({
   "api/admin/workstations.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_web2();
     init_cloudflare_worker_jwt();
-    __name(requireAdmin3, "requireAdmin");
-    __name(onRequestPost3, "onRequestPost");
+    __name2(requireAdmin3, "requireAdmin");
+    __name2(onRequestPost3, "onRequestPost");
   }
 });
-
-// api/check-code.js
 async function onRequestPost4(context) {
   const { request, env } = context;
   let { email, code } = await request.json();
@@ -5857,15 +6117,14 @@ async function onRequestPost4(context) {
     return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
   }
 }
+__name(onRequestPost4, "onRequestPost4");
 var init_check_code = __esm({
   "api/check-code.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_web2();
-    __name(onRequestPost4, "onRequestPost");
+    __name2(onRequestPost4, "onRequestPost");
   }
 });
-
-// api/forgot-password.js
 function isRateLimited(ip) {
   const now = Date.now();
   if (!rateLimitMap.has(ip)) {
@@ -5881,6 +6140,7 @@ function isRateLimited(ip) {
   data.count++;
   return data.count > 5;
 }
+__name(isRateLimited, "isRateLimited");
 async function onRequestPost5(context) {
   const { request, env } = context;
   const ip = request.headers.get("cf-connecting-ip") || "unknown";
@@ -5937,18 +6197,17 @@ async function onRequestPost5(context) {
     return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
   }
 }
+__name(onRequestPost5, "onRequestPost5");
 var rateLimitMap;
 var init_forgot_password = __esm({
   "api/forgot-password.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_web2();
     rateLimitMap = /* @__PURE__ */ new Map();
-    __name(isRateLimited, "isRateLimited");
-    __name(onRequestPost5, "onRequestPost");
+    __name2(isRateLimited, "isRateLimited");
+    __name2(onRequestPost5, "onRequestPost");
   }
 });
-
-// api/login.js
 async function hashPassword(password) {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
@@ -5956,6 +6215,7 @@ async function hashPassword(password) {
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
+__name(hashPassword, "hashPassword");
 function isRateLimited2(ip) {
   const now = Date.now();
   if (!rateLimitMap2.has(ip)) {
@@ -5971,6 +6231,7 @@ function isRateLimited2(ip) {
   data.count++;
   return data.count > 10;
 }
+__name(isRateLimited2, "isRateLimited2");
 async function onRequestPost6(context) {
   const { request, env } = context;
   const ip = request.headers.get("cf-connecting-ip") || "unknown";
@@ -6019,20 +6280,19 @@ async function onRequestPost6(context) {
     return new Response(JSON.stringify({ error: "Internal server error" }), { status: 500 });
   }
 }
+__name(onRequestPost6, "onRequestPost6");
 var rateLimitMap2;
 var init_login = __esm({
   "api/login.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_web2();
     init_cloudflare_worker_jwt();
-    __name(hashPassword, "hashPassword");
+    __name2(hashPassword, "hashPassword");
     rateLimitMap2 = /* @__PURE__ */ new Map();
-    __name(isRateLimited2, "isRateLimited");
-    __name(onRequestPost6, "onRequestPost");
+    __name2(isRateLimited2, "isRateLimited");
+    __name2(onRequestPost6, "onRequestPost");
   }
 });
-
-// api/logout.js
 async function onRequestPost7(context) {
   if (!context.request.headers.get("X-CSRF-Token")) {
     return new Response("Missing CSRF Token", { status: 403 });
@@ -6045,14 +6305,13 @@ async function onRequestPost7(context) {
     }
   });
 }
+__name(onRequestPost7, "onRequestPost7");
 var init_logout = __esm({
   "api/logout.js"() {
-    init_functionsRoutes_0_30977898429902107();
-    __name(onRequestPost7, "onRequestPost");
+    init_functionsRoutes_0_22217754403411138();
+    __name2(onRequestPost7, "onRequestPost");
   }
 });
-
-// api/matrix-data.js
 async function onRequestGet2(context) {
   const { request, env } = context;
   const cookieHeader = request.headers.get("Cookie");
@@ -6093,16 +6352,15 @@ async function onRequestGet2(context) {
     return new Response(JSON.stringify({ error: "Failed to fetch matrix data" }), { status: 500 });
   }
 }
+__name(onRequestGet2, "onRequestGet2");
 var init_matrix_data = __esm({
   "api/matrix-data.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_web2();
     init_cloudflare_worker_jwt();
-    __name(onRequestGet2, "onRequestGet");
+    __name2(onRequestGet2, "onRequestGet");
   }
 });
-
-// api/proficiency.js
 async function onRequestPost8(context) {
   const { request, env } = context;
   if (!request.headers.get("X-CSRF-Token")) {
@@ -6143,16 +6401,15 @@ async function onRequestPost8(context) {
     return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
   }
 }
+__name(onRequestPost8, "onRequestPost8");
 var init_proficiency = __esm({
   "api/proficiency.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_web2();
     init_cloudflare_worker_jwt();
-    __name(onRequestPost8, "onRequestPost");
+    __name2(onRequestPost8, "onRequestPost");
   }
 });
-
-// api/register.js
 function isRateLimited3(ip) {
   const now = Date.now();
   if (!rateLimitMap3.has(ip)) {
@@ -6168,6 +6425,7 @@ function isRateLimited3(ip) {
   data.count++;
   return data.count > 5;
 }
+__name(isRateLimited3, "isRateLimited3");
 async function onRequestPost9(context) {
   const { request, env } = context;
   const ip = request.headers.get("cf-connecting-ip") || "unknown";
@@ -6224,18 +6482,17 @@ async function onRequestPost9(context) {
     return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
   }
 }
+__name(onRequestPost9, "onRequestPost9");
 var rateLimitMap3;
 var init_register = __esm({
   "api/register.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_web2();
     rateLimitMap3 = /* @__PURE__ */ new Map();
-    __name(isRateLimited3, "isRateLimited");
-    __name(onRequestPost9, "onRequestPost");
+    __name2(isRateLimited3, "isRateLimited");
+    __name2(onRequestPost9, "onRequestPost");
   }
 });
-
-// api/reset-password.js
 async function hashPassword2(password) {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
@@ -6243,6 +6500,7 @@ async function hashPassword2(password) {
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
+__name(hashPassword2, "hashPassword2");
 async function onRequestPost10(context) {
   const { request, env } = context;
   let { email, code, password } = await request.json();
@@ -6286,16 +6544,15 @@ async function onRequestPost10(context) {
     return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
   }
 }
+__name(onRequestPost10, "onRequestPost10");
 var init_reset_password = __esm({
   "api/reset-password.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_web2();
-    __name(hashPassword2, "hashPassword");
-    __name(onRequestPost10, "onRequestPost");
+    __name2(hashPassword2, "hashPassword");
+    __name2(onRequestPost10, "onRequestPost");
   }
 });
-
-// api/session.js
 async function onRequestGet3(context) {
   const { request, env } = context;
   const cookieHeader = request.headers.get("Cookie");
@@ -6315,15 +6572,14 @@ async function onRequestGet3(context) {
     return new Response("Unauthorized", { status: 401 });
   }
 }
+__name(onRequestGet3, "onRequestGet3");
 var init_session = __esm({
   "api/session.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_cloudflare_worker_jwt();
-    __name(onRequestGet3, "onRequestGet");
+    __name2(onRequestGet3, "onRequestGet");
   }
 });
-
-// api/settings.js
 async function hashPassword3(password) {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
@@ -6331,6 +6587,7 @@ async function hashPassword3(password) {
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
+__name(hashPassword3, "hashPassword3");
 async function onRequestPost11(context) {
   const { request, env } = context;
   if (!request.headers.get("X-CSRF-Token")) {
@@ -6388,17 +6645,16 @@ async function onRequestPost11(context) {
     return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
   }
 }
+__name(onRequestPost11, "onRequestPost11");
 var init_settings = __esm({
   "api/settings.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_web2();
     init_cloudflare_worker_jwt();
-    __name(hashPassword3, "hashPassword");
-    __name(onRequestPost11, "onRequestPost");
+    __name2(hashPassword3, "hashPassword");
+    __name2(onRequestPost11, "onRequestPost");
   }
 });
-
-// api/verify.js
 async function hashPassword4(password) {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
@@ -6406,6 +6662,7 @@ async function hashPassword4(password) {
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
+__name(hashPassword4, "hashPassword4");
 async function onRequestPost12(context) {
   const { request, env } = context;
   let { email, code, password, firstName, lastName } = await request.json();
@@ -6456,19 +6713,18 @@ async function onRequestPost12(context) {
     return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
   }
 }
+__name(onRequestPost12, "onRequestPost12");
 var init_verify = __esm({
   "api/verify.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_web2();
-    __name(hashPassword4, "hashPassword");
-    __name(onRequestPost12, "onRequestPost");
+    __name2(hashPassword4, "hashPassword");
+    __name2(onRequestPost12, "onRequestPost");
   }
 });
-
-// ../.wrangler/tmp/pages-ZIwyib/functionsRoutes-0.30977898429902107.mjs
 var routes;
-var init_functionsRoutes_0_30977898429902107 = __esm({
-  "../.wrangler/tmp/pages-ZIwyib/functionsRoutes-0.30977898429902107.mjs"() {
+var init_functionsRoutes_0_22217754403411138 = __esm({
+  "../.wrangler/tmp/pages-N2unis/functionsRoutes-0.22217754403411138.mjs"() {
     init_skills();
     init_users();
     init_users();
@@ -6601,18 +6857,10 @@ var init_functionsRoutes_0_30977898429902107 = __esm({
     ];
   }
 });
-
-// ../.wrangler/tmp/bundle-xaKU6q/middleware-loader.entry.ts
-init_functionsRoutes_0_30977898429902107();
-
-// ../.wrangler/tmp/bundle-xaKU6q/middleware-insertion-facade.js
-init_functionsRoutes_0_30977898429902107();
-
-// ../node_modules/wrangler/templates/pages-template-worker.ts
-init_functionsRoutes_0_30977898429902107();
-
-// ../node_modules/wrangler/node_modules/path-to-regexp/dist.es2015/index.js
-init_functionsRoutes_0_30977898429902107();
+init_functionsRoutes_0_22217754403411138();
+init_functionsRoutes_0_22217754403411138();
+init_functionsRoutes_0_22217754403411138();
+init_functionsRoutes_0_22217754403411138();
 function lexer(str) {
   var tokens = [];
   var i = 0;
@@ -6697,6 +6945,7 @@ function lexer(str) {
   return tokens;
 }
 __name(lexer, "lexer");
+__name2(lexer, "lexer");
 function parse(str, options) {
   if (options === void 0) {
     options = {};
@@ -6707,18 +6956,18 @@ function parse(str, options) {
   var key = 0;
   var i = 0;
   var path = "";
-  var tryConsume = /* @__PURE__ */ __name(function(type) {
+  var tryConsume = /* @__PURE__ */ __name2(function(type) {
     if (i < tokens.length && tokens[i].type === type)
       return tokens[i++].value;
   }, "tryConsume");
-  var mustConsume = /* @__PURE__ */ __name(function(type) {
+  var mustConsume = /* @__PURE__ */ __name2(function(type) {
     var value2 = tryConsume(type);
     if (value2 !== void 0)
       return value2;
     var _a2 = tokens[i], nextType = _a2.type, index = _a2.index;
     throw new TypeError("Unexpected ".concat(nextType, " at ").concat(index, ", expected ").concat(type));
   }, "mustConsume");
-  var consumeText = /* @__PURE__ */ __name(function() {
+  var consumeText = /* @__PURE__ */ __name2(function() {
     var result2 = "";
     var value2;
     while (value2 = tryConsume("CHAR") || tryConsume("ESCAPED_CHAR")) {
@@ -6726,7 +6975,7 @@ function parse(str, options) {
     }
     return result2;
   }, "consumeText");
-  var isSafe = /* @__PURE__ */ __name(function(value2) {
+  var isSafe = /* @__PURE__ */ __name2(function(value2) {
     for (var _i = 0, delimiter_1 = delimiter; _i < delimiter_1.length; _i++) {
       var char2 = delimiter_1[_i];
       if (value2.indexOf(char2) > -1)
@@ -6734,7 +6983,7 @@ function parse(str, options) {
     }
     return false;
   }, "isSafe");
-  var safePattern = /* @__PURE__ */ __name(function(prefix2) {
+  var safePattern = /* @__PURE__ */ __name2(function(prefix2) {
     var prev = result[result.length - 1];
     var prevText = prefix2 || (prev && typeof prev === "string" ? prev : "");
     if (prev && !prevText) {
@@ -6797,12 +7046,14 @@ function parse(str, options) {
   return result;
 }
 __name(parse, "parse");
+__name2(parse, "parse");
 function match(str, options) {
   var keys = [];
   var re = pathToRegexp(str, keys, options);
   return regexpToFunction(re, keys, options);
 }
 __name(match, "match");
+__name2(match, "match");
 function regexpToFunction(re, keys, options) {
   if (options === void 0) {
     options = {};
@@ -6816,7 +7067,7 @@ function regexpToFunction(re, keys, options) {
       return false;
     var path = m[0], index = m.index;
     var params = /* @__PURE__ */ Object.create(null);
-    var _loop_1 = /* @__PURE__ */ __name(function(i2) {
+    var _loop_1 = /* @__PURE__ */ __name2(function(i2) {
       if (m[i2] === void 0)
         return "continue";
       var key = keys[i2 - 1];
@@ -6835,14 +7086,17 @@ function regexpToFunction(re, keys, options) {
   };
 }
 __name(regexpToFunction, "regexpToFunction");
+__name2(regexpToFunction, "regexpToFunction");
 function escapeString(str) {
   return str.replace(/([.+*?=^!:${}()[\]|/\\])/g, "\\$1");
 }
 __name(escapeString, "escapeString");
+__name2(escapeString, "escapeString");
 function flags(options) {
   return options && options.sensitive ? "" : "i";
 }
 __name(flags, "flags");
+__name2(flags, "flags");
 function regexpToRegexp(path, keys) {
   if (!keys)
     return path;
@@ -6863,6 +7117,7 @@ function regexpToRegexp(path, keys) {
   return path;
 }
 __name(regexpToRegexp, "regexpToRegexp");
+__name2(regexpToRegexp, "regexpToRegexp");
 function arrayToRegexp(paths, keys, options) {
   var parts = paths.map(function(path) {
     return pathToRegexp(path, keys, options).source;
@@ -6870,10 +7125,12 @@ function arrayToRegexp(paths, keys, options) {
   return new RegExp("(?:".concat(parts.join("|"), ")"), flags(options));
 }
 __name(arrayToRegexp, "arrayToRegexp");
+__name2(arrayToRegexp, "arrayToRegexp");
 function stringToRegexp(path, keys, options) {
   return tokensToRegexp(parse(path, options), keys, options);
 }
 __name(stringToRegexp, "stringToRegexp");
+__name2(stringToRegexp, "stringToRegexp");
 function tokensToRegexp(tokens, keys, options) {
   if (options === void 0) {
     options = {};
@@ -6929,6 +7186,7 @@ function tokensToRegexp(tokens, keys, options) {
   return new RegExp(route, flags(options));
 }
 __name(tokensToRegexp, "tokensToRegexp");
+__name2(tokensToRegexp, "tokensToRegexp");
 function pathToRegexp(path, keys, options) {
   if (path instanceof RegExp)
     return regexpToRegexp(path, keys);
@@ -6937,8 +7195,7 @@ function pathToRegexp(path, keys, options) {
   return stringToRegexp(path, keys, options);
 }
 __name(pathToRegexp, "pathToRegexp");
-
-// ../node_modules/wrangler/templates/pages-template-worker.ts
+__name2(pathToRegexp, "pathToRegexp");
 var escapeRegex = /[.+?^${}()|[\]\\]/g;
 function* executeRequest(request) {
   const requestPath = new URL(request.url).pathname;
@@ -6989,13 +7246,14 @@ function* executeRequest(request) {
   }
 }
 __name(executeRequest, "executeRequest");
+__name2(executeRequest, "executeRequest");
 var pages_template_worker_default = {
   async fetch(originalRequest, env, workerContext) {
     let request = originalRequest;
     const handlerIterator = executeRequest(request);
     let data = {};
     let isFailOpen = false;
-    const next = /* @__PURE__ */ __name(async (input, init) => {
+    const next = /* @__PURE__ */ __name2(async (input, init) => {
       if (input !== void 0) {
         let url = input;
         if (typeof input === "string") {
@@ -7022,7 +7280,7 @@ var pages_template_worker_default = {
           },
           env,
           waitUntil: workerContext.waitUntil.bind(workerContext),
-          passThroughOnException: /* @__PURE__ */ __name(() => {
+          passThroughOnException: /* @__PURE__ */ __name2(() => {
             isFailOpen = true;
           }, "passThroughOnException")
         };
@@ -7050,17 +7308,15 @@ var pages_template_worker_default = {
     }
   }
 };
-var cloneResponse = /* @__PURE__ */ __name((response) => (
+var cloneResponse = /* @__PURE__ */ __name2((response) => (
   // https://fetch.spec.whatwg.org/#null-body-status
   new Response(
     [101, 204, 205, 304].includes(response.status) ? null : response.body,
     response
   )
 ), "cloneResponse");
-
-// ../node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts
-init_functionsRoutes_0_30977898429902107();
-var drainBody = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+init_functionsRoutes_0_22217754403411138();
+var drainBody = /* @__PURE__ */ __name2(async (request, env, _ctx, middlewareCtx) => {
   try {
     return await middlewareCtx.next(request, env);
   } finally {
@@ -7076,9 +7332,7 @@ var drainBody = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
   }
 }, "drainBody");
 var middleware_ensure_req_body_drained_default = drainBody;
-
-// ../node_modules/wrangler/templates/middleware/middleware-miniflare3-json-error.ts
-init_functionsRoutes_0_30977898429902107();
+init_functionsRoutes_0_22217754403411138();
 function reduceError(e) {
   return {
     name: e?.name,
@@ -7088,7 +7342,8 @@ function reduceError(e) {
   };
 }
 __name(reduceError, "reduceError");
-var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+__name2(reduceError, "reduceError");
+var jsonError = /* @__PURE__ */ __name2(async (request, env, _ctx, middlewareCtx) => {
   try {
     return await middlewareCtx.next(request, env);
   } catch (e) {
@@ -7100,21 +7355,18 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
   }
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
-
-// ../.wrangler/tmp/bundle-xaKU6q/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
 ];
 var middleware_insertion_facade_default = pages_template_worker_default;
-
-// ../node_modules/wrangler/templates/middleware/common.ts
-init_functionsRoutes_0_30977898429902107();
+init_functionsRoutes_0_22217754403411138();
 var __facade_middleware__ = [];
 function __facade_register__(...args) {
   __facade_middleware__.push(...args.flat());
 }
 __name(__facade_register__, "__facade_register__");
+__name2(__facade_register__, "__facade_register__");
 function __facade_invokeChain__(request, env, ctx, dispatch, middlewareChain) {
   const [head, ...tail] = middlewareChain;
   const middlewareCtx = {
@@ -7126,6 +7378,7 @@ function __facade_invokeChain__(request, env, ctx, dispatch, middlewareChain) {
   return head(request, env, ctx, middlewareCtx);
 }
 __name(__facade_invokeChain__, "__facade_invokeChain__");
+__name2(__facade_invokeChain__, "__facade_invokeChain__");
 function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
   return __facade_invokeChain__(request, env, ctx, dispatch, [
     ...__facade_middleware__,
@@ -7133,16 +7386,18 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
   ]);
 }
 __name(__facade_invoke__, "__facade_invoke__");
-
-// ../.wrangler/tmp/bundle-xaKU6q/middleware-loader.entry.ts
+__name2(__facade_invoke__, "__facade_invoke__");
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
+  static {
+    __name(this, "___Facade_ScheduledController__");
+  }
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
     this.cron = cron;
     this.#noRetry = noRetry;
   }
   static {
-    __name(this, "__Facade_ScheduledController__");
+    __name2(this, "__Facade_ScheduledController__");
   }
   #noRetry;
   noRetry() {
@@ -7159,7 +7414,7 @@ function wrapExportedHandler(worker) {
   for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__) {
     __facade_register__(middleware);
   }
-  const fetchDispatcher = /* @__PURE__ */ __name(function(request, env, ctx) {
+  const fetchDispatcher = /* @__PURE__ */ __name2(function(request, env, ctx) {
     if (worker.fetch === void 0) {
       throw new Error("Handler does not export a fetch() function.");
     }
@@ -7168,7 +7423,7 @@ function wrapExportedHandler(worker) {
   return {
     ...worker,
     fetch(request, env, ctx) {
-      const dispatcher = /* @__PURE__ */ __name(function(type, init) {
+      const dispatcher = /* @__PURE__ */ __name2(function(type, init) {
         if (type === "scheduled" && worker.scheduled !== void 0) {
           const controller = new __Facade_ScheduledController__(
             Date.now(),
@@ -7184,6 +7439,7 @@ function wrapExportedHandler(worker) {
   };
 }
 __name(wrapExportedHandler, "wrapExportedHandler");
+__name2(wrapExportedHandler, "wrapExportedHandler");
 function wrapWorkerEntrypoint(klass) {
   if (__INTERNAL_WRANGLER_MIDDLEWARE__ === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__.length === 0) {
     return klass;
@@ -7192,7 +7448,7 @@ function wrapWorkerEntrypoint(klass) {
     __facade_register__(middleware);
   }
   return class extends klass {
-    #fetchDispatcher = /* @__PURE__ */ __name((request, env, ctx) => {
+    #fetchDispatcher = /* @__PURE__ */ __name2((request, env, ctx) => {
       this.env = env;
       this.ctx = ctx;
       if (super.fetch === void 0) {
@@ -7200,7 +7456,7 @@ function wrapWorkerEntrypoint(klass) {
       }
       return super.fetch(request);
     }, "#fetchDispatcher");
-    #dispatcher = /* @__PURE__ */ __name((type, init) => {
+    #dispatcher = /* @__PURE__ */ __name2((type, init) => {
       if (type === "scheduled" && super.scheduled !== void 0) {
         const controller = new __Facade_ScheduledController__(
           Date.now(),
@@ -7223,6 +7479,7 @@ function wrapWorkerEntrypoint(klass) {
   };
 }
 __name(wrapWorkerEntrypoint, "wrapWorkerEntrypoint");
+__name2(wrapWorkerEntrypoint, "wrapWorkerEntrypoint");
 var WRAPPED_ENTRY;
 if (typeof middleware_insertion_facade_default === "object") {
   WRAPPED_ENTRY = wrapExportedHandler(middleware_insertion_facade_default);
@@ -7230,8 +7487,178 @@ if (typeof middleware_insertion_facade_default === "object") {
   WRAPPED_ENTRY = wrapWorkerEntrypoint(middleware_insertion_facade_default);
 }
 var middleware_loader_entry_default = WRAPPED_ENTRY;
-export {
-  __INTERNAL_WRANGLER_MIDDLEWARE__,
-  middleware_loader_entry_default as default
+
+// node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts
+var drainBody2 = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+  try {
+    return await middlewareCtx.next(request, env);
+  } finally {
+    try {
+      if (request.body !== null && !request.bodyUsed) {
+        const reader = request.body.getReader();
+        while (!(await reader.read()).done) {
+        }
+      }
+    } catch (e) {
+      console.error("Failed to drain the unused request body.", e);
+    }
+  }
+}, "drainBody");
+var middleware_ensure_req_body_drained_default2 = drainBody2;
+
+// node_modules/wrangler/templates/middleware/middleware-miniflare3-json-error.ts
+function reduceError2(e) {
+  return {
+    name: e?.name,
+    message: e?.message ?? String(e),
+    stack: e?.stack,
+    cause: e?.cause === void 0 ? void 0 : reduceError2(e.cause)
+  };
+}
+__name(reduceError2, "reduceError");
+var jsonError2 = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
+  try {
+    return await middlewareCtx.next(request, env);
+  } catch (e) {
+    const error = reduceError2(e);
+    return Response.json(error, {
+      status: 500,
+      headers: { "MF-Experimental-Error-Stack": "true" }
+    });
+  }
+}, "jsonError");
+var middleware_miniflare3_json_error_default2 = jsonError2;
+
+// .wrangler/tmp/bundle-r3UPBW/middleware-insertion-facade.js
+var __INTERNAL_WRANGLER_MIDDLEWARE__2 = [
+  middleware_ensure_req_body_drained_default2,
+  middleware_miniflare3_json_error_default2
+];
+var middleware_insertion_facade_default2 = middleware_loader_entry_default;
+
+// node_modules/wrangler/templates/middleware/common.ts
+var __facade_middleware__2 = [];
+function __facade_register__2(...args) {
+  __facade_middleware__2.push(...args.flat());
+}
+__name(__facade_register__2, "__facade_register__");
+function __facade_invokeChain__2(request, env, ctx, dispatch, middlewareChain) {
+  const [head, ...tail] = middlewareChain;
+  const middlewareCtx = {
+    dispatch,
+    next(newRequest, newEnv) {
+      return __facade_invokeChain__2(newRequest, newEnv, ctx, dispatch, tail);
+    }
+  };
+  return head(request, env, ctx, middlewareCtx);
+}
+__name(__facade_invokeChain__2, "__facade_invokeChain__");
+function __facade_invoke__2(request, env, ctx, dispatch, finalMiddleware) {
+  return __facade_invokeChain__2(request, env, ctx, dispatch, [
+    ...__facade_middleware__2,
+    finalMiddleware
+  ]);
+}
+__name(__facade_invoke__2, "__facade_invoke__");
+
+// .wrangler/tmp/bundle-r3UPBW/middleware-loader.entry.ts
+var __Facade_ScheduledController__2 = class ___Facade_ScheduledController__2 {
+  constructor(scheduledTime, cron, noRetry) {
+    this.scheduledTime = scheduledTime;
+    this.cron = cron;
+    this.#noRetry = noRetry;
+  }
+  static {
+    __name(this, "__Facade_ScheduledController__");
+  }
+  #noRetry;
+  noRetry() {
+    if (!(this instanceof ___Facade_ScheduledController__2)) {
+      throw new TypeError("Illegal invocation");
+    }
+    this.#noRetry();
+  }
 };
-//# sourceMappingURL=functionsWorker-0.09574875951396256.mjs.map
+function wrapExportedHandler2(worker) {
+  if (__INTERNAL_WRANGLER_MIDDLEWARE__2 === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__2.length === 0) {
+    return worker;
+  }
+  for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__2) {
+    __facade_register__2(middleware);
+  }
+  const fetchDispatcher = /* @__PURE__ */ __name(function(request, env, ctx) {
+    if (worker.fetch === void 0) {
+      throw new Error("Handler does not export a fetch() function.");
+    }
+    return worker.fetch(request, env, ctx);
+  }, "fetchDispatcher");
+  return {
+    ...worker,
+    fetch(request, env, ctx) {
+      const dispatcher = /* @__PURE__ */ __name(function(type, init) {
+        if (type === "scheduled" && worker.scheduled !== void 0) {
+          const controller = new __Facade_ScheduledController__2(
+            Date.now(),
+            init.cron ?? "",
+            () => {
+            }
+          );
+          return worker.scheduled(controller, env, ctx);
+        }
+      }, "dispatcher");
+      return __facade_invoke__2(request, env, ctx, dispatcher, fetchDispatcher);
+    }
+  };
+}
+__name(wrapExportedHandler2, "wrapExportedHandler");
+function wrapWorkerEntrypoint2(klass) {
+  if (__INTERNAL_WRANGLER_MIDDLEWARE__2 === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__2.length === 0) {
+    return klass;
+  }
+  for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__2) {
+    __facade_register__2(middleware);
+  }
+  return class extends klass {
+    #fetchDispatcher = /* @__PURE__ */ __name((request, env, ctx) => {
+      this.env = env;
+      this.ctx = ctx;
+      if (super.fetch === void 0) {
+        throw new Error("Entrypoint class does not define a fetch() function.");
+      }
+      return super.fetch(request);
+    }, "#fetchDispatcher");
+    #dispatcher = /* @__PURE__ */ __name((type, init) => {
+      if (type === "scheduled" && super.scheduled !== void 0) {
+        const controller = new __Facade_ScheduledController__2(
+          Date.now(),
+          init.cron ?? "",
+          () => {
+          }
+        );
+        return super.scheduled(controller);
+      }
+    }, "#dispatcher");
+    fetch(request) {
+      return __facade_invoke__2(
+        request,
+        this.env,
+        this.ctx,
+        this.#dispatcher,
+        this.#fetchDispatcher
+      );
+    }
+  };
+}
+__name(wrapWorkerEntrypoint2, "wrapWorkerEntrypoint");
+var WRAPPED_ENTRY2;
+if (typeof middleware_insertion_facade_default2 === "object") {
+  WRAPPED_ENTRY2 = wrapExportedHandler2(middleware_insertion_facade_default2);
+} else if (typeof middleware_insertion_facade_default2 === "function") {
+  WRAPPED_ENTRY2 = wrapWorkerEntrypoint2(middleware_insertion_facade_default2);
+}
+var middleware_loader_entry_default2 = WRAPPED_ENTRY2;
+export {
+  __INTERNAL_WRANGLER_MIDDLEWARE__2 as __INTERNAL_WRANGLER_MIDDLEWARE__,
+  middleware_loader_entry_default2 as default
+};
+//# sourceMappingURL=functionsWorker-0.26509012976546154.js.map

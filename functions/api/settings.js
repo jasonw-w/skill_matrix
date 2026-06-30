@@ -12,6 +12,11 @@ async function hashPassword(password) {
 export async function onRequestPost(context) {
   const { request, env } = context;
 
+  // CSRF Protection
+  if (!request.headers.get('X-CSRF-Token')) {
+      return new Response(JSON.stringify({ error: 'Missing CSRF Token' }), { status: 403 });
+  }
+
   // Verify Session
   const cookieHeader = request.headers.get('Cookie');
   if (!cookieHeader) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
@@ -38,7 +43,10 @@ export async function onRequestPost(context) {
   });
 
   try {
-    if (password && password.length >= 8) {
+    if (password) {
+      if (password.length < 8 || !/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])/.test(password)) {
+        return new Response(JSON.stringify({ error: 'Password must be at least 8 characters and contain a mix of uppercase, lowercase, and numbers' }), { status: 400 });
+      }
       const hashedPassword = await hashPassword(password);
       await client.execute({
         sql: 'UPDATE users SET first_name = ?, last_name = ?, password_hash = ? WHERE id = ?',

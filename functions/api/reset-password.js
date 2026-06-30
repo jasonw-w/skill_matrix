@@ -17,8 +17,8 @@ export async function onRequestPost(context) {
     return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 });
   }
 
-  if (password.length < 8) {
-    return new Response(JSON.stringify({ error: 'Password must be at least 8 characters' }), { status: 400 });
+  if (!password || password.length < 8 || !/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])/.test(password)) {
+    return new Response(JSON.stringify({ error: 'Password must be at least 8 characters and contain a mix of uppercase, lowercase, and numbers' }), { status: 400 });
   }
 
   const client = createClient({

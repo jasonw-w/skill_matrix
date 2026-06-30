@@ -1,7 +1,30 @@
 import { createClient } from '@libsql/client/web';
 
+const rateLimitMap = new Map();
+function isRateLimited(ip) {
+    const now = Date.now();
+    if (!rateLimitMap.has(ip)) {
+        rateLimitMap.set(ip, { count: 1, resetAt: now + 60000 });
+        return false;
+    }
+    const data = rateLimitMap.get(ip);
+    if (now > data.resetAt) {
+        data.count = 1;
+        data.resetAt = now + 60000;
+        return false;
+    }
+    data.count++;
+    return data.count > 5; // Max 5 attempts per minute
+}
+
 export async function onRequestPost(context) {
   const { request, env } = context;
+
+  const ip = request.headers.get('cf-connecting-ip') || 'unknown';
+  if (isRateLimited(ip)) {
+      return new Response(JSON.stringify({ error: 'Too many requests. Please try again later.' }), { status: 429 });
+  }
+
   let { email } = await request.json();
   if (email) email = email.toLowerCase();
 

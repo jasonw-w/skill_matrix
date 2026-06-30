@@ -1,4 +1,7 @@
-export async function onRequestPost() {
+export async function onRequestPost(context) {
+  if (!context.request.headers.get('X-CSRF-Token')) {
+    return new Response('Missing CSRF Token', { status: 403 });
+  }
   return new Response(JSON.stringify({ message: 'Logged out' }), {
     status: 200,
     headers: {

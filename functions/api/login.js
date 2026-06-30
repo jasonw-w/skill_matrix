@@ -11,8 +11,31 @@ async function hashPassword(password) {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+const rateLimitMap = new Map();
+function isRateLimited(ip) {
+    const now = Date.now();
+    if (!rateLimitMap.has(ip)) {
+        rateLimitMap.set(ip, { count: 1, resetAt: now + 60000 });
+        return false;
+    }
+    const data = rateLimitMap.get(ip);
+    if (now > data.resetAt) {
+        data.count = 1;
+        data.resetAt = now + 60000;
+        return false;
+    }
+    data.count++;
+    return data.count > 10; // Max 10 attempts per minute per isolate
+}
+
 export async function onRequestPost(context) {
   const { request, env } = context;
+  
+  const ip = request.headers.get('cf-connecting-ip') || 'unknown';
+  if (isRateLimited(ip)) {
+      return new Response(JSON.stringify({ error: 'Too many requests. Please try again later.' }), { status: 429 });
+  }
+
   let { email, password } = await request.json();
   if (email) email = email.toLowerCase();
 
@@ -20,12 +43,12 @@ export async function onRequestPost(context) {
     return new Response(JSON.stringify({ error: 'Email and password required' }), { status: 400 });
   }
 
-  const client = createClient({
-    url: env.TURSO_URL,
-    authToken: env.TURSO_AUTH,
-  });
-
   try {
+    const client = createClient({
+      url: env.TURSO_URL,
+      authToken: env.TURSO_AUTH,
+    });
+
     const userRes = await client.execute({
       sql: 'SELECT * FROM users WHERE email = ? AND is_verified = 1',
       args: [email]

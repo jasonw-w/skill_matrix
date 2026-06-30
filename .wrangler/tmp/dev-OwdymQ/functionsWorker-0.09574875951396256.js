@@ -5712,105 +5712,6 @@ var init_web2 = __esm({
     __name2(_createClient3, "_createClient");
   }
 });
-async function onRequestPost(context) {
-  const { request, env } = context;
-  let { email, code } = await request.json();
-  if (email) email = email.toLowerCase();
-  if (!email || !code) {
-    return new Response(JSON.stringify({ error: "Missing email or code" }), { status: 400 });
-  }
-  const client = createClient({
-    url: env.TURSO_URL,
-    authToken: env.TURSO_AUTH
-  });
-  try {
-    const userRes = await client.execute({
-      sql: "SELECT verification_code, code_expires_at FROM users WHERE email = ?",
-      args: [email]
-    });
-    if (userRes.rows.length === 0) {
-      return new Response(JSON.stringify({ error: "User not found" }), { status: 404 });
-    }
-    const user = userRes.rows[0];
-    if (user.verification_code !== code) {
-      return new Response(JSON.stringify({ error: "Invalid verification code" }), { status: 400 });
-    }
-    if (Date.now() > user.code_expires_at) {
-      return new Response(JSON.stringify({ error: "Code expired" }), { status: 400 });
-    }
-    return new Response(JSON.stringify({ message: "Code valid" }), { status: 200 });
-  } catch (err) {
-    return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
-  }
-}
-__name(onRequestPost, "onRequestPost");
-var init_check_code = __esm({
-  "api/check-code.js"() {
-    init_functionsRoutes_0_30977898429902107();
-    init_web2();
-    __name2(onRequestPost, "onRequestPost");
-  }
-});
-async function onRequestPost2(context) {
-  const { request, env } = context;
-  let { email } = await request.json();
-  if (email) email = email.toLowerCase();
-  if (!email) {
-    return new Response(JSON.stringify({ error: "Email is required" }), { status: 400 });
-  }
-  const client = createClient({
-    url: env.TURSO_URL,
-    authToken: env.TURSO_AUTH
-  });
-  try {
-    const res = await client.execute({
-      sql: "SELECT id FROM users WHERE email = ?",
-      args: [email]
-    });
-    if (res.rows.length === 0) {
-      return new Response(JSON.stringify({ message: "If the email exists, a code was sent." }), { status: 200 });
-    }
-    const resetCode = Math.floor(1e5 + Math.random() * 9e5).toString();
-    const resetExpiry = Date.now() + 15 * 60 * 1e3;
-    await client.execute({
-      sql: "UPDATE users SET reset_code = ?, reset_expiry = ? WHERE email = ?",
-      args: [resetCode, resetExpiry, email]
-    });
-    const resendResponse = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${env.RESEND_AUTH}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        from: "Skill Matrix <onboarding@resend.dev>",
-        to: email,
-        subject: "Password Reset Code",
-        html: `<p>Your password reset code is: <strong>${resetCode}</strong></p><p>This code will expire in 15 minutes.</p>`
-      })
-    });
-    if (!resendResponse.ok) {
-      const errData = await resendResponse.json();
-      console.error("Resend Error:", errData);
-      throw new Error("Failed to send email");
-    }
-    return new Response(JSON.stringify({ message: "Code sent successfully" }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" }
-    });
-  } catch (err) {
-    console.error(err);
-    return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
-  }
-}
-__name(onRequestPost2, "onRequestPost2");
-var init_forgot_password = __esm({
-  "api/forgot-password.js"() {
-    init_functionsRoutes_0_30977898429902107();
-    init_web2();
-    __name2(onRequestPost2, "onRequestPost");
-  }
-});
 function bytesToByteString(bytes) {
   let byteStr = "";
   for (let i = 0; i < bytes.byteLength; i++) {
@@ -6007,6 +5908,306 @@ var init_cloudflare_worker_jwt = __esm({
     };
   }
 });
+async function requireAdmin(request, env) {
+  if (!request.headers.get("X-CSRF-Token")) return false;
+  const cookieHeader = request.headers.get("Cookie");
+  if (!cookieHeader) return false;
+  const token = cookieHeader.split("; ").find((row) => row.startsWith("session="))?.split("=")[1];
+  if (!token) return false;
+  const isValid2 = await index_default.verify(token, env.JWT_SECRET);
+  if (!isValid2) return false;
+  const { payload } = index_default.decode(token);
+  return payload.role === "admin";
+}
+__name(requireAdmin, "requireAdmin");
+async function onRequestPost(context) {
+  const { request, env } = context;
+  const isAdmin = await requireAdmin(request, env);
+  if (!isAdmin) {
+    return new Response(JSON.stringify({ error: "Unauthorized. Admin access required." }), { status: 403 });
+  }
+  const { name, workstation_id } = await request.json();
+  if (!name || !workstation_id) {
+    return new Response(JSON.stringify({ error: "Skill name and workstation_id are required" }), { status: 400 });
+  }
+  const client = createClient({
+    url: env.TURSO_URL,
+    authToken: env.TURSO_AUTH
+  });
+  try {
+    const id = crypto.randomUUID();
+    await client.execute({
+      sql: "INSERT INTO skills (id, name, workstation_id) VALUES (?, ?, ?)",
+      args: [id, name, workstation_id]
+    });
+    return new Response(JSON.stringify({ message: "Skill created successfully", skill: { id, name, workstation_id } }), {
+      status: 201,
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (err) {
+    console.error(err);
+    return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
+  }
+}
+__name(onRequestPost, "onRequestPost");
+var init_skills = __esm({
+  "api/admin/skills.js"() {
+    init_functionsRoutes_0_30977898429902107();
+    init_web2();
+    init_cloudflare_worker_jwt();
+    __name2(requireAdmin, "requireAdmin");
+    __name2(onRequestPost, "onRequestPost");
+  }
+});
+async function requireAdmin2(request, env) {
+  if (!request.headers.get("X-CSRF-Token")) return false;
+  const cookieHeader = request.headers.get("Cookie");
+  if (!cookieHeader) return false;
+  const token = cookieHeader.split("; ").find((row) => row.startsWith("session="))?.split("=")[1];
+  if (!token) return false;
+  const isValid2 = await index_default.verify(token, env.JWT_SECRET);
+  if (!isValid2) return false;
+  const { payload } = index_default.decode(token);
+  return payload.role === "admin";
+}
+__name(requireAdmin2, "requireAdmin2");
+async function onRequestGet(context) {
+  const { request, env } = context;
+  if (!await requireAdmin2(request, env)) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 403 });
+  }
+  const client = createClient({ url: env.TURSO_URL, authToken: env.TURSO_AUTH });
+  try {
+    const res = await client.execute("SELECT id, email, first_name, last_name, role, is_verified FROM users");
+    return new Response(JSON.stringify(res.rows), { status: 200, headers: { "Content-Type": "application/json" } });
+  } catch (e) {
+    return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
+  }
+}
+__name(onRequestGet, "onRequestGet");
+async function onRequestPost2(context) {
+  const { request, env } = context;
+  if (!await requireAdmin2(request, env)) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 403 });
+  }
+  const { email, role } = await request.json();
+  if (!email) return new Response(JSON.stringify({ error: "Email required" }), { status: 400 });
+  const client = createClient({ url: env.TURSO_URL, authToken: env.TURSO_AUTH });
+  try {
+    const id = crypto.randomUUID();
+    await client.execute({
+      sql: "INSERT INTO users (id, email, role, is_verified) VALUES (?, ?, ?, 1)",
+      args: [id, email.toLowerCase(), role || "user"]
+    });
+    return new Response(JSON.stringify({ message: "User added" }), { status: 201 });
+  } catch (e) {
+    return new Response(JSON.stringify({ error: "Failed to add user (might already exist)" }), { status: 500 });
+  }
+}
+__name(onRequestPost2, "onRequestPost2");
+async function onRequestPut(context) {
+  const { request, env } = context;
+  if (!await requireAdmin2(request, env)) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 403 });
+  }
+  const { userId, role } = await request.json();
+  if (!userId || !role) return new Response(JSON.stringify({ error: "Missing fields" }), { status: 400 });
+  const client = createClient({ url: env.TURSO_URL, authToken: env.TURSO_AUTH });
+  try {
+    await client.execute({
+      sql: "UPDATE users SET role = ? WHERE id = ?",
+      args: [role, userId]
+    });
+    return new Response(JSON.stringify({ message: "Role updated" }), { status: 200 });
+  } catch (e) {
+    return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
+  }
+}
+__name(onRequestPut, "onRequestPut");
+var init_users = __esm({
+  "api/admin/users.js"() {
+    init_functionsRoutes_0_30977898429902107();
+    init_web2();
+    init_cloudflare_worker_jwt();
+    __name2(requireAdmin2, "requireAdmin");
+    __name2(onRequestGet, "onRequestGet");
+    __name2(onRequestPost2, "onRequestPost");
+    __name2(onRequestPut, "onRequestPut");
+  }
+});
+async function requireAdmin3(request, env) {
+  if (!request.headers.get("X-CSRF-Token")) return false;
+  const cookieHeader = request.headers.get("Cookie");
+  if (!cookieHeader) return false;
+  const token = cookieHeader.split("; ").find((row) => row.startsWith("session="))?.split("=")[1];
+  if (!token) return false;
+  const isValid2 = await index_default.verify(token, env.JWT_SECRET);
+  if (!isValid2) return false;
+  const { payload } = index_default.decode(token);
+  return payload.role === "admin";
+}
+__name(requireAdmin3, "requireAdmin3");
+async function onRequestPost3(context) {
+  const { request, env } = context;
+  const isAdmin = await requireAdmin3(request, env);
+  if (!isAdmin) {
+    return new Response(JSON.stringify({ error: "Unauthorized. Admin access required." }), { status: 403 });
+  }
+  const { name } = await request.json();
+  if (!name) {
+    return new Response(JSON.stringify({ error: "Workstation name is required" }), { status: 400 });
+  }
+  const client = createClient({
+    url: env.TURSO_URL,
+    authToken: env.TURSO_AUTH
+  });
+  try {
+    const id = crypto.randomUUID();
+    await client.execute({
+      sql: "INSERT INTO workstations (id, name) VALUES (?, ?)",
+      args: [id, name]
+    });
+    return new Response(JSON.stringify({ message: "Workstation created successfully", workstation: { id, name } }), {
+      status: 201,
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (err) {
+    console.error(err);
+    return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
+  }
+}
+__name(onRequestPost3, "onRequestPost3");
+var init_workstations = __esm({
+  "api/admin/workstations.js"() {
+    init_functionsRoutes_0_30977898429902107();
+    init_web2();
+    init_cloudflare_worker_jwt();
+    __name2(requireAdmin3, "requireAdmin");
+    __name2(onRequestPost3, "onRequestPost");
+  }
+});
+async function onRequestPost4(context) {
+  const { request, env } = context;
+  let { email, code } = await request.json();
+  if (email) email = email.toLowerCase();
+  if (!email || !code) {
+    return new Response(JSON.stringify({ error: "Missing email or code" }), { status: 400 });
+  }
+  const client = createClient({
+    url: env.TURSO_URL,
+    authToken: env.TURSO_AUTH
+  });
+  try {
+    const userRes = await client.execute({
+      sql: "SELECT verification_code, code_expires_at FROM users WHERE email = ?",
+      args: [email]
+    });
+    if (userRes.rows.length === 0) {
+      return new Response(JSON.stringify({ error: "User not found" }), { status: 404 });
+    }
+    const user = userRes.rows[0];
+    if (user.verification_code !== code) {
+      return new Response(JSON.stringify({ error: "Invalid verification code" }), { status: 400 });
+    }
+    if (Date.now() > user.code_expires_at) {
+      return new Response(JSON.stringify({ error: "Code expired" }), { status: 400 });
+    }
+    return new Response(JSON.stringify({ message: "Code valid" }), { status: 200 });
+  } catch (err) {
+    return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
+  }
+}
+__name(onRequestPost4, "onRequestPost4");
+var init_check_code = __esm({
+  "api/check-code.js"() {
+    init_functionsRoutes_0_30977898429902107();
+    init_web2();
+    __name2(onRequestPost4, "onRequestPost");
+  }
+});
+function isRateLimited(ip) {
+  const now = Date.now();
+  if (!rateLimitMap.has(ip)) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + 6e4 });
+    return false;
+  }
+  const data = rateLimitMap.get(ip);
+  if (now > data.resetAt) {
+    data.count = 1;
+    data.resetAt = now + 6e4;
+    return false;
+  }
+  data.count++;
+  return data.count > 5;
+}
+__name(isRateLimited, "isRateLimited");
+async function onRequestPost5(context) {
+  const { request, env } = context;
+  const ip = request.headers.get("cf-connecting-ip") || "unknown";
+  if (isRateLimited(ip)) {
+    return new Response(JSON.stringify({ error: "Too many requests. Please try again later." }), { status: 429 });
+  }
+  let { email } = await request.json();
+  if (email) email = email.toLowerCase();
+  if (!email) {
+    return new Response(JSON.stringify({ error: "Email is required" }), { status: 400 });
+  }
+  const client = createClient({
+    url: env.TURSO_URL,
+    authToken: env.TURSO_AUTH
+  });
+  try {
+    const res = await client.execute({
+      sql: "SELECT id FROM users WHERE email = ?",
+      args: [email]
+    });
+    if (res.rows.length === 0) {
+      return new Response(JSON.stringify({ message: "If the email exists, a code was sent." }), { status: 200 });
+    }
+    const resetCode = Math.floor(1e5 + Math.random() * 9e5).toString();
+    const resetExpiry = Date.now() + 15 * 60 * 1e3;
+    await client.execute({
+      sql: "UPDATE users SET reset_code = ?, reset_expiry = ? WHERE email = ?",
+      args: [resetCode, resetExpiry, email]
+    });
+    const resendResponse = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${env.RESEND_AUTH}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        from: "Skill Matrix <onboarding@resend.dev>",
+        to: email,
+        subject: "Password Reset Code",
+        html: `<p>Your password reset code is: <strong>${resetCode}</strong></p><p>This code will expire in 15 minutes.</p>`
+      })
+    });
+    if (!resendResponse.ok) {
+      const errData = await resendResponse.json();
+      console.error("Resend Error:", errData);
+      throw new Error("Failed to send email");
+    }
+    return new Response(JSON.stringify({ message: "Code sent successfully" }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (err) {
+    console.error(err);
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
+  }
+}
+__name(onRequestPost5, "onRequestPost5");
+var rateLimitMap;
+var init_forgot_password = __esm({
+  "api/forgot-password.js"() {
+    init_functionsRoutes_0_30977898429902107();
+    init_web2();
+    rateLimitMap = /* @__PURE__ */ new Map();
+    __name2(isRateLimited, "isRateLimited");
+    __name2(onRequestPost5, "onRequestPost");
+  }
+});
 async function hashPassword(password) {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
@@ -6015,18 +6216,38 @@ async function hashPassword(password) {
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 __name(hashPassword, "hashPassword");
-async function onRequestPost3(context) {
+function isRateLimited2(ip) {
+  const now = Date.now();
+  if (!rateLimitMap2.has(ip)) {
+    rateLimitMap2.set(ip, { count: 1, resetAt: now + 6e4 });
+    return false;
+  }
+  const data = rateLimitMap2.get(ip);
+  if (now > data.resetAt) {
+    data.count = 1;
+    data.resetAt = now + 6e4;
+    return false;
+  }
+  data.count++;
+  return data.count > 10;
+}
+__name(isRateLimited2, "isRateLimited2");
+async function onRequestPost6(context) {
   const { request, env } = context;
+  const ip = request.headers.get("cf-connecting-ip") || "unknown";
+  if (isRateLimited2(ip)) {
+    return new Response(JSON.stringify({ error: "Too many requests. Please try again later." }), { status: 429 });
+  }
   let { email, password } = await request.json();
   if (email) email = email.toLowerCase();
   if (!email || !password) {
     return new Response(JSON.stringify({ error: "Email and password required" }), { status: 400 });
   }
-  const client = createClient({
-    url: env.TURSO_URL,
-    authToken: env.TURSO_AUTH
-  });
   try {
+    const client = createClient({
+      url: env.TURSO_URL,
+      authToken: env.TURSO_AUTH
+    });
     const userRes = await client.execute({
       sql: "SELECT * FROM users WHERE email = ? AND is_verified = 1",
       args: [email]
@@ -6059,17 +6280,23 @@ async function onRequestPost3(context) {
     return new Response(JSON.stringify({ error: "Internal server error" }), { status: 500 });
   }
 }
-__name(onRequestPost3, "onRequestPost3");
+__name(onRequestPost6, "onRequestPost6");
+var rateLimitMap2;
 var init_login = __esm({
   "api/login.js"() {
     init_functionsRoutes_0_30977898429902107();
     init_web2();
     init_cloudflare_worker_jwt();
     __name2(hashPassword, "hashPassword");
-    __name2(onRequestPost3, "onRequestPost");
+    rateLimitMap2 = /* @__PURE__ */ new Map();
+    __name2(isRateLimited2, "isRateLimited");
+    __name2(onRequestPost6, "onRequestPost");
   }
 });
-async function onRequestPost4() {
+async function onRequestPost7(context) {
+  if (!context.request.headers.get("X-CSRF-Token")) {
+    return new Response("Missing CSRF Token", { status: 403 });
+  }
   return new Response(JSON.stringify({ message: "Logged out" }), {
     status: 200,
     headers: {
@@ -6078,14 +6305,14 @@ async function onRequestPost4() {
     }
   });
 }
-__name(onRequestPost4, "onRequestPost4");
+__name(onRequestPost7, "onRequestPost7");
 var init_logout = __esm({
   "api/logout.js"() {
     init_functionsRoutes_0_30977898429902107();
-    __name2(onRequestPost4, "onRequestPost");
+    __name2(onRequestPost7, "onRequestPost");
   }
 });
-async function onRequestGet(context) {
+async function onRequestGet2(context) {
   const { request, env } = context;
   const cookieHeader = request.headers.get("Cookie");
   if (!cookieHeader) return new Response("Unauthorized", { status: 401 });
@@ -6125,17 +6352,86 @@ async function onRequestGet(context) {
     return new Response(JSON.stringify({ error: "Failed to fetch matrix data" }), { status: 500 });
   }
 }
-__name(onRequestGet, "onRequestGet");
+__name(onRequestGet2, "onRequestGet2");
 var init_matrix_data = __esm({
   "api/matrix-data.js"() {
     init_functionsRoutes_0_30977898429902107();
     init_web2();
     init_cloudflare_worker_jwt();
-    __name2(onRequestGet, "onRequestGet");
+    __name2(onRequestGet2, "onRequestGet");
   }
 });
-async function onRequestPost5(context) {
+async function onRequestPost8(context) {
   const { request, env } = context;
+  if (!request.headers.get("X-CSRF-Token")) {
+    return new Response(JSON.stringify({ error: "Missing CSRF Token" }), { status: 403 });
+  }
+  const cookieHeader = request.headers.get("Cookie");
+  if (!cookieHeader) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const token = cookieHeader.split("; ").find((row) => row.startsWith("session="))?.split("=")[1];
+  if (!token) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const isValid2 = await index_default.verify(token, env.JWT_SECRET);
+  if (!isValid2) return new Response(JSON.stringify({ error: "Invalid session" }), { status: 401 });
+  const { payload } = index_default.decode(token);
+  let { memberId, skillId, level } = await request.json();
+  if (payload.role !== "admin" && payload.id !== memberId) {
+    return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403 });
+  }
+  const client = createClient({
+    url: env.TURSO_URL,
+    authToken: env.TURSO_AUTH
+  });
+  try {
+    if (level === "none") {
+      await client.execute({
+        sql: "DELETE FROM user_skills WHERE user_id = ? AND skill_id = ?",
+        args: [memberId, skillId]
+      });
+    } else {
+      await client.execute({
+        sql: `INSERT INTO user_skills (user_id, skill_id, proficiency_level) 
+                  VALUES (?, ?, ?)
+                  ON CONFLICT(user_id, skill_id) DO UPDATE SET proficiency_level=excluded.proficiency_level`,
+        args: [memberId, skillId, level]
+      });
+    }
+    return new Response(JSON.stringify({ message: "Proficiency updated" }), { status: 200 });
+  } catch (err) {
+    console.error(err);
+    return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
+  }
+}
+__name(onRequestPost8, "onRequestPost8");
+var init_proficiency = __esm({
+  "api/proficiency.js"() {
+    init_functionsRoutes_0_30977898429902107();
+    init_web2();
+    init_cloudflare_worker_jwt();
+    __name2(onRequestPost8, "onRequestPost");
+  }
+});
+function isRateLimited3(ip) {
+  const now = Date.now();
+  if (!rateLimitMap3.has(ip)) {
+    rateLimitMap3.set(ip, { count: 1, resetAt: now + 6e4 });
+    return false;
+  }
+  const data = rateLimitMap3.get(ip);
+  if (now > data.resetAt) {
+    data.count = 1;
+    data.resetAt = now + 6e4;
+    return false;
+  }
+  data.count++;
+  return data.count > 5;
+}
+__name(isRateLimited3, "isRateLimited3");
+async function onRequestPost9(context) {
+  const { request, env } = context;
+  const ip = request.headers.get("cf-connecting-ip") || "unknown";
+  if (isRateLimited3(ip)) {
+    return new Response(JSON.stringify({ error: "Too many requests. Please try again later." }), { status: 429 });
+  }
   let { email } = await request.json();
   email = email ? email.toLowerCase() : "";
   const allowedDomains = ["@stfc.ac.uk", "@fedextest.onmicrosoft.com"];
@@ -6146,13 +6442,13 @@ async function onRequestPost5(context) {
       headers: { "Content-Type": "application/json" }
     });
   }
-  const client = createClient({
-    url: env.TURSO_URL,
-    authToken: env.TURSO_AUTH
-  });
   const verification_code = Math.floor(1e5 + Math.random() * 9e5).toString();
   const expiresAt = Date.now() + 15 * 60 * 1e3;
   try {
+    const client = createClient({
+      url: env.TURSO_URL,
+      authToken: env.TURSO_AUTH
+    });
     const id = crypto.randomUUID();
     await client.execute({
       sql: `INSERT INTO users (id, email, verification_code, code_expires_at) 
@@ -6186,12 +6482,15 @@ async function onRequestPost5(context) {
     return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
   }
 }
-__name(onRequestPost5, "onRequestPost5");
+__name(onRequestPost9, "onRequestPost9");
+var rateLimitMap3;
 var init_register = __esm({
   "api/register.js"() {
     init_functionsRoutes_0_30977898429902107();
     init_web2();
-    __name2(onRequestPost5, "onRequestPost");
+    rateLimitMap3 = /* @__PURE__ */ new Map();
+    __name2(isRateLimited3, "isRateLimited");
+    __name2(onRequestPost9, "onRequestPost");
   }
 });
 async function hashPassword2(password) {
@@ -6202,15 +6501,15 @@ async function hashPassword2(password) {
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 __name(hashPassword2, "hashPassword2");
-async function onRequestPost6(context) {
+async function onRequestPost10(context) {
   const { request, env } = context;
   let { email, code, password } = await request.json();
   if (email) email = email.toLowerCase();
   if (!email || !code || !password) {
     return new Response(JSON.stringify({ error: "Missing required fields" }), { status: 400 });
   }
-  if (password.length < 8) {
-    return new Response(JSON.stringify({ error: "Password must be at least 8 characters" }), { status: 400 });
+  if (!password || password.length < 8 || !/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])/.test(password)) {
+    return new Response(JSON.stringify({ error: "Password must be at least 8 characters and contain a mix of uppercase, lowercase, and numbers" }), { status: 400 });
   }
   const client = createClient({
     url: env.TURSO_URL,
@@ -6245,16 +6544,16 @@ async function onRequestPost6(context) {
     return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
   }
 }
-__name(onRequestPost6, "onRequestPost6");
+__name(onRequestPost10, "onRequestPost10");
 var init_reset_password = __esm({
   "api/reset-password.js"() {
     init_functionsRoutes_0_30977898429902107();
     init_web2();
     __name2(hashPassword2, "hashPassword");
-    __name2(onRequestPost6, "onRequestPost");
+    __name2(onRequestPost10, "onRequestPost");
   }
 });
-async function onRequestGet2(context) {
+async function onRequestGet3(context) {
   const { request, env } = context;
   const cookieHeader = request.headers.get("Cookie");
   if (!cookieHeader) return new Response("Unauthorized", { status: 401 });
@@ -6273,12 +6572,12 @@ async function onRequestGet2(context) {
     return new Response("Unauthorized", { status: 401 });
   }
 }
-__name(onRequestGet2, "onRequestGet2");
+__name(onRequestGet3, "onRequestGet3");
 var init_session = __esm({
   "api/session.js"() {
     init_functionsRoutes_0_30977898429902107();
     init_cloudflare_worker_jwt();
-    __name2(onRequestGet2, "onRequestGet");
+    __name2(onRequestGet3, "onRequestGet");
   }
 });
 async function hashPassword3(password) {
@@ -6289,8 +6588,11 @@ async function hashPassword3(password) {
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 __name(hashPassword3, "hashPassword3");
-async function onRequestPost7(context) {
+async function onRequestPost11(context) {
   const { request, env } = context;
+  if (!request.headers.get("X-CSRF-Token")) {
+    return new Response(JSON.stringify({ error: "Missing CSRF Token" }), { status: 403 });
+  }
   const cookieHeader = request.headers.get("Cookie");
   if (!cookieHeader) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   const token = cookieHeader.split("; ").find((row) => row.startsWith("session="))?.split("=")[1];
@@ -6308,7 +6610,10 @@ async function onRequestPost7(context) {
     authToken: env.TURSO_AUTH
   });
   try {
-    if (password && password.length >= 8) {
+    if (password) {
+      if (password.length < 8 || !/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])/.test(password)) {
+        return new Response(JSON.stringify({ error: "Password must be at least 8 characters and contain a mix of uppercase, lowercase, and numbers" }), { status: 400 });
+      }
       const hashedPassword = await hashPassword3(password);
       await client.execute({
         sql: "UPDATE users SET first_name = ?, last_name = ?, password_hash = ? WHERE id = ?",
@@ -6340,14 +6645,14 @@ async function onRequestPost7(context) {
     return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
   }
 }
-__name(onRequestPost7, "onRequestPost7");
+__name(onRequestPost11, "onRequestPost11");
 var init_settings = __esm({
   "api/settings.js"() {
     init_functionsRoutes_0_30977898429902107();
     init_web2();
     init_cloudflare_worker_jwt();
     __name2(hashPassword3, "hashPassword");
-    __name2(onRequestPost7, "onRequestPost");
+    __name2(onRequestPost11, "onRequestPost");
   }
 });
 async function hashPassword4(password) {
@@ -6358,12 +6663,15 @@ async function hashPassword4(password) {
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 __name(hashPassword4, "hashPassword4");
-async function onRequestPost8(context) {
+async function onRequestPost12(context) {
   const { request, env } = context;
   let { email, code, password, firstName, lastName } = await request.json();
   if (email) email = email.toLowerCase();
   if (!email || !code || !password || !firstName || !lastName) {
     return new Response(JSON.stringify({ error: "Missing required fields" }), { status: 400 });
+  }
+  if (!password || password.length < 8 || !/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])/.test(password)) {
+    return new Response(JSON.stringify({ error: "Password must be at least 8 characters and contain a mix of uppercase, lowercase, and numbers" }), { status: 400 });
   }
   const client = createClient({
     url: env.TURSO_URL,
@@ -6405,23 +6713,29 @@ async function onRequestPost8(context) {
     return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
   }
 }
-__name(onRequestPost8, "onRequestPost8");
+__name(onRequestPost12, "onRequestPost12");
 var init_verify = __esm({
   "api/verify.js"() {
     init_functionsRoutes_0_30977898429902107();
     init_web2();
     __name2(hashPassword4, "hashPassword");
-    __name2(onRequestPost8, "onRequestPost");
+    __name2(onRequestPost12, "onRequestPost");
   }
 });
 var routes;
 var init_functionsRoutes_0_30977898429902107 = __esm({
   "../.wrangler/tmp/pages-ZIwyib/functionsRoutes-0.30977898429902107.mjs"() {
+    init_skills();
+    init_users();
+    init_users();
+    init_users();
+    init_workstations();
     init_check_code();
     init_forgot_password();
     init_login();
     init_logout();
     init_matrix_data();
+    init_proficiency();
     init_register();
     init_reset_password();
     init_session();
@@ -6429,74 +6743,116 @@ var init_functionsRoutes_0_30977898429902107 = __esm({
     init_verify();
     routes = [
       {
-        routePath: "/api/check-code",
-        mountPath: "/api",
+        routePath: "/api/admin/skills",
+        mountPath: "/api/admin",
         method: "POST",
         middlewares: [],
         modules: [onRequestPost]
       },
       {
-        routePath: "/api/forgot-password",
-        mountPath: "/api",
+        routePath: "/api/admin/users",
+        mountPath: "/api/admin",
+        method: "GET",
+        middlewares: [],
+        modules: [onRequestGet]
+      },
+      {
+        routePath: "/api/admin/users",
+        mountPath: "/api/admin",
         method: "POST",
         middlewares: [],
         modules: [onRequestPost2]
       },
       {
-        routePath: "/api/login",
-        mountPath: "/api",
+        routePath: "/api/admin/users",
+        mountPath: "/api/admin",
+        method: "PUT",
+        middlewares: [],
+        modules: [onRequestPut]
+      },
+      {
+        routePath: "/api/admin/workstations",
+        mountPath: "/api/admin",
         method: "POST",
         middlewares: [],
         modules: [onRequestPost3]
       },
       {
-        routePath: "/api/logout",
+        routePath: "/api/check-code",
         mountPath: "/api",
         method: "POST",
         middlewares: [],
         modules: [onRequestPost4]
       },
       {
-        routePath: "/api/matrix-data",
-        mountPath: "/api",
-        method: "GET",
-        middlewares: [],
-        modules: [onRequestGet]
-      },
-      {
-        routePath: "/api/register",
+        routePath: "/api/forgot-password",
         mountPath: "/api",
         method: "POST",
         middlewares: [],
         modules: [onRequestPost5]
       },
       {
-        routePath: "/api/reset-password",
+        routePath: "/api/login",
         mountPath: "/api",
         method: "POST",
         middlewares: [],
         modules: [onRequestPost6]
       },
       {
-        routePath: "/api/session",
-        mountPath: "/api",
-        method: "GET",
-        middlewares: [],
-        modules: [onRequestGet2]
-      },
-      {
-        routePath: "/api/settings",
+        routePath: "/api/logout",
         mountPath: "/api",
         method: "POST",
         middlewares: [],
         modules: [onRequestPost7]
       },
       {
-        routePath: "/api/verify",
+        routePath: "/api/matrix-data",
+        mountPath: "/api",
+        method: "GET",
+        middlewares: [],
+        modules: [onRequestGet2]
+      },
+      {
+        routePath: "/api/proficiency",
         mountPath: "/api",
         method: "POST",
         middlewares: [],
         modules: [onRequestPost8]
+      },
+      {
+        routePath: "/api/register",
+        mountPath: "/api",
+        method: "POST",
+        middlewares: [],
+        modules: [onRequestPost9]
+      },
+      {
+        routePath: "/api/reset-password",
+        mountPath: "/api",
+        method: "POST",
+        middlewares: [],
+        modules: [onRequestPost10]
+      },
+      {
+        routePath: "/api/session",
+        mountPath: "/api",
+        method: "GET",
+        middlewares: [],
+        modules: [onRequestGet3]
+      },
+      {
+        routePath: "/api/settings",
+        mountPath: "/api",
+        method: "POST",
+        middlewares: [],
+        modules: [onRequestPost11]
+      },
+      {
+        routePath: "/api/verify",
+        mountPath: "/api",
+        method: "POST",
+        middlewares: [],
+        modules: [onRequestPost12]
       }
     ];
   }

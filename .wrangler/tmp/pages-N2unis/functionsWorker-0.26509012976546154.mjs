@@ -32,7 +32,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 var LibsqlError, LibsqlBatchError;
 var init_api = __esm({
   "../node_modules/@libsql/core/lib-esm/api.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     LibsqlError = class extends Error {
       static {
         __name(this, "LibsqlError");
@@ -163,7 +163,7 @@ function encodeUserinfo(userinfo) {
 var URI_RE, AUTHORITY_RE;
 var init_uri = __esm({
   "../node_modules/@libsql/core/lib-esm/uri.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_api();
     __name(parseUri, "parseUri");
     URI_RE = (() => {
@@ -191,7 +191,7 @@ var init_uri = __esm({
 var version, VERSION, _hasBuffer, _TD, _TE, b64ch, b64chs, b64tab, b64re, _fromCC, _U8Afrom, _mkUriSafe, _tidyB64, btoaPolyfill, _btoa, _fromUint8Array, fromUint8Array, cb_utob, re_utob, utob, _encode, encode, encodeURI2, re_btou, cb_btou, btou, atobPolyfill, _atob, _toUint8Array, toUint8Array, _decode, _unURI, decode, isValid, _noEnum, extendString, extendUint8Array, extendBuiltins, gBase64;
 var init_base64 = __esm({
   "../node_modules/js-base64/base64.mjs"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     version = "3.8.0";
     VERSION = version;
     _hasBuffer = typeof Buffer === "function";
@@ -382,7 +382,7 @@ function valueToJson(value) {
 var supportedUrlLink, ResultSetImpl;
 var init_util = __esm({
   "../node_modules/@libsql/core/lib-esm/util.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_base64();
     supportedUrlLink = "https://github.com/libsql/libsql-client-ts#supported-urls";
     __name(transactionModeToBegin, "transactionModeToBegin");
@@ -532,7 +532,7 @@ function expandConfig(config, preferHttp) {
 var inMemoryMode;
 var init_config = __esm({
   "../node_modules/@libsql/core/lib-esm/config.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_api();
     init_uri();
     init_util();
@@ -545,7 +545,7 @@ var init_config = __esm({
 var _WebSocket;
 var init_web = __esm({
   "../node_modules/@libsql/isomorphic-ws/web.mjs"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     if (typeof WebSocket !== "undefined") {
       _WebSocket = WebSocket;
     } else if (typeof global !== "undefined") {
@@ -562,7 +562,7 @@ var init_web = __esm({
 var Client;
 var init_client = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/client.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     Client = class {
       static {
         __name(this, "Client");
@@ -585,7 +585,7 @@ var init_client = __esm({
 var ClientError, ProtoError, ResponseError, ClosedError, WebSocketUnsupportedError, WebSocketError, HttpServerError, ProtocolVersionError, InternalError, MisuseError;
 var init_errors = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/errors.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     ClientError = class extends Error {
       static {
         __name(this, "ClientError");
@@ -761,7 +761,7 @@ function readJsonObject(value, fun) {
 }
 var init_decode = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/encoding/json/decode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_errors();
     __name(string, "string");
     __name(stringOpt, "stringOpt");
@@ -787,7 +787,7 @@ function writeJsonObject(value, fun) {
 var ObjectWriter;
 var init_encode = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/encoding/json/encode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     ObjectWriter = class {
       static {
         __name(this, "ObjectWriter");
@@ -862,7 +862,7 @@ var init_encode = __esm({
 var VARINT, FIXED_64, LENGTH_DELIMITED, FIXED_32;
 var init_util2 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/encoding/protobuf/util.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     VARINT = 0;
     FIXED_64 = 1;
     LENGTH_DELIMITED = 2;
@@ -894,7 +894,7 @@ function readProtobufMessage(data, def) {
 var MessageReader, FieldReader;
 var init_decode2 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/encoding/protobuf/decode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_errors();
     init_util2();
     MessageReader = class {
@@ -1039,7 +1039,7 @@ function writeProtobufMessage(value, fun) {
 var MessageWriter;
 var init_encode2 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/encoding/protobuf/encode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_util2();
     MessageWriter = class _MessageWriter {
       static {
@@ -1140,7 +1140,7 @@ var init_encode2 = __esm({
 // ../node_modules/@libsql/hrana-client/lib-esm/encoding/index.js
 var init_encoding = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/encoding/index.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_decode();
     init_encode();
     init_decode2();
@@ -1152,7 +1152,7 @@ var init_encoding = __esm({
 var IdAlloc;
 var init_id_alloc = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/id_alloc.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_errors();
     IdAlloc = class {
       static {
@@ -1199,7 +1199,7 @@ function impossible(value, message) {
 }
 var init_util3 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/util.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_errors();
     __name(impossible, "impossible");
   }
@@ -1267,7 +1267,7 @@ function valueFromProto(value, intMode) {
 var minInteger, maxInteger;
 var init_value = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/value.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_errors();
     init_util3();
     __name(valueToProto, "valueToProto");
@@ -1325,7 +1325,7 @@ function errorFromProto(error) {
 }
 var init_result = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/result.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_errors();
     init_value();
     __name(stmtResultFromProto, "stmtResultFromProto");
@@ -1348,7 +1348,7 @@ function sqlToProto(owner, sql) {
 var Sql;
 var init_sql = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/sql.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_errors();
     Sql = class {
       static {
@@ -1396,7 +1396,7 @@ var init_sql = __esm({
 var Queue;
 var init_queue = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/queue.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     Queue = class {
       static {
         __name(this, "Queue");
@@ -1456,7 +1456,7 @@ function stmtToProto(sqlOwner, stmt, wantRows) {
 var Stmt;
 var init_stmt = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/stmt.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_sql();
     init_value();
     Stmt = class {
@@ -1610,7 +1610,7 @@ function checkCondBatch(expectedBatch, cond) {
 var Batch, BatchStep, BatchCond;
 var init_batch = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/batch.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_errors();
     init_result();
     init_stmt();
@@ -1796,7 +1796,7 @@ function describeResultFromProto(result) {
 }
 var init_describe = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/describe.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     __name(describeResultFromProto, "describeResultFromProto");
   }
 });
@@ -1805,7 +1805,7 @@ var init_describe = __esm({
 var Stream;
 var init_stream = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/stream.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_batch();
     init_describe();
     init_result();
@@ -1872,7 +1872,7 @@ var init_stream = __esm({
 var Cursor;
 var init_cursor = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/cursor.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     Cursor = class {
       static {
         __name(this, "Cursor");
@@ -1885,7 +1885,7 @@ var init_cursor = __esm({
 var fetchChunkSize, fetchQueueSize, WsCursor;
 var init_cursor2 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/ws/cursor.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_errors();
     init_cursor();
     init_queue();
@@ -1975,7 +1975,7 @@ var init_cursor2 = __esm({
 var WsStream;
 var init_stream2 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/ws/stream.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_errors();
     init_queue();
     init_stream();
@@ -2246,7 +2246,7 @@ function Value(w, msg) {
 }
 var init_json_encode = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/shared/json_encode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_base64();
     init_util3();
     __name(Stmt2, "Stmt");
@@ -2322,7 +2322,7 @@ function Request2(w, msg) {
 }
 var init_json_encode2 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/ws/json_encode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_json_encode();
     init_util3();
     __name(ClientMsg, "ClientMsg");
@@ -2403,7 +2403,7 @@ function Empty(_w, _msg) {
 }
 var init_protobuf_encode = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/shared/protobuf_encode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_util3();
     __name(Stmt3, "Stmt");
     __name(NamedArg2, "NamedArg");
@@ -2518,7 +2518,7 @@ function GetAutocommitReq(w, msg) {
 }
 var init_protobuf_encode2 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/ws/protobuf_encode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_protobuf_encode();
     init_util3();
     __name(ClientMsg2, "ClientMsg");
@@ -2633,7 +2633,7 @@ function Value3(obj) {
 }
 var init_json_decode = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/shared/json_decode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_base64();
     init_errors();
     init_decode();
@@ -2707,7 +2707,7 @@ function Response2(obj) {
 }
 var init_json_decode2 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/ws/json_decode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_errors();
     init_decode();
     init_json_decode();
@@ -2720,7 +2720,7 @@ var init_json_decode2 = __esm({
 var Error3, StmtResult2, Col2, Row, BatchResult2, BatchResultStepResult, BatchResultStepError, CursorEntry2, StepBeginEntry, StepEndEntry, StepErrorEntry, DescribeResult2, DescribeParam2, DescribeCol2, Value4;
 var init_protobuf_decode = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/shared/protobuf_decode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     Error3 = {
       default() {
         return { message: "", code: void 0 };
@@ -2937,7 +2937,7 @@ var init_protobuf_decode = __esm({
 var ServerMsg2, HelloErrorMsg, ResponseErrorMsg, ResponseOkMsg, ExecuteResp, BatchResp, FetchCursorResp, DescribeResp, GetAutocommitResp;
 var init_protobuf_decode2 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/ws/protobuf_decode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_protobuf_decode();
     ServerMsg2 = {
       default() {
@@ -3073,7 +3073,7 @@ var init_protobuf_decode2 = __esm({
 var subprotocolsV2, subprotocolsV3, WsClient;
 var init_client2 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/ws/client.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_client();
     init_encoding();
     init_errors();
@@ -3380,7 +3380,7 @@ var init_client2 = __esm({
 var _queueMicrotask;
 var init_queue_microtask = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/queue_microtask.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     if (typeof queueMicrotask !== "undefined") {
       _queueMicrotask = queueMicrotask;
     } else {
@@ -3396,7 +3396,7 @@ var init_queue_microtask = __esm({
 var ByteQueue;
 var init_byte_queue = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/byte_queue.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     ByteQueue = class {
       static {
         __name(this, "ByteQueue");
@@ -3498,7 +3498,7 @@ function CursorRespBody(obj) {
 }
 var init_json_decode3 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/http/json_decode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_errors();
     init_decode();
     init_json_decode();
@@ -3513,7 +3513,7 @@ var init_json_decode3 = __esm({
 var PipelineRespBody2, StreamResult2, StreamResponse2, ExecuteStreamResp, BatchStreamResp, DescribeStreamResp, GetAutocommitStreamResp, CursorRespBody2;
 var init_protobuf_decode3 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/http/protobuf_decode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_protobuf_decode();
     PipelineRespBody2 = {
       default() {
@@ -3619,7 +3619,7 @@ var init_protobuf_decode3 = __esm({
 var HttpCursor;
 var init_cursor3 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/http/cursor.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_byte_queue();
     init_cursor();
     init_decode();
@@ -3802,7 +3802,7 @@ function CursorReqBody(w, msg) {
 }
 var init_json_encode3 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/http/json_encode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_json_encode();
     init_util3();
     __name(PipelineReqBody, "PipelineReqBody");
@@ -3882,7 +3882,7 @@ function CursorReqBody2(w, msg) {
 }
 var init_protobuf_encode3 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/http/protobuf_encode.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_protobuf_encode();
     init_util3();
     __name(PipelineReqBody2, "PipelineReqBody");
@@ -3956,7 +3956,7 @@ async function errorFromResponse(resp) {
 var HttpStream;
 var init_stream3 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/http/stream.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_errors();
     init_encoding();
     init_id_alloc();
@@ -4282,7 +4282,7 @@ async function findEndpoint(customFetch, clientUrl) {
 var checkEndpoints, fallbackEndpoint, HttpClient;
 var init_client3 = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/http/client.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_client();
     init_errors();
     init_stream3();
@@ -4398,7 +4398,7 @@ var init_client3 = __esm({
 // ../node_modules/@libsql/hrana-client/lib-esm/libsql_url.js
 var init_libsql_url = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/libsql_url.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_errors();
   }
 });
@@ -4422,7 +4422,7 @@ function openHttp(url, jwt, customFetch, remoteEncryptionKey, protocolVersion = 
 }
 var init_lib_esm = __esm({
   "../node_modules/@libsql/hrana-client/lib-esm/index.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_web();
     init_client2();
     init_errors();
@@ -4556,7 +4556,7 @@ function mapHranaErrorCode(e) {
 var HranaTransaction;
 var init_hrana = __esm({
   "../node_modules/@libsql/client/lib-esm/hrana.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_lib_esm();
     init_api();
     init_util();
@@ -4734,7 +4734,7 @@ var init_hrana = __esm({
 var SqlCache, Lru;
 var init_sql_cache = __esm({
   "../node_modules/@libsql/client/lib-esm/sql_cache.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     SqlCache = class {
       static {
         __name(this, "SqlCache");
@@ -4829,7 +4829,7 @@ var init_sql_cache = __esm({
 // ../node_modules/promise-limit/index.js
 var require_promise_limit = __commonJS({
   "../node_modules/promise-limit/index.js"(exports, module) {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     function limiter(count) {
       var outstanding = 0;
       var jobs = [];
@@ -4945,7 +4945,7 @@ function _createClient(config) {
 var import_promise_limit, maxConnAgeMillis, sqlCacheCapacity, WsClient2, WsTransaction;
 var init_ws = __esm({
   "../node_modules/@libsql/client/lib-esm/ws.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_lib_esm();
     init_api();
     init_config();
@@ -5248,7 +5248,7 @@ function _createClient2(config) {
 var import_promise_limit2, sqlCacheCapacity2, HttpClient2, HttpTransaction;
 var init_http = __esm({
   "../node_modules/@libsql/client/lib-esm/http.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_lib_esm();
     init_api();
     init_config();
@@ -5458,7 +5458,7 @@ function _createClient3(config) {
 }
 var init_web2 = __esm({
   "../node_modules/@libsql/client/lib-esm/web.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_api();
     init_config();
     init_util();
@@ -5608,7 +5608,7 @@ function decode2(token) {
 var algorithms, index_default;
 var init_cloudflare_worker_jwt = __esm({
   "../node_modules/@tsndr/cloudflare-worker-jwt/index.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     __name(bytesToByteString, "bytesToByteString");
     __name(byteStringToBytes, "byteStringToBytes");
     __name(arrayBufferToBase64String, "arrayBufferToBase64String");
@@ -5692,7 +5692,7 @@ async function onRequestPost(context) {
 }
 var init_skills = __esm({
   "api/admin/skills.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_web2();
     init_cloudflare_worker_jwt();
     __name(requireAdmin, "requireAdmin");
@@ -5764,7 +5764,7 @@ async function onRequestPut(context) {
 }
 var init_users = __esm({
   "api/admin/users.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_web2();
     init_cloudflare_worker_jwt();
     __name(requireAdmin2, "requireAdmin");
@@ -5817,7 +5817,7 @@ async function onRequestPost3(context) {
 }
 var init_workstations = __esm({
   "api/admin/workstations.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_web2();
     init_cloudflare_worker_jwt();
     __name(requireAdmin3, "requireAdmin");
@@ -5859,7 +5859,7 @@ async function onRequestPost4(context) {
 }
 var init_check_code = __esm({
   "api/check-code.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_web2();
     __name(onRequestPost4, "onRequestPost");
   }
@@ -5940,7 +5940,7 @@ async function onRequestPost5(context) {
 var rateLimitMap;
 var init_forgot_password = __esm({
   "api/forgot-password.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_web2();
     rateLimitMap = /* @__PURE__ */ new Map();
     __name(isRateLimited, "isRateLimited");
@@ -6022,7 +6022,7 @@ async function onRequestPost6(context) {
 var rateLimitMap2;
 var init_login = __esm({
   "api/login.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_web2();
     init_cloudflare_worker_jwt();
     __name(hashPassword, "hashPassword");
@@ -6047,7 +6047,7 @@ async function onRequestPost7(context) {
 }
 var init_logout = __esm({
   "api/logout.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     __name(onRequestPost7, "onRequestPost");
   }
 });
@@ -6095,7 +6095,7 @@ async function onRequestGet2(context) {
 }
 var init_matrix_data = __esm({
   "api/matrix-data.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_web2();
     init_cloudflare_worker_jwt();
     __name(onRequestGet2, "onRequestGet");
@@ -6145,7 +6145,7 @@ async function onRequestPost8(context) {
 }
 var init_proficiency = __esm({
   "api/proficiency.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_web2();
     init_cloudflare_worker_jwt();
     __name(onRequestPost8, "onRequestPost");
@@ -6227,7 +6227,7 @@ async function onRequestPost9(context) {
 var rateLimitMap3;
 var init_register = __esm({
   "api/register.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_web2();
     rateLimitMap3 = /* @__PURE__ */ new Map();
     __name(isRateLimited3, "isRateLimited");
@@ -6288,7 +6288,7 @@ async function onRequestPost10(context) {
 }
 var init_reset_password = __esm({
   "api/reset-password.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_web2();
     __name(hashPassword2, "hashPassword");
     __name(onRequestPost10, "onRequestPost");
@@ -6317,7 +6317,7 @@ async function onRequestGet3(context) {
 }
 var init_session = __esm({
   "api/session.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_cloudflare_worker_jwt();
     __name(onRequestGet3, "onRequestGet");
   }
@@ -6390,7 +6390,7 @@ async function onRequestPost11(context) {
 }
 var init_settings = __esm({
   "api/settings.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_web2();
     init_cloudflare_worker_jwt();
     __name(hashPassword3, "hashPassword");
@@ -6458,17 +6458,17 @@ async function onRequestPost12(context) {
 }
 var init_verify = __esm({
   "api/verify.js"() {
-    init_functionsRoutes_0_30977898429902107();
+    init_functionsRoutes_0_22217754403411138();
     init_web2();
     __name(hashPassword4, "hashPassword");
     __name(onRequestPost12, "onRequestPost");
   }
 });
 
-// ../.wrangler/tmp/pages-ZIwyib/functionsRoutes-0.30977898429902107.mjs
+// ../.wrangler/tmp/pages-N2unis/functionsRoutes-0.22217754403411138.mjs
 var routes;
-var init_functionsRoutes_0_30977898429902107 = __esm({
-  "../.wrangler/tmp/pages-ZIwyib/functionsRoutes-0.30977898429902107.mjs"() {
+var init_functionsRoutes_0_22217754403411138 = __esm({
+  "../.wrangler/tmp/pages-N2unis/functionsRoutes-0.22217754403411138.mjs"() {
     init_skills();
     init_users();
     init_users();
@@ -6602,17 +6602,17 @@ var init_functionsRoutes_0_30977898429902107 = __esm({
   }
 });
 
-// ../.wrangler/tmp/bundle-xaKU6q/middleware-loader.entry.ts
-init_functionsRoutes_0_30977898429902107();
+// ../.wrangler/tmp/bundle-2V8So0/middleware-loader.entry.ts
+init_functionsRoutes_0_22217754403411138();
 
-// ../.wrangler/tmp/bundle-xaKU6q/middleware-insertion-facade.js
-init_functionsRoutes_0_30977898429902107();
+// ../.wrangler/tmp/bundle-2V8So0/middleware-insertion-facade.js
+init_functionsRoutes_0_22217754403411138();
 
 // ../node_modules/wrangler/templates/pages-template-worker.ts
-init_functionsRoutes_0_30977898429902107();
+init_functionsRoutes_0_22217754403411138();
 
 // ../node_modules/wrangler/node_modules/path-to-regexp/dist.es2015/index.js
-init_functionsRoutes_0_30977898429902107();
+init_functionsRoutes_0_22217754403411138();
 function lexer(str) {
   var tokens = [];
   var i = 0;
@@ -7059,7 +7059,7 @@ var cloneResponse = /* @__PURE__ */ __name((response) => (
 ), "cloneResponse");
 
 // ../node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts
-init_functionsRoutes_0_30977898429902107();
+init_functionsRoutes_0_22217754403411138();
 var drainBody = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
   try {
     return await middlewareCtx.next(request, env);
@@ -7078,7 +7078,7 @@ var drainBody = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 var middleware_ensure_req_body_drained_default = drainBody;
 
 // ../node_modules/wrangler/templates/middleware/middleware-miniflare3-json-error.ts
-init_functionsRoutes_0_30977898429902107();
+init_functionsRoutes_0_22217754403411138();
 function reduceError(e) {
   return {
     name: e?.name,
@@ -7101,7 +7101,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-xaKU6q/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-2V8So0/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -7109,7 +7109,7 @@ var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
 var middleware_insertion_facade_default = pages_template_worker_default;
 
 // ../node_modules/wrangler/templates/middleware/common.ts
-init_functionsRoutes_0_30977898429902107();
+init_functionsRoutes_0_22217754403411138();
 var __facade_middleware__ = [];
 function __facade_register__(...args) {
   __facade_middleware__.push(...args.flat());
@@ -7134,7 +7134,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-xaKU6q/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-2V8So0/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
@@ -7234,4 +7234,4 @@ export {
   __INTERNAL_WRANGLER_MIDDLEWARE__,
   middleware_loader_entry_default as default
 };
-//# sourceMappingURL=functionsWorker-0.09574875951396256.mjs.map
+//# sourceMappingURL=functionsWorker-0.26509012976546154.mjs.map

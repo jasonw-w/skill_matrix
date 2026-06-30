@@ -33,7 +33,7 @@ document.getElementById('settingsForm').addEventListener('submit', async (e) => 
     try {
         const res = await fetch('/api/settings', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': 'true' },
             body: JSON.stringify({ firstName, lastName, password })
         });
 
