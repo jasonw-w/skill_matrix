@@ -1,0 +1,269 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg-color: #0f0f11;
+  --panel-bg: rgba(255, 255, 255, 0.03);
+  --panel-border: rgba(255, 255, 255, 0.08);
+  --text-primary: #ffffff;
+  --text-secondary: #8b8d98;
+  --accent-color: #6264a7; /* Teams Purple */
+  --accent-hover: #464775;
+  --skill-level-1: rgba(255, 99, 132, 0.2);
+  --skill-level-2: rgba(255, 159, 64, 0.2);
+  --skill-level-3: rgba(255, 205, 86, 0.2);
+  --skill-level-4: rgba(75, 192, 192, 0.2);
+  --skill-level-5: rgba(54, 162, 235, 0.2);
+  --skill-border-1: rgba(255, 99, 132, 1);
+  --skill-border-2: rgba(255, 159, 64, 1);
+  --skill-border-3: rgba(255, 205, 86, 1);
+  --skill-border-4: rgba(75, 192, 192, 1);
+  --skill-border-5: rgba(54, 162, 235, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Header */
+header {
+  padding: 24px 32px;
+  background: var(--panel-bg);
+  border-bottom: 1px solid var(--panel-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  backdrop-filter: blur(10px);
+}
+
+.header-title h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  background: linear-gradient(90deg, #fff, #a5a5a5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.header-title p {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin-top: 4px;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.user-role {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* Main Content */
+main {
+  flex: 1;
+  padding: 32px;
+  overflow: auto;
+}
+
+.matrix-container {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.matrix-toolbar {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--panel-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.search-bar input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.875rem;
+  outline: none;
+  transition: all 0.2s;
+  width: 250px;
+}
+
+.search-bar input:focus {
+  border-color: var(--accent-color);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.actions button {
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.actions button:hover {
+  background: var(--accent-hover);
+}
+
+.actions button:active {
+  transform: scale(0.97);
+}
+
+/* Grid */
+.matrix-grid {
+  display: grid;
+  overflow-x: auto;
+  grid-template-columns: 200px repeat(auto-fit, minmax(100px, 1fr));
+}
+
+.matrix-header-row, .matrix-row {
+  display: contents;
+}
+
+.matrix-cell {
+  padding: 16px;
+  border-bottom: 1px solid var(--panel-border);
+  border-right: 1px solid var(--panel-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: background 0.2s;
+}
+
+.matrix-row:hover .matrix-cell {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.header-cell {
+  background: rgba(255, 255, 255, 0.02);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  border-bottom: 2px solid var(--panel-border);
+}
+
+.user-cell {
+  justify-content: flex-start;
+  font-weight: 500;
+  position: sticky;
+  left: 0;
+  background: var(--bg-color);
+  z-index: 10;
+  border-right: 2px solid var(--panel-border);
+}
+
+/* Skill Badges */
+.skill-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.skill-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.level-1 { background: var(--skill-level-1); color: var(--skill-border-1); border: 1px solid var(--skill-border-1); }
+.level-2 { background: var(--skill-level-2); color: var(--skill-border-2); border: 1px solid var(--skill-border-2); }
+.level-3 { background: var(--skill-level-3); color: var(--skill-border-3); border: 1px solid var(--skill-border-3); }
+.level-4 { background: var(--skill-level-4); color: var(--skill-border-4); border: 1px solid var(--skill-border-4); }
+.level-5 { background: var(--skill-level-5); color: var(--skill-border-5); border: 1px solid var(--skill-border-5); }
+.level-0 { background: transparent; color: var(--text-secondary); border: 1px dashed var(--panel-border); }
+
+/* Legend */
+.legend {
+  margin-top: 24px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.c-1 { background: var(--skill-border-1); }
+.c-2 { background: var(--skill-border-2); }
+.c-3 { background: var(--skill-border-3); }
+.c-4 { background: var(--skill-border-4); }
+.c-5 { background: var(--skill-border-5); }
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.matrix-row {
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.matrix-row:nth-child(1) { animation-delay: 0.1s; }
+.matrix-row:nth-child(2) { animation-delay: 0.2s; }
+.matrix-row:nth-child(3) { animation-delay: 0.3s; }
+.matrix-row:nth-child(4) { animation-delay: 0.4s; }

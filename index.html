@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skills Matrix Trackboard</title>
+  
+  <!-- Microsoft Teams JavaScript API -->
+  <script src="https://res.cdn.office.net/teams-js/2.11.0/js/MicrosoftTeams.min.js"></script>
+  
+  <!-- MSAL.js for Authentication -->
+  <script type="text/javascript" src="https://alcdn.msauth.net/browser/2.37.0/js/msal-browser.min.js"></script>
+  <script src="config.js"></script>
+  
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+  <header>
+    <div class="header-title">
+      <h1>Skills Matrix</h1>
+      <p>Team capabilities at a glance</p>
+    </div>
+    <div class="user-profile">
+      <button id="auth-btn" style="background: var(--accent-color); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; display: none;">Sign In</button>
+      <div class="user-info" id="user-info-container" style="display: none;">
+        <span class="user-name" id="current-user-name">Loading...</span>
+        <span class="user-role" id="current-user-role">Team Member</span>
+      </div>
+      <div class="avatar" id="current-user-avatar" style="display: none;">?</div>
+    </div>
+  </header>
+
+  <main>
+    <div class="matrix-toolbar">
+      <div class="search-bar">
+        <input type="text" id="search-input" placeholder="Search team members or skills...">
+      </div>
+      <div class="actions">
+        <button id="add-skill-btn">Request Skill Update</button>
+      </div>
+    </div>
+    
+    <div class="matrix-container">
+      <div class="matrix-grid" id="matrix-grid">
+        <!-- Rendered via app.js -->
+      </div>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-color" style="border: 1px dashed var(--panel-border)"></div> Not Assessed</div>
+      <div class="legend-item"><div class="legend-color c-1"></div> Novice</div>
+      <div class="legend-item"><div class="legend-color c-2"></div> Beginner</div>
+      <div class="legend-item"><div class="legend-color c-3"></div> Competent</div>
+      <div class="legend-item"><div class="legend-color c-4"></div> Proficient</div>
+      <div class="legend-item"><div class="legend-color c-5"></div> Expert</div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

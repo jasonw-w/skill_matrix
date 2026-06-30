@@ -1,0 +1,49 @@
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.16/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.16",
+  "version": "1.0.0",
+  "id": "e2c0e86a-605a-4b92-b4c6-cf0b9f91a2eb",
+  "packageName": "com.microsoft.teams.skillsmatrix",
+  "developer": {
+    "name": "Skills Matrix Team",
+    "websiteUrl": "https://example.com",
+    "privacyUrl": "https://example.com/privacy",
+    "termsOfUseUrl": "https://example.com/termsofuse"
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "name": {
+    "short": "Skills Matrix",
+    "full": "Team Skills Matrix Trackboard"
+  },
+  "description": {
+    "short": "Track and manage your team's skills.",
+    "full": "The Skills Matrix Trackboard is a custom tab application for Microsoft Teams that allows your team to visualize and manage skill sets. Easily find experts and identify skill gaps."
+  },
+  "accentColor": "#6264A7",
+  "staticTabs": [
+    {
+      "entityId": "skillsMatrixTab",
+      "name": "Skills Matrix",
+      "contentUrl": "https://<YOUR_HOSTED_URL_OR_NGROK>/index.html",
+      "websiteUrl": "https://<YOUR_HOSTED_URL_OR_NGROK>/index.html",
+      "scopes": ["personal"]
+    }
+  ],
+  "configurableTabs": [
+    {
+      "configurationUrl": "https://<YOUR_HOSTED_URL_OR_NGROK>/index.html?config=true",
+      "canUpdateConfiguration": true,
+      "scopes": ["team"]
+    }
+  ],
+  "permissions": [
+    "identity",
+    "messageTeamMembers"
+  ],
+  "validDomains": [
+    "*"
+  ]
+}
