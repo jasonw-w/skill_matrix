@@ -2,7 +2,8 @@ import { createClient } from '@libsql/client/web';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
-  const { email } = await request.json();
+  let { email } = await request.json();
+  email = email ? email.toLowerCase() : '';
 
   const allowedDomains = ['@stfc.ac.uk', '@fedextest.onmicrosoft.com'];
   const isValidEmail = email && allowedDomains.some(domain => email.endsWith(domain));

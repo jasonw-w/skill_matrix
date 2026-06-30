@@ -13,7 +13,8 @@ async function hashPassword(password) {
 
 export async function onRequestPost(context) {
   const { request, env } = context;
-  const { email, password } = await request.json();
+  let { email, password } = await request.json();
+  if (email) email = email.toLowerCase();
 
   if (!email || !password) {
     return new Response(JSON.stringify({ error: 'Email and password required' }), { status: 400 });
@@ -45,7 +46,9 @@ export async function onRequestPost(context) {
     const token = await jwt.sign({ 
       id: user.id, 
       email: user.email, 
-      role: user.role 
+      role: user.role,
+      first_name: user.first_name,
+      last_name: user.last_name
     }, env.JWT_SECRET, { expiresIn: '7d' });
 
     // Set HTTP-Only Session Cookie

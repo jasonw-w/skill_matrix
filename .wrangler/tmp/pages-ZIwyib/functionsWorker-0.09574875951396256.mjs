@@ -5470,6 +5470,46 @@ var init_web2 = __esm({
   }
 });
 
+// api/check-code.js
+async function onRequestPost(context) {
+  const { request, env } = context;
+  let { email, code } = await request.json();
+  if (email) email = email.toLowerCase();
+  if (!email || !code) {
+    return new Response(JSON.stringify({ error: "Missing email or code" }), { status: 400 });
+  }
+  const client = createClient({
+    url: env.TURSO_URL,
+    authToken: env.TURSO_AUTH
+  });
+  try {
+    const userRes = await client.execute({
+      sql: "SELECT verification_code, code_expires_at FROM users WHERE email = ?",
+      args: [email]
+    });
+    if (userRes.rows.length === 0) {
+      return new Response(JSON.stringify({ error: "User not found" }), { status: 404 });
+    }
+    const user = userRes.rows[0];
+    if (user.verification_code !== code) {
+      return new Response(JSON.stringify({ error: "Invalid verification code" }), { status: 400 });
+    }
+    if (Date.now() > user.code_expires_at) {
+      return new Response(JSON.stringify({ error: "Code expired" }), { status: 400 });
+    }
+    return new Response(JSON.stringify({ message: "Code valid" }), { status: 200 });
+  } catch (err) {
+    return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
+  }
+}
+var init_check_code = __esm({
+  "api/check-code.js"() {
+    init_functionsRoutes_0_30977898429902107();
+    init_web2();
+    __name(onRequestPost, "onRequestPost");
+  }
+});
+
 // ../node_modules/@tsndr/cloudflare-worker-jwt/index.js
 function bytesToByteString(bytes) {
   let byteStr = "";
@@ -5657,9 +5697,10 @@ async function hashPassword(password) {
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
-async function onRequestPost(context) {
+async function onRequestPost2(context) {
   const { request, env } = context;
-  const { email, password } = await request.json();
+  let { email, password } = await request.json();
+  if (email) email = email.toLowerCase();
   if (!email || !password) {
     return new Response(JSON.stringify({ error: "Email and password required" }), { status: 400 });
   }
@@ -5683,7 +5724,9 @@ async function onRequestPost(context) {
     const token = await index_default.sign({
       id: user.id,
       email: user.email,
-      role: user.role
+      role: user.role,
+      first_name: user.first_name,
+      last_name: user.last_name
     }, env.JWT_SECRET, { expiresIn: "7d" });
     const cookie = `session=${token}; HttpOnly; Secure; Path=/; Max-Age=${7 * 24 * 60 * 60}; SameSite=Strict`;
     return new Response(JSON.stringify({ message: "Logged in successfully", role: user.role }), {
@@ -5704,14 +5747,82 @@ var init_login = __esm({
     init_web2();
     init_cloudflare_worker_jwt();
     __name(hashPassword, "hashPassword");
-    __name(onRequestPost, "onRequestPost");
+    __name(onRequestPost2, "onRequestPost");
+  }
+});
+
+// api/logout.js
+async function onRequestPost3() {
+  return new Response(JSON.stringify({ message: "Logged out" }), {
+    status: 200,
+    headers: {
+      "Content-Type": "application/json",
+      "Set-Cookie": "session=; HttpOnly; Secure; Path=/; Max-Age=0; SameSite=Strict"
+    }
+  });
+}
+var init_logout = __esm({
+  "api/logout.js"() {
+    init_functionsRoutes_0_30977898429902107();
+    __name(onRequestPost3, "onRequestPost");
+  }
+});
+
+// api/matrix-data.js
+async function onRequestGet(context) {
+  const { request, env } = context;
+  const cookieHeader = request.headers.get("Cookie");
+  if (!cookieHeader) return new Response("Unauthorized", { status: 401 });
+  const match2 = cookieHeader.match(/session=([^;]+)/);
+  if (!match2) return new Response("Unauthorized", { status: 401 });
+  const token = match2[1];
+  try {
+    const isValid2 = await index_default.verify(token, env.JWT_SECRET);
+    if (!isValid2) return new Response("Unauthorized", { status: 401 });
+    const client = createClient({
+      url: env.TURSO_URL,
+      authToken: env.TURSO_AUTH
+    });
+    const workstationsRes = await client.execute("SELECT * FROM workstations");
+    const skillsRes = await client.execute("SELECT * FROM skills");
+    const membersRes = await client.execute("SELECT id, first_name || ' ' || last_name as name FROM users WHERE is_verified = 1");
+    const proficienciesRes = await client.execute("SELECT * FROM proficiencies");
+    const skillsTree = workstationsRes.rows.map((ws) => {
+      return {
+        id: ws.id,
+        name: ws.name,
+        children: skillsRes.rows.filter((s) => s.workstation_id === ws.id).map((s) => ({ id: s.id, name: s.name }))
+      };
+    });
+    const members = membersRes.rows.map((m) => ({ id: m.id, name: m.name }));
+    const proficiencies = {};
+    proficienciesRes.rows.forEach((p) => {
+      if (!proficiencies[p.member_id]) proficiencies[p.member_id] = {};
+      proficiencies[p.member_id][p.skill_id] = p.level;
+    });
+    return new Response(JSON.stringify({ members, proficiencies, skillsTree }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    return new Response(JSON.stringify({ error: "Failed to fetch matrix data" }), { status: 500 });
+  }
+}
+var init_matrix_data = __esm({
+  "api/matrix-data.js"() {
+    init_functionsRoutes_0_30977898429902107();
+    init_web2();
+    init_cloudflare_worker_jwt();
+    __name(onRequestGet, "onRequestGet");
   }
 });
 
 // api/register.js
-async function onRequestPost2(context) {
+async function onRequestPost4(context) {
   const { request, env } = context;
-  const { email } = await request.json();
+  let { email } = await request.json();
+  email = email ? email.toLowerCase() : "";
   const allowedDomains = ["@stfc.ac.uk", "@fedextest.onmicrosoft.com"];
   const isValidEmail = email && allowedDomains.some((domain) => email.endsWith(domain));
   if (!isValidEmail) {
@@ -5764,7 +5875,35 @@ var init_register = __esm({
   "api/register.js"() {
     init_functionsRoutes_0_30977898429902107();
     init_web2();
-    __name(onRequestPost2, "onRequestPost");
+    __name(onRequestPost4, "onRequestPost");
+  }
+});
+
+// api/session.js
+async function onRequestGet2(context) {
+  const { request, env } = context;
+  const cookieHeader = request.headers.get("Cookie");
+  if (!cookieHeader) return new Response("Unauthorized", { status: 401 });
+  const match2 = cookieHeader.match(/session=([^;]+)/);
+  if (!match2) return new Response("Unauthorized", { status: 401 });
+  const token = match2[1];
+  try {
+    const isValid2 = await index_default.verify(token, env.JWT_SECRET);
+    if (!isValid2) return new Response("Unauthorized", { status: 401 });
+    const { payload } = index_default.decode(token);
+    return new Response(JSON.stringify(payload), {
+      status: 200,
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (err) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+}
+var init_session = __esm({
+  "api/session.js"() {
+    init_functionsRoutes_0_30977898429902107();
+    init_cloudflare_worker_jwt();
+    __name(onRequestGet2, "onRequestGet");
   }
 });
 
@@ -5776,9 +5915,10 @@ async function hashPassword2(password) {
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
-async function onRequestPost3(context) {
+async function onRequestPost5(context) {
   const { request, env } = context;
-  const { email, code, password, firstName, lastName } = await request.json();
+  let { email, code, password, firstName, lastName } = await request.json();
+  if (email) email = email.toLowerCase();
   if (!email || !code || !password || !firstName || !lastName) {
     return new Response(JSON.stringify({ error: "Missing required fields" }), { status: 400 });
   }
@@ -5827,7 +5967,7 @@ var init_verify = __esm({
     init_functionsRoutes_0_30977898429902107();
     init_web2();
     __name(hashPassword2, "hashPassword");
-    __name(onRequestPost3, "onRequestPost");
+    __name(onRequestPost5, "onRequestPost");
   }
 });
 
@@ -5835,39 +5975,71 @@ var init_verify = __esm({
 var routes;
 var init_functionsRoutes_0_30977898429902107 = __esm({
   "../.wrangler/tmp/pages-ZIwyib/functionsRoutes-0.30977898429902107.mjs"() {
+    init_check_code();
     init_login();
+    init_logout();
+    init_matrix_data();
     init_register();
+    init_session();
     init_verify();
     routes = [
       {
-        routePath: "/api/login",
+        routePath: "/api/check-code",
         mountPath: "/api",
         method: "POST",
         middlewares: [],
         modules: [onRequestPost]
       },
       {
-        routePath: "/api/register",
+        routePath: "/api/login",
         mountPath: "/api",
         method: "POST",
         middlewares: [],
         modules: [onRequestPost2]
       },
       {
-        routePath: "/api/verify",
+        routePath: "/api/logout",
         mountPath: "/api",
         method: "POST",
         middlewares: [],
         modules: [onRequestPost3]
+      },
+      {
+        routePath: "/api/matrix-data",
+        mountPath: "/api",
+        method: "GET",
+        middlewares: [],
+        modules: [onRequestGet]
+      },
+      {
+        routePath: "/api/register",
+        mountPath: "/api",
+        method: "POST",
+        middlewares: [],
+        modules: [onRequestPost4]
+      },
+      {
+        routePath: "/api/session",
+        mountPath: "/api",
+        method: "GET",
+        middlewares: [],
+        modules: [onRequestGet2]
+      },
+      {
+        routePath: "/api/verify",
+        mountPath: "/api",
+        method: "POST",
+        middlewares: [],
+        modules: [onRequestPost5]
       }
     ];
   }
 });
 
-// ../.wrangler/tmp/bundle-z8ioqw/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-TJ41vX/middleware-loader.entry.ts
 init_functionsRoutes_0_30977898429902107();
 
-// ../.wrangler/tmp/bundle-z8ioqw/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-TJ41vX/middleware-insertion-facade.js
 init_functionsRoutes_0_30977898429902107();
 
 // ../node_modules/wrangler/templates/pages-template-worker.ts
@@ -6363,7 +6535,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-z8ioqw/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-TJ41vX/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -6396,7 +6568,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-z8ioqw/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-TJ41vX/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

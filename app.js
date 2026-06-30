@@ -1,255 +1,189 @@
 let currentUser = null;
-let currentToken = null;
 let matrixData = { members: [], proficiencies: {}, skillsTree: [] };
-let expandedNodes = new Set();
+let flatSkills = [];
+
+// Mapping DB strings to 1-4 levels
+const LEVEL_MAP = {
+    'none': { num: '', class: 'level-none', next: 'beginner' },
+    'beginner': { num: '1', class: 'level-1', next: 'intermediate' },
+    'intermediate': { num: '2', class: 'level-2', next: 'advanced' },
+    'advanced': { num: '3', class: 'level-3', next: 'expert' },
+    'expert': { num: '4', class: 'level-4', next: 'none' }
+};
 
 document.addEventListener('DOMContentLoaded', async () => {
-    currentToken = localStorage.getItem('token');
-    if (!currentToken) {
-        window.location.href = 'login.html';
-        return;
-    }
-
-    // Decode JWT payload (simple base64 decoding for UI logic)
     try {
-        const payload = JSON.parse(atob(currentToken.split('.')[1]));
-        currentUser = { id: payload.id, username: payload.username, role: payload.role };
-        document.getElementById('userInfo').textContent = `Logged in as: ${currentUser.username} (${currentUser.role})`;
+        const sessionRes = await fetch('/api/session');
+        if (!sessionRes.ok) {
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        currentUser = await sessionRes.json();
+        const displayName = currentUser.first_name ? `${currentUser.first_name} ${currentUser.last_name}` : currentUser.username;
+        document.getElementById('userInfo').textContent = `Logged in as: ${displayName} (${currentUser.role})`;
         
         if (currentUser.role === 'admin') {
             document.getElementById('adminControls').style.display = 'flex';
         }
     } catch (e) {
-        localStorage.removeItem('token');
         window.location.href = 'login.html';
         return;
     }
 
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-        localStorage.removeItem('token');
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+        await fetch('/api/logout', { method: 'POST' });
         window.location.href = 'login.html';
     });
 
     await fetchData();
+    renderMatrix();
 });
 
 async function fetchData() {
-    const matrixBody = document.getElementById('matrixBody');
     try {
-        const response = await fetch('/api/matrix-data', {
-            headers: { 'Authorization': `Bearer ${currentToken}` }
+        const res = await fetch('/api/matrix-data');
+        if (!res.ok) throw new Error('Failed to fetch data');
+        matrixData = await res.json();
+        
+        // Flatten skills for columns
+        flatSkills = [];
+        matrixData.skillsTree.forEach(ws => {
+            if (ws.children && ws.children.length > 0) {
+                ws.children.forEach(skill => {
+                    flatSkills.push({ ...skill, wsName: ws.name });
+                });
+            } else {
+                // Keep the workstation visible even if it has no skills
+                flatSkills.push({ id: `empty-${ws.id}`, name: 'No skills added', wsName: ws.name, isEmpty: true });
+            }
         });
-
-        if (response.status === 401 || response.status === 403) {
-            localStorage.removeItem('token');
-            window.location.href = 'login.html';
-            return;
-        }
-
-        matrixData = await response.json();
-        
-        // Auto-expand all workstations by default
-        matrixData.skillsTree.forEach(ws => expandedNodes.add(ws.id));
-        
-        renderMatrix();
-        populateSkillDropdown();
-    } catch (error) {
-        matrixBody.innerHTML = '<div style="padding: 2rem; color: #ef4444;">Failed to connect to database.</div>';
+    } catch (e) {
+        document.getElementById('matrixContainer').innerHTML = `<div style="color: #ef4444; padding: 2rem;">Error: ${e.message}</div>`;
     }
 }
 
 function renderMatrix() {
-    const matrixContainer = document.getElementById('matrixContainer');
-    const matrixHeader = document.getElementById('matrixHeader');
-    const matrixBody = document.getElementById('matrixBody');
-
-    matrixContainer.style.setProperty('--member-count', matrixData.members.length);
-
-    // Header
-    let html = `<div class="grid-row"><div class="cell skill-cell">Skills Domain</div>`;
-    matrixData.members.forEach(member => {
-        const isMe = member.id === currentUser.id;
-        html += `<div class="cell" style="${isMe ? 'color: #a5b4fc; font-weight:bold;' : ''}">${member.name}</div>`;
-    });
-    html += `</div>`;
-    matrixHeader.innerHTML = html;
-
-    // Body
-    html = '';
-    function renderNode(node, depth, parentId) {
-        const hasChildren = node.children && node.children.length > 0;
-        const isExpanded = expandedNodes.has(node.id);
-        
-        let toggleIcon = hasChildren ? `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>` : `<span style="width: 12px; display:inline-block"></span>`;
-        let toggleClass = isExpanded ? 'expanded' : '';
-        
-        let rowClasses = ['grid-row', 'skill-row'];
-        if (hasChildren) rowClasses.push('has-children');
-        
-        html += `
-            <div class="${rowClasses.join(' ')}" data-id="${node.id}" data-parent="${parentId || ''}" style="--depth: ${depth};">
-                <div class="cell skill-cell">
-                    ${hasChildren ? `<button class="toggle-btn ${toggleClass}" data-id="${node.id}">${toggleIcon}</button>` : `<span class="toggle-btn"></span>`}
-                    <span class="skill-name">${node.name}</span>
-                </div>
-        `;
-
-        matrixData.members.forEach(member => {
-            if (hasChildren) {
-                html += `<div class="cell"></div>`;
-            } else {
-                let level = (matrixData.proficiencies[member.id] && matrixData.proficiencies[member.id][node.id]) || 'none';
-                const isMe = member.id === currentUser.id;
-                const interactiveClass = isMe ? 'interactive-dot' : '';
-                html += `<div class="cell"><div class="prof-indicator ${level} ${interactiveClass}" data-skill="${node.id}" data-member="${member.id}" data-level="${level}" title="${member.name}: ${level}"></div></div>`;
-            }
-        });
-
-        html += `</div>`;
-
-        if (hasChildren) {
-            node.children.forEach(child => renderNode(child, depth + 1, node.id));
-        }
-    }
-
-    matrixData.skillsTree.forEach(node => renderNode(node, 0, null));
-    matrixBody.innerHTML = html;
-    updateVisibility();
-}
-
-// Tree visibility logic
-function updateVisibility() {
-    const rows = document.querySelectorAll('.skill-row');
-    rows.forEach(row => {
-        const parentId = row.getAttribute('data-parent');
-        let isVisible = true;
-        let currentParent = parentId;
-        while (currentParent) {
-            if (!expandedNodes.has(currentParent)) { isVisible = false; break; }
-            const pRow = document.querySelector(`.skill-row[data-id="${currentParent}"]`);
-            currentParent = pRow ? pRow.getAttribute('data-parent') : null;
-        }
-        if (isVisible) row.classList.remove('hidden');
-        else row.classList.add('hidden');
-    });
-}
-
-// Global Event Delegation for Matrix
-document.getElementById('matrixBody').addEventListener('click', async (e) => {
-    // Expand/Collapse
-    const btn = e.target.closest('.toggle-btn');
-    if (btn && btn.dataset.id) {
-        const id = btn.dataset.id;
-        if (expandedNodes.has(id)) { expandedNodes.delete(id); btn.classList.remove('expanded'); } 
-        else { expandedNodes.add(id); btn.classList.add('expanded'); }
-        updateVisibility();
+    const container = document.getElementById('matrixContainer');
+    
+    if (flatSkills.length === 0) {
+        container.innerHTML = '<div style="padding: 2rem;">No skills defined yet.</div>';
         return;
     }
 
-    // Proficiency Clicking
-    const dot = e.target.closest('.interactive-dot');
-    if (dot) {
-        const memberId = dot.dataset.member;
-        if (memberId !== currentUser.id) return; // double check
+    // Prepare grid layout
+    let html = `<div class="matrix-table" style="--skill-count: ${flatSkills.length}">`;
+    
+    // Row 1: Super Headers (Workstations)
+    html += `<div class="matrix-row">
+        <div class="corner-cell" style="grid-row: span 2;">Employee Name</div>`;
+    
+    let currentWs = null;
+    let wsSpan = 0;
+    matrixData.skillsTree.forEach(ws => {
+        const span = (ws.children && ws.children.length > 0) ? ws.children.length : 1;
+        html += `<div class="ws-header" style="grid-column: span ${span}" title="${ws.name}">${ws.name}</div>`;
+    });
+    html += `</div>`; // End Row 1
 
-        const skillId = dot.dataset.skill;
-        const currentLevel = dot.dataset.level;
+    // Row 2: Skill Vertical Headers
+    html += `<div class="matrix-row">`;
+    flatSkills.forEach(skill => {
+        html += `<div class="skill-header" title="${skill.name}">${skill.name}</div>`;
+    });
+    html += `</div>`; // End Row 2
+
+    // Member Rows
+    matrixData.members.forEach(member => {
+        html += `<div class="matrix-row">
+            <div class="member-cell">${member.name}</div>`;
         
-        const levels = ['none', 'beginner', 'intermediate', 'expert'];
-        const nextLevel = levels[(levels.indexOf(currentLevel) + 1) % levels.length];
+        flatSkills.forEach(skill => {
+            if (skill.isEmpty) {
+                html += `<div class="data-cell"><div class="prof-indicator level-none"></div></div>`;
+                return;
+            }
 
-        // Optimistic UI update
-        dot.className = `prof-indicator ${nextLevel} interactive-dot`;
-        dot.dataset.level = nextLevel;
+            const level = (matrixData.proficiencies[member.id] && matrixData.proficiencies[member.id][skill.id]) || 'none';
+            const mapped = LEVEL_MAP[level] || LEVEL_MAP['none'];
+            const isClickable = (currentUser.role === 'admin' || currentUser.id === member.id);
+            
+            html += `
+                <div class="data-cell">
+                    <div class="prof-indicator ${mapped.class}" 
+                         data-member-id="${member.id}" 
+                         data-skill-id="${skill.id}" 
+                         data-level="${level}"
+                         ${isClickable ? 'onclick="toggleProficiency(this)"' : 'style="cursor: default;"'}
+                         title="${skill.name}"
+                    >
+                        ${mapped.num}
+                    </div>
+                </div>`;
+        });
+        html += `</div>`; // End member row
+    });
 
-        try {
-            await fetch('/api/proficiencies', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentToken}` },
-                body: JSON.stringify({ skill_id: skillId, level: nextLevel })
-            });
-            // Update local memory so re-renders don't flash back
-            if (!matrixData.proficiencies[memberId]) matrixData.proficiencies[memberId] = {};
-            matrixData.proficiencies[memberId][skillId] = nextLevel;
-        } catch (err) {
-            console.error("Failed to update", err);
-            // Revert
-            dot.className = `prof-indicator ${currentLevel} interactive-dot`;
-            dot.dataset.level = currentLevel;
-        }
+    html += `</div>`; // End matrix-table
+    container.innerHTML = html;
+}
+
+window.toggleProficiency = async (element) => {
+    const memberId = element.dataset.memberId;
+    const skillId = element.dataset.skillId;
+    const currentLevel = element.dataset.level;
+    
+    // Safety check - though UI hides pointer events, good to verify logic
+    if (currentUser.role !== 'admin' && currentUser.id !== memberId) {
+        return;
     }
-});
 
-// Modals
-window.openModal = function(id) { document.getElementById(id).style.display = 'flex'; }
-window.closeModal = function(id) { document.getElementById(id).style.display = 'none'; }
+    const nextLevel = LEVEL_MAP[currentLevel].next;
+    const mapped = LEVEL_MAP[nextLevel];
 
-function populateSkillDropdown() {
-    const select = document.getElementById('skillWsId');
-    select.innerHTML = matrixData.skillsTree.map(ws => `<option value="${ws.id}">${ws.name}</option>`).join('');
-}
+    // Optimistic UI update
+    element.dataset.level = nextLevel;
+    element.className = `prof-indicator ${mapped.class}`;
+    element.textContent = mapped.num;
 
-window.addWorkstation = async function() {
-    const name = document.getElementById('wsName').value;
-    if (!name) return;
-    await fetch('/api/workstations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentToken}` },
-        body: JSON.stringify({ name })
-    });
-    document.getElementById('wsName').value = '';
-    closeModal('wsModal');
-    fetchData();
-}
+    // Update state
+    if (!matrixData.proficiencies[memberId]) matrixData.proficiencies[memberId] = {};
+    matrixData.proficiencies[memberId][skillId] = nextLevel;
 
-window.addSkill = async function() {
-    const workstation_id = document.getElementById('skillWsId').value;
-    const name = document.getElementById('skillName').value;
-    if (!name || !workstation_id) return;
-    await fetch('/api/skills', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentToken}` },
-        body: JSON.stringify({ workstation_id, name })
-    });
-    document.getElementById('skillName').value = '';
-    closeModal('skillModal');
-    fetchData();
-}
+    try {
+        await fetch('/api/proficiency', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ memberId, skillId, level: nextLevel })
+        });
+    } catch (e) {
+        console.error('Failed to update proficiency');
+        // Revert UI on failure
+        element.dataset.level = currentLevel;
+        const revertMapped = LEVEL_MAP[currentLevel];
+        element.className = `prof-indicator ${revertMapped.class}`;
+        element.textContent = revertMapped.num;
+    }
+};
 
-// Admin functions
-window.addUser = async function() {
-    const username = document.getElementById('newUsername').value;
-    const password = document.getElementById('newPassword').value;
-    const role = document.getElementById('newUserRole').value;
-    await fetch('/api/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentToken}` },
-        body: JSON.stringify({ username, password, role })
-    });
-    document.getElementById('newUsername').value = '';
-    document.getElementById('newPassword').value = '';
-    closeModal('addUserModal');
-    fetchData(); // to refresh members
-}
+// Modal Handling
+window.openModal = (id) => {
+    document.getElementById(id).style.display = 'flex';
+    // Populate dropdowns if needed
+    if (id === 'skillModal') {
+        const select = document.getElementById('skillWsId');
+        select.innerHTML = '';
+        matrixData.skillsTree.forEach(ws => {
+            select.innerHTML += `<option value="${ws.id}">${ws.name}</option>`;
+        });
+    }
+};
 
-window.loadUsersAndOpenModal = async function() {
-    const res = await fetch('/api/users', { headers: { 'Authorization': `Bearer ${currentToken}` } });
-    const users = await res.json();
-    const list = document.getElementById('userList');
-    list.innerHTML = users.map(u => `
-        <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.2); padding:0.5rem; border-radius:4px;">
-            <span style="color:white;">${u.username} (${u.role})</span>
-            ${u.role === 'user' ? `<button class="btn btn-admin" style="padding:0.2rem 0.5rem;" onclick="promoteUser('${u.id}')">Make Admin</button>` : '<span></span>'}
-        </div>
-    `).join('');
-    openModal('manageRolesModal');
-}
+window.closeModal = (id) => {
+    document.getElementById(id).style.display = 'none';
+};
 
-window.promoteUser = async function(id) {
-    await fetch(`/api/users/${id}/role`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentToken}` },
-        body: JSON.stringify({ role: 'admin' })
-    });
-    loadUsersAndOpenModal(); // Refresh modal list
-}
+window.addWorkstation = () => alert('Cloudflare API migration in progress. This feature will be available shortly.');
+window.addSkill = () => alert('Cloudflare API migration in progress. This feature will be available shortly.');
+window.addUser = () => alert('Cloudflare API migration in progress. This feature will be available shortly.');
+window.loadUsersAndOpenModal = () => alert('Cloudflare API migration in progress. This feature will be available shortly.');

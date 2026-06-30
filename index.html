@@ -71,10 +71,10 @@
             <div class="legend" style="flex-direction: column; align-items: flex-end;">
                 <button class="btn" id="logoutBtn" style="margin-bottom: 0.5rem; background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.5);">Logout</button>
                 <div style="display: flex; gap: 1rem;">
-                    <span class="legend-item"><span class="dot expert"></span> Expert</span>
-                    <span class="legend-item"><span class="dot intermediate"></span> Intermediate</span>
-                    <span class="legend-item"><span class="dot beginner"></span> Beginner</span>
-                    <span class="legend-item"><span class="dot none"></span> None</span>
+                    <span class="legend-item"><span class="legend-square level-4">4</span> Expert</span>
+                    <span class="legend-item"><span class="legend-square level-3">3</span> Intermediate</span>
+                    <span class="legend-item"><span class="legend-square level-2">2</span> Beginner</span>
+                    <span class="legend-item"><span class="legend-square level-1">1</span> None</span>
                 </div>
                 <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.3rem;">Click your own dots to update</div>
             </div>
@@ -91,14 +91,11 @@
         </div>
 
         <main>
-            <div class="matrix-container glass-panel">
-                <div class="matrix-header" id="matrixHeader">
-                    <!-- Members header will be injected here -->
-                </div>
-                <div class="matrix-body" id="matrixBody">
-                    <!-- Hierarchical skills will be injected here -->
-                </div>
+            <div class="glass-panel" style="overflow-x: auto; overflow-y: auto; max-height: 70vh;">
+            <div class="matrix-container" id="matrixContainer">
+                <div style="text-align: center; padding: 2rem;">Loading matrix data...</div>
             </div>
+        </div>
         </main>
     </div>
 

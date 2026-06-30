@@ -11,7 +11,8 @@ async function hashPassword(password) {
 
 export async function onRequestPost(context) {
   const { request, env } = context;
-  const { email, code, password, firstName, lastName } = await request.json();
+  let { email, code, password, firstName, lastName } = await request.json();
+  if (email) email = email.toLowerCase();
 
   if (!email || !code || !password || !firstName || !lastName) {
     return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 });

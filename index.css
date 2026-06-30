@@ -100,11 +100,7 @@ header {
 .legend {
     display: flex;
     gap: 1.5rem;
-    background: var(--bg-panel);
-    padding: 0.75rem 1.25rem;
-    border-radius: 20px;
-    border: 1px solid var(--border-glass);
-    backdrop-filter: blur(12px);
+    align-items: center;
 }
 
 .legend-item {
@@ -112,20 +108,19 @@ header {
     align-items: center;
     gap: 0.5rem;
     font-size: 0.9rem;
-    font-weight: 500;
+    color: var(--text-main);
 }
 
-.dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    display: inline-block;
+.legend-square {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
 }
-
-.dot.expert { background-color: var(--prof-expert); box-shadow: 0 0 8px var(--prof-expert); }
-.dot.intermediate { background-color: var(--prof-intermediate); box-shadow: 0 0 8px var(--prof-intermediate); }
-.dot.beginner { background-color: var(--prof-beginner); box-shadow: 0 0 8px var(--prof-beginner); }
-.dot.none { background-color: var(--prof-none); }
 
 /* Glass Panel */
 .glass-panel {
@@ -138,122 +133,117 @@ header {
 }
 
 .matrix-container {
-    display: flex;
-    flex-direction: column;
-    min-width: 800px;
-}
-
-/* Grid Layout */
-.grid-row {
-    display: grid;
-    /* First col is skill name, rest are members. Will be updated via JS variable */
-    grid-template-columns: 300px repeat(var(--member-count), 1fr);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.matrix-header .grid-row {
-    background: rgba(255, 255, 255, 0.03);
-    font-weight: 600;
-    padding: 1rem 0;
-}
-
-.matrix-header .cell {
-    text-align: center;
-    color: var(--text-main);
-}
-
-.matrix-header .cell:first-child {
-    text-align: left;
-    padding-left: 1.5rem;
-}
-
-.cell {
-    padding: 0.75rem 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.cell.skill-cell {
-    justify-content: flex-start;
-    padding-left: calc(1.5rem + (var(--depth) * 1.5rem));
-    position: relative;
-    transition: background 0.2s ease;
-}
-
-.skill-row {
-    transition: background 0.2s ease;
-}
-
-.skill-row:hover {
-    background: rgba(255, 255, 255, 0.02);
-}
-
-.toggle-btn {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 0.5rem;
-    transition: transform 0.3s ease, color 0.2s ease;
-}
-
-.toggle-btn:hover {
-    color: var(--text-main);
-}
-
-.toggle-btn.expanded {
-    transform: rotate(90deg);
-}
-
-.skill-name {
-    font-weight: 500;
-}
-
-.has-children .skill-name {
-    font-weight: 600;
-}
-
-/* Proficiency Indicators */
-.prof-indicator {
-    width: 32px;
-    height: 8px;
-    border-radius: 4px;
-    background: var(--prof-none);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.skill-row:not(.has-children) .prof-indicator:hover {
-    transform: scale(1.1);
-}
-
-.prof-indicator.expert { background: var(--prof-expert); box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
-.prof-indicator.intermediate { background: var(--prof-intermediate); box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
-.prof-indicator.beginner { background: var(--prof-beginner); box-shadow: 0 0 10px rgba(59, 130, 246, 0.4); }
-
-/* Branch lines */
-.skill-row::before {
-    content: '';
-    position: absolute;
-    left: calc(0.75rem + (var(--depth) * 1.5rem) - 0.75rem);
-    top: 0;
-    bottom: 0;
-    width: 1px;
-    background: var(--border-glass);
-    display: none;
-}
-.skill-row[style*="--depth: 1"]::before,
-.skill-row[style*="--depth: 2"]::before,
-.skill-row[style*="--depth: 3"]::before {
     display: block;
+    min-width: max-content;
 }
 
-/* Hidden state for collapsed rows */
-.hidden {
-    display: none;
+/* Transposed Grid Layout */
+.matrix-table {
+    display: grid;
+    /* First column is sticky Member name. Subsequent columns are fixed width for skills */
+    grid-template-columns: 250px repeat(var(--skill-count), 45px);
+    border-collapse: collapse;
 }
+
+.matrix-row {
+    display: contents;
+}
+
+/* Top Super-Header for Workstations */
+.ws-header {
+    grid-column: span var(--ws-span);
+    text-align: center;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-right: 1px solid var(--border-glass);
+    border-bottom: 1px solid var(--border-glass);
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Vertical Headers for Skills */
+.skill-header {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    padding: 1rem 0.5rem;
+    text-align: left;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.02);
+    border-right: 1px solid var(--border-glass);
+    border-bottom: 1px solid var(--border-glass);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+/* Sticky Member Name Column */
+.member-cell {
+    position: sticky;
+    left: 0;
+    background: #1a1d2d; /* Solid color so it hides scrolling content */
+    z-index: 10;
+    padding: 0.75rem 1rem;
+    border-right: 1px solid var(--border-glass);
+    border-bottom: 1px solid var(--border-glass);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+}
+
+/* Header corner */
+.corner-cell {
+    position: sticky;
+    left: 0;
+    top: 0;
+    z-index: 11;
+    background: #1a1d2d;
+    border-right: 1px solid var(--border-glass);
+    border-bottom: 1px solid var(--border-glass);
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    padding: 1rem;
+    font-size: 1rem;
+}
+
+/* Indicator Squares */
+.data-cell {
+    padding: 0.25rem;
+    border-right: 1px solid var(--border-glass);
+    border-bottom: 1px solid var(--border-glass);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.prof-indicator {
+    width: 100%;
+    height: 100%;
+    min-height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.1s, filter 0.2s;
+    user-select: none;
+}
+
+.prof-indicator:hover {
+    filter: brightness(1.2);
+    transform: scale(0.95);
+}
+
+/* Map 1,2,3,4 colors to match requested palette */
+.prof-indicator.level-1 { background: #ba3f3e; color: #ffffff; } /* Deep Red */
+.prof-indicator.level-2 { background: #fbcca1; color: #901a35; } /* Peach */
+.prof-indicator.level-3 { background: #aee2cc; color: #901a35; } /* Light Mint */
+.prof-indicator.level-4 { background: #5da98a; color: #ffffff; } /* Muted Teal */
+.prof-indicator.level-none { background: rgba(255,255,255,0.05); color: transparent; }
+
+.hidden { display: none; }
