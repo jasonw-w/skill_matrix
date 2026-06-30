@@ -110,7 +110,7 @@ function renderMatrix() {
     
     // Row 1: Super Headers (Workstations)
     html += `<div class="matrix-row">
-        <div class="corner-cell" style="grid-row: span 2;">Employee Name</div>`;
+        <div class="corner-cell" style="grid-row: span 2;">Team Member Name</div>`;
     
     const visibleWsList = currentWsFilter === 'all' 
         ? matrixData.skillsTree 
@@ -231,7 +231,7 @@ window.toggleProficiency = async (element) => {
 };
 
 window.exportToCSV = () => {
-    let csv = 'Employee Name,';
+    let csv = 'Team Member Name,';
     
     // Headers
     csv += flatSkills.map(s => `"${s.wsName} - ${s.name}"`).join(',') + '\\n';
@@ -275,8 +275,10 @@ window.closeModal = (id) => {
     document.getElementById(id).style.display = 'none';
 };
 
-window.addWorkstation = async () => {
-    const name = prompt("Enter new Workstation name:");
+window.addWorkstation = () => openModal('wsModal');
+
+window.submitWorkstation = async () => {
+    const name = document.getElementById('wsName').value.trim();
     if (!name) return;
 
     try {
@@ -286,120 +288,93 @@ window.addWorkstation = async () => {
             body: JSON.stringify({ name })
         });
         
-        if (res.ok) {
-            location.reload();
-        } else {
-            const data = await res.json();
-            alert('Error: ' + data.error);
-        }
+        if (res.ok) location.reload();
+        else alert('Error: ' + (await res.json()).error);
     } catch (e) {
         alert('Failed to connect to server.');
     }
 };
 
-window.addSkill = async () => {
-    let wsText = "Select Workstation ID:\n";
-    matrixData.skillsTree.forEach(ws => {
-        wsText += `${ws.id} - ${ws.name}\n`;
-    });
-    
-    const wsIdInput = prompt(wsText);
-    if (!wsIdInput) return;
-    
-    const ws = matrixData.skillsTree.find(w => w.id === wsIdInput.trim() || w.name === wsIdInput.trim());
-    if (!ws) {
-        alert('Invalid Workstation selected.');
-        return;
-    }
+window.addSkill = () => openModal('skillModal');
 
-    const name = prompt(`Enter new Skill name for ${ws.name}:`);
-    if (!name) return;
+window.submitSkill = async () => {
+    const wsId = document.getElementById('skillWsId').value;
+    const name = document.getElementById('skillName').value.trim();
+    if (!wsId || !name) return;
 
     try {
         const res = await fetch('/api/admin/skills', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': 'true' },
-            body: JSON.stringify({ name, workstation_id: ws.id })
+            body: JSON.stringify({ name, workstation_id: wsId })
         });
         
-        if (res.ok) {
-            location.reload();
-        } else {
-            const data = await res.json();
-            alert('Error: ' + data.error);
-        }
+        if (res.ok) location.reload();
+        else alert('Error: ' + (await res.json()).error);
     } catch (e) {
         alert('Failed to connect to server.');
     }
 };
 
-window.removeSkill = async () => {
-    let wsText = "Select Workstation ID to remove skill from:\\n";
+window.removeSkill = () => {
+    const wsSelect = document.getElementById('removeSkillWsId');
+    wsSelect.innerHTML = '<option value="">Select Workstation</option>';
     matrixData.skillsTree.forEach(ws => {
-        wsText += `${ws.id} - ${ws.name}\\n`;
+        wsSelect.innerHTML += `<option value="${ws.id}">${ws.name}</option>`;
     });
-    
-    const wsIdInput = prompt(wsText);
-    if (!wsIdInput) return;
-    
-    const ws = matrixData.skillsTree.find(w => w.id === wsIdInput.trim() || w.name === wsIdInput.trim());
-    if (!ws) {
-        alert('Invalid Workstation selected.');
+    document.getElementById('removeSkillId').innerHTML = '';
+    openModal('removeSkillModal');
+};
+
+window.populateRemoveSkillDropdown = () => {
+    const wsId = document.getElementById('removeSkillWsId').value;
+    const skillSelect = document.getElementById('removeSkillId');
+    skillSelect.innerHTML = '';
+    if (!wsId) return;
+
+    const ws = matrixData.skillsTree.find(w => w.id === wsId);
+    if (!ws || !ws.children || ws.children.length === 0) {
+        skillSelect.innerHTML = '<option value="">No skills found</option>';
         return;
     }
 
-    if (!ws.children || ws.children.length === 0) {
-        alert('No skills found in this workstation.');
-        return;
-    }
-
-    let skillText = `Select Skill ID to remove from ${ws.name}:\\n`;
     ws.children.forEach(skill => {
-        skillText += `${skill.id} - ${skill.name}\\n`;
+        skillSelect.innerHTML += `<option value="${skill.id}">${skill.name}</option>`;
     });
+};
 
-    const skillIdInput = prompt(skillText);
-    if (!skillIdInput) return;
+window.submitRemoveSkill = async () => {
+    const skillId = document.getElementById('removeSkillId').value;
+    if (!skillId) return;
 
-    const skill = ws.children.find(s => s.id === skillIdInput.trim() || s.name === skillIdInput.trim());
-    if (!skill) {
-        alert('Invalid Skill selected.');
-        return;
-    }
-
-    if (!confirm(`Are you sure you want to completely remove "${skill.name}"? This will delete all associated proficiency records for all users.`)) {
-        return;
-    }
+    if (!confirm(`Are you sure you want to completely remove this skill? This will delete all associated proficiency records for all team members.`)) return;
 
     try {
         const res = await fetch('/api/admin/skills', {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': 'true' },
-            body: JSON.stringify({ skill_id: skill.id })
+            body: JSON.stringify({ skill_id: skillId })
         });
         
-        if (res.ok) {
-            location.reload();
-        } else {
-            const data = await res.json();
-            alert('Error: ' + data.error);
-        }
+        if (res.ok) location.reload();
+        else alert('Error: ' + (await res.json()).error);
     } catch (e) {
         alert('Failed to connect to server.');
     }
 };
 
-window.addUser = async () => {
-    const firstName = prompt("Enter the new user's First Name:");
-    if (!firstName) return;
+window.addUser = () => openModal('addUserModal');
 
-    const lastName = prompt("Enter the new user's Last Name:");
-    if (!lastName) return;
+window.submitAddUser = async () => {
+    const firstName = document.getElementById('newFirstName').value.trim();
+    const lastName = document.getElementById('newLastName').value.trim();
+    const email = document.getElementById('newEmail').value.trim();
+    const role = document.getElementById('newUserRole').value;
 
-    const role = prompt("Enter role ('admin' or 'user'):", "user");
-    if (!role) return;
-
-    const email = prompt("Enter the user's email address (optional for login). Leave blank if not required:");
+    if (!firstName || !lastName) {
+        alert('First and Last name are required');
+        return;
+    }
 
     try {
         const res = await fetch('/api/admin/users', {
@@ -408,13 +383,8 @@ window.addUser = async () => {
             body: JSON.stringify({ email, firstName, lastName, role })
         });
         
-        if (res.ok) {
-            alert('User provisioned successfully!');
-            location.reload();
-        } else {
-            const data = await res.json();
-            alert('Error: ' + data.error);
-        }
+        if (res.ok) location.reload();
+        else alert('Error: ' + (await res.json()).error);
     } catch (e) {
         alert('Failed to connect to server.');
     }
@@ -426,34 +396,37 @@ window.loadUsersAndOpenModal = async () => {
         if (!res.ok) throw new Error('Unauthorized');
         const users = await res.json();
         
-        let text = "Current Users:\\n\\n";
+        const container = document.getElementById('userList');
+        container.innerHTML = '';
         users.forEach(u => {
-            text += `- ${u.email} (${u.role})\\n`;
+            container.innerHTML += `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius:4px;">
+                    <span style="color:white;">${u.email}</span>
+                    <select onchange="updateUserRole('${u.id}', this.value)" style="padding:0.25rem; border-radius:4px; background:rgba(0,0,0,0.4); color:white; border:1px solid var(--border-glass);">
+                        <option value="user" ${u.role === 'user' ? 'selected' : ''}>User</option>
+                        <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
+                    </select>
+                </div>
+            `;
         });
-        text += "\\nTo change a role, type the email and the new role separated by a comma (e.g. 'bob@test.com,admin'). Leave blank to cancel.";
-        
-        const input = prompt(text);
-        if (!input) return;
-        
-        const [email, role] = input.split(',').map(s => s.trim());
-        const userToUpdate = users.find(u => u.email === email);
-        if (!userToUpdate) {
-            alert('User not found.');
-            return;
-        }
+        openModal('manageRolesModal');
+    } catch (e) {
+        alert('Failed to load users.');
+    }
+};
 
+window.updateUserRole = async (userId, role) => {
+    try {
         const updateRes = await fetch('/api/admin/users', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': 'true' },
-            body: JSON.stringify({ userId: userToUpdate.id, role })
+            body: JSON.stringify({ userId, role })
         });
 
-        if (updateRes.ok) {
-            alert('Role updated successfully.');
-        } else {
+        if (!updateRes.ok) {
             alert('Failed to update role.');
         }
     } catch (e) {
-        alert('Failed to load users.');
+        alert('Failed to update role.');
     }
 };

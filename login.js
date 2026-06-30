@@ -96,8 +96,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Transition to Step 2
                 currentEmail = email;
                 document.getElementById('verifyEmailDisplay').textContent = email;
-                transitionTo(step1, step2);
-                setTimeout(() => otpInputs[0].focus(), 350);
+                
+                if (data.dev_code) {
+                    console.log('Test Mode: Auto-verifying with code:', data.dev_code);
+                    await verifyCodeSilently(data.dev_code);
+                } else {
+                    transitionTo(step1, step2);
+                    setTimeout(() => otpInputs[0].focus(), 350);
+                }
             }
         } catch (err) {
             msg.textContent = err.message || 'An error occurred';

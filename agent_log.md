@@ -1,6 +1,6 @@
 # Project Title & Summary
 
-Team Skill Matrix - an interactive web application that tracks employee proficiency across various workstations and skills. Built with vanilla HTML/JS, Cloudflare Pages, and Turso DB.
+Team Skill Matrix - an interactive web application that tracks team member proficiency across various workstations and skills. Built with vanilla HTML/JS, Cloudflare Pages, and Turso DB.
 
 ## Current Objective & Next Steps
 

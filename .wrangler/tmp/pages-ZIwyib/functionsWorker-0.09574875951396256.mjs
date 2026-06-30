@@ -6230,25 +6230,7 @@ async function onRequestPost9(context) {
             code_expires_at=excluded.code_expires_at`,
       args: [id, email, verification_code, expiresAt]
     });
-    const resendRes = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${env.RESEND_AUTH}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        from: "onboarding@resend.dev",
-        // Default testing email
-        to: email,
-        subject: "Skill Matrix - Verification Code",
-        html: `<p>Your verification code is: <strong>${verification_code}</strong></p>`
-      })
-    });
-    if (!resendRes.ok) {
-      console.error("Resend error", await resendRes.text());
-      return new Response(JSON.stringify({ error: "Failed to send email" }), { status: 500 });
-    }
-    return new Response(JSON.stringify({ message: "Verification code sent" }), { status: 200 });
+    return new Response(JSON.stringify({ message: "Verification bypassed for testing", dev_code: verification_code }), { status: 200 });
   } catch (err) {
     console.error(err);
     return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
@@ -6640,10 +6622,10 @@ var init_functionsRoutes_0_30977898429902107 = __esm({
   }
 });
 
-// ../.wrangler/tmp/bundle-fyXMHJ/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-3MlejK/middleware-loader.entry.ts
 init_functionsRoutes_0_30977898429902107();
 
-// ../.wrangler/tmp/bundle-fyXMHJ/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-3MlejK/middleware-insertion-facade.js
 init_functionsRoutes_0_30977898429902107();
 
 // ../node_modules/wrangler/templates/pages-template-worker.ts
@@ -7139,7 +7121,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-fyXMHJ/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-3MlejK/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -7172,7 +7154,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-fyXMHJ/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-3MlejK/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
