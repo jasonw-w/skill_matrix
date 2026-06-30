@@ -5510,6 +5510,67 @@ var init_check_code = __esm({
   }
 });
 
+// api/forgot-password.js
+async function onRequestPost2(context) {
+  const { request, env } = context;
+  let { email } = await request.json();
+  if (email) email = email.toLowerCase();
+  if (!email) {
+    return new Response(JSON.stringify({ error: "Email is required" }), { status: 400 });
+  }
+  const client = createClient({
+    url: env.TURSO_URL,
+    authToken: env.TURSO_AUTH
+  });
+  try {
+    const res = await client.execute({
+      sql: "SELECT id FROM users WHERE email = ?",
+      args: [email]
+    });
+    if (res.rows.length === 0) {
+      return new Response(JSON.stringify({ message: "If the email exists, a code was sent." }), { status: 200 });
+    }
+    const resetCode = Math.floor(1e5 + Math.random() * 9e5).toString();
+    const resetExpiry = Date.now() + 15 * 60 * 1e3;
+    await client.execute({
+      sql: "UPDATE users SET reset_code = ?, reset_expiry = ? WHERE email = ?",
+      args: [resetCode, resetExpiry, email]
+    });
+    const resendResponse = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${env.RESEND_AUTH}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        from: "Skill Matrix <onboarding@resend.dev>",
+        to: email,
+        subject: "Password Reset Code",
+        html: `<p>Your password reset code is: <strong>${resetCode}</strong></p><p>This code will expire in 15 minutes.</p>`
+      })
+    });
+    if (!resendResponse.ok) {
+      const errData = await resendResponse.json();
+      console.error("Resend Error:", errData);
+      throw new Error("Failed to send email");
+    }
+    return new Response(JSON.stringify({ message: "Code sent successfully" }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (err) {
+    console.error(err);
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
+  }
+}
+var init_forgot_password = __esm({
+  "api/forgot-password.js"() {
+    init_functionsRoutes_0_30977898429902107();
+    init_web2();
+    __name(onRequestPost2, "onRequestPost");
+  }
+});
+
 // ../node_modules/@tsndr/cloudflare-worker-jwt/index.js
 function bytesToByteString(bytes) {
   let byteStr = "";
@@ -5697,7 +5758,7 @@ async function hashPassword(password) {
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
-async function onRequestPost2(context) {
+async function onRequestPost3(context) {
   const { request, env } = context;
   let { email, password } = await request.json();
   if (email) email = email.toLowerCase();
@@ -5747,12 +5808,12 @@ var init_login = __esm({
     init_web2();
     init_cloudflare_worker_jwt();
     __name(hashPassword, "hashPassword");
-    __name(onRequestPost2, "onRequestPost");
+    __name(onRequestPost3, "onRequestPost");
   }
 });
 
 // api/logout.js
-async function onRequestPost3() {
+async function onRequestPost4() {
   return new Response(JSON.stringify({ message: "Logged out" }), {
     status: 200,
     headers: {
@@ -5764,7 +5825,7 @@ async function onRequestPost3() {
 var init_logout = __esm({
   "api/logout.js"() {
     init_functionsRoutes_0_30977898429902107();
-    __name(onRequestPost3, "onRequestPost");
+    __name(onRequestPost4, "onRequestPost");
   }
 });
 
@@ -5819,7 +5880,7 @@ var init_matrix_data = __esm({
 });
 
 // api/register.js
-async function onRequestPost4(context) {
+async function onRequestPost5(context) {
   const { request, env } = context;
   let { email } = await request.json();
   email = email ? email.toLowerCase() : "";
@@ -5875,7 +5936,67 @@ var init_register = __esm({
   "api/register.js"() {
     init_functionsRoutes_0_30977898429902107();
     init_web2();
-    __name(onRequestPost4, "onRequestPost");
+    __name(onRequestPost5, "onRequestPost");
+  }
+});
+
+// api/reset-password.js
+async function hashPassword2(password) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+async function onRequestPost6(context) {
+  const { request, env } = context;
+  let { email, code, password } = await request.json();
+  if (email) email = email.toLowerCase();
+  if (!email || !code || !password) {
+    return new Response(JSON.stringify({ error: "Missing required fields" }), { status: 400 });
+  }
+  if (password.length < 8) {
+    return new Response(JSON.stringify({ error: "Password must be at least 8 characters" }), { status: 400 });
+  }
+  const client = createClient({
+    url: env.TURSO_URL,
+    authToken: env.TURSO_AUTH
+  });
+  try {
+    const res = await client.execute({
+      sql: "SELECT id, reset_code, reset_expiry FROM users WHERE email = ?",
+      args: [email]
+    });
+    if (res.rows.length === 0) {
+      return new Response(JSON.stringify({ error: "Invalid request" }), { status: 400 });
+    }
+    const user = res.rows[0];
+    if (user.reset_code !== code) {
+      return new Response(JSON.stringify({ error: "Invalid or expired code" }), { status: 400 });
+    }
+    if (Date.now() > user.reset_expiry) {
+      return new Response(JSON.stringify({ error: "Reset code has expired. Please request a new one." }), { status: 400 });
+    }
+    const hashedPassword = await hashPassword2(password);
+    await client.execute({
+      sql: "UPDATE users SET password_hash = ?, reset_code = NULL, reset_expiry = NULL WHERE email = ?",
+      args: [hashedPassword, email]
+    });
+    return new Response(JSON.stringify({ message: "Password updated successfully" }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (err) {
+    console.error(err);
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
+  }
+}
+var init_reset_password = __esm({
+  "api/reset-password.js"() {
+    init_functionsRoutes_0_30977898429902107();
+    init_web2();
+    __name(hashPassword2, "hashPassword");
+    __name(onRequestPost6, "onRequestPost");
   }
 });
 
@@ -5907,15 +6028,84 @@ var init_session = __esm({
   }
 });
 
-// api/verify.js
-async function hashPassword2(password) {
+// api/settings.js
+async function hashPassword3(password) {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
   const hashBuffer = await crypto.subtle.digest("SHA-256", data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
-async function onRequestPost5(context) {
+async function onRequestPost7(context) {
+  const { request, env } = context;
+  const cookieHeader = request.headers.get("Cookie");
+  if (!cookieHeader) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const token = cookieHeader.split("; ").find((row) => row.startsWith("session="))?.split("=")[1];
+  if (!token) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const isValid2 = await index_default.verify(token, env.JWT_SECRET);
+  if (!isValid2) return new Response(JSON.stringify({ error: "Invalid session" }), { status: 401 });
+  const { payload } = index_default.decode(token);
+  const userId = payload.id;
+  let { firstName, lastName, password } = await request.json();
+  if (!firstName || !lastName) {
+    return new Response(JSON.stringify({ error: "First name and last name are required" }), { status: 400 });
+  }
+  const client = createClient({
+    url: env.TURSO_URL,
+    authToken: env.TURSO_AUTH
+  });
+  try {
+    if (password && password.length >= 8) {
+      const hashedPassword = await hashPassword3(password);
+      await client.execute({
+        sql: "UPDATE users SET first_name = ?, last_name = ?, password_hash = ? WHERE id = ?",
+        args: [firstName, lastName, hashedPassword, userId]
+      });
+    } else {
+      await client.execute({
+        sql: "UPDATE users SET first_name = ?, last_name = ? WHERE id = ?",
+        args: [firstName, lastName, userId]
+      });
+    }
+    const newToken = await index_default.sign({
+      id: payload.id,
+      email: payload.email,
+      role: payload.role,
+      first_name: firstName,
+      last_name: lastName
+    }, env.JWT_SECRET, { expiresIn: "7d" });
+    const cookie = `session=${newToken}; HttpOnly; Secure; Path=/; Max-Age=${7 * 24 * 60 * 60}; SameSite=Strict`;
+    return new Response(JSON.stringify({ message: "Settings updated successfully" }), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        "Set-Cookie": cookie
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
+  }
+}
+var init_settings = __esm({
+  "api/settings.js"() {
+    init_functionsRoutes_0_30977898429902107();
+    init_web2();
+    init_cloudflare_worker_jwt();
+    __name(hashPassword3, "hashPassword");
+    __name(onRequestPost7, "onRequestPost");
+  }
+});
+
+// api/verify.js
+async function hashPassword4(password) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+async function onRequestPost8(context) {
   const { request, env } = context;
   let { email, code, password, firstName, lastName } = await request.json();
   if (email) email = email.toLowerCase();
@@ -5941,7 +6131,7 @@ async function onRequestPost5(context) {
     if (Date.now() > user.code_expires_at) {
       return new Response(JSON.stringify({ error: "Verification code has expired" }), { status: 400 });
     }
-    const passwordHash = await hashPassword2(password);
+    const passwordHash = await hashPassword4(password);
     const verifiedUsersCount = await client.execute("SELECT COUNT(*) as count FROM users WHERE is_verified = 1");
     const role = verifiedUsersCount.rows[0].count === 0 ? "admin" : "user";
     await client.execute({
@@ -5966,8 +6156,8 @@ var init_verify = __esm({
   "api/verify.js"() {
     init_functionsRoutes_0_30977898429902107();
     init_web2();
-    __name(hashPassword2, "hashPassword");
-    __name(onRequestPost5, "onRequestPost");
+    __name(hashPassword4, "hashPassword");
+    __name(onRequestPost8, "onRequestPost");
   }
 });
 
@@ -5976,11 +6166,14 @@ var routes;
 var init_functionsRoutes_0_30977898429902107 = __esm({
   "../.wrangler/tmp/pages-ZIwyib/functionsRoutes-0.30977898429902107.mjs"() {
     init_check_code();
+    init_forgot_password();
     init_login();
     init_logout();
     init_matrix_data();
     init_register();
+    init_reset_password();
     init_session();
+    init_settings();
     init_verify();
     routes = [
       {
@@ -5991,18 +6184,25 @@ var init_functionsRoutes_0_30977898429902107 = __esm({
         modules: [onRequestPost]
       },
       {
-        routePath: "/api/login",
+        routePath: "/api/forgot-password",
         mountPath: "/api",
         method: "POST",
         middlewares: [],
         modules: [onRequestPost2]
       },
       {
-        routePath: "/api/logout",
+        routePath: "/api/login",
         mountPath: "/api",
         method: "POST",
         middlewares: [],
         modules: [onRequestPost3]
+      },
+      {
+        routePath: "/api/logout",
+        mountPath: "/api",
+        method: "POST",
+        middlewares: [],
+        modules: [onRequestPost4]
       },
       {
         routePath: "/api/matrix-data",
@@ -6016,7 +6216,14 @@ var init_functionsRoutes_0_30977898429902107 = __esm({
         mountPath: "/api",
         method: "POST",
         middlewares: [],
-        modules: [onRequestPost4]
+        modules: [onRequestPost5]
+      },
+      {
+        routePath: "/api/reset-password",
+        mountPath: "/api",
+        method: "POST",
+        middlewares: [],
+        modules: [onRequestPost6]
       },
       {
         routePath: "/api/session",
@@ -6026,20 +6233,27 @@ var init_functionsRoutes_0_30977898429902107 = __esm({
         modules: [onRequestGet2]
       },
       {
+        routePath: "/api/settings",
+        mountPath: "/api",
+        method: "POST",
+        middlewares: [],
+        modules: [onRequestPost7]
+      },
+      {
         routePath: "/api/verify",
         mountPath: "/api",
         method: "POST",
         middlewares: [],
-        modules: [onRequestPost5]
+        modules: [onRequestPost8]
       }
     ];
   }
 });
 
-// ../.wrangler/tmp/bundle-TJ41vX/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-sbrBxu/middleware-loader.entry.ts
 init_functionsRoutes_0_30977898429902107();
 
-// ../.wrangler/tmp/bundle-TJ41vX/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-sbrBxu/middleware-insertion-facade.js
 init_functionsRoutes_0_30977898429902107();
 
 // ../node_modules/wrangler/templates/pages-template-worker.ts
@@ -6535,7 +6749,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-TJ41vX/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-sbrBxu/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -6568,7 +6782,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-TJ41vX/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-sbrBxu/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

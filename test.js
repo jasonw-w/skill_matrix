@@ -14,16 +14,12 @@ const db = createClient({
 
 async function run() {
     try {
-        const workstationsRes = await db.execute('SELECT * FROM workstations');
-        console.log("Workstations:", workstationsRes.rows.length);
-        const skillsRes = await db.execute('SELECT * FROM skills');
-        console.log("Skills:", skillsRes.rows.length);
-        const membersRes = await db.execute('SELECT id, first_name || " " || last_name as name FROM users WHERE is_verified = 1');
-        console.log("Members:", membersRes.rows.length);
-        const proficienciesRes = await db.execute('SELECT * FROM proficiencies');
-        console.log("Proficiencies:", proficienciesRes.rows.length);
+        await db.execute('ALTER TABLE users ADD COLUMN reset_code TEXT');
+        await db.execute('ALTER TABLE users ADD COLUMN reset_expiry INTEGER');
+        console.log('Migration successful');
     } catch (e) {
-        console.error("DB Error:", e);
+        // Ignore "duplicate column" errors if they already exist
+        console.log('Migration finished (columns might already exist)', e.message);
     }
 }
 run();
