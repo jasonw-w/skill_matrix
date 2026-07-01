@@ -24,7 +24,7 @@ export async function onRequestGet(context) {
 
     const workstationsRes = await client.execute('SELECT * FROM workstations');
     const skillsRes = await client.execute('SELECT * FROM skills');
-    const membersRes = await client.execute("SELECT id, first_name || ' ' || last_name as name, note FROM users WHERE is_verified = 1 AND email != 'loisg-dl@fedextest.onmicrosoft.com'");
+    const membersRes = await client.execute("SELECT id, first_name || ' ' || last_name as name, note FROM users WHERE is_verified = 1");
     const proficienciesRes = await client.execute('SELECT * FROM proficiencies');
 
     const skillsTree = workstationsRes.rows.map(ws => {
