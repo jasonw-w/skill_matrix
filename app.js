@@ -325,6 +325,7 @@ window.exportToCSV = () => {
 
 window.updateZoom = (val) => {
     document.documentElement.style.setProperty('--cell-width', `${val}px`);
+    document.documentElement.style.setProperty('--zoom-scale', val / 98);
 };
 
 // Modal Handling
@@ -377,7 +378,7 @@ window.submitRemoveWorkstation = async () => {
     const wsId = document.getElementById('removeWsId').value;
     if (!wsId) return;
 
-    if (!confirm(`Are you sure you want to completely remove this workstation? This will delete ALL skills and proficiency records under it.`)) return;
+    // if (!confirm(`Are you sure you want to completely remove this workstation? This will delete ALL skills and proficiency records under it.`)) return;
 
     try {
         const res = await fetch('/api/admin/workstations', {
@@ -445,7 +446,7 @@ window.submitRemoveSkill = async () => {
     const skillId = document.getElementById('removeSkillId').value;
     if (!skillId) return;
 
-    if (!confirm(`Are you sure you want to completely remove this skill? This will delete all associated proficiency records for all team members.`)) return;
+    // if (!confirm(`Are you sure you want to completely remove this skill? This will delete all associated proficiency records for all team members.`)) return;
 
     try {
         const res = await fetch('/api/admin/skills', {
@@ -491,7 +492,9 @@ window.submitAddUser = async () => {
 
 window.loadUsersAndOpenModal = async () => {
     try {
-        const res = await fetch('/api/admin/users');
+        const res = await fetch('/api/admin/users', {
+            headers: { 'X-CSRF-Token': 'true' }
+        });
         if (!res.ok) throw new Error('Unauthorized');
         const users = await res.json();
         
