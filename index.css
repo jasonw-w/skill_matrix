@@ -276,6 +276,14 @@ header {
     border: none;
 }
 
+/* In heatmap mode, disable the scale-up / z-index hover so cells don't bleed over neighbours */
+.matrix-table.heatmap-mode .prof-indicator:hover {
+    transform: none;
+    z-index: auto;
+    box-shadow: none;
+    filter: brightness(1.2);
+}
+
 /* CSS Tooltips */
 .prof-indicator::after {
     content: '';
