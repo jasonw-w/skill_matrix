@@ -7,6 +7,28 @@ let sortBy = 'name';
 let isHeatmapMode = true;
 let pendingChanges = {};
 
+// ── Theme ──────────────────────────────────────────
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    const btn = document.getElementById('themeToggleBtn');
+    if (btn) {
+        btn.textContent = theme === 'light' ? '🌙 Dark' : '☀️ Light';
+    }
+    localStorage.setItem('skillmatrix-theme', theme);
+}
+
+window.toggleTheme = () => {
+    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    applyTheme(current === 'light' ? 'dark' : 'light');
+};
+
+// Apply saved theme immediately (before DOMContentLoaded to avoid flash)
+(function () {
+    const saved = localStorage.getItem('skillmatrix-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+})();
+
+
 window.toggleViewMode = () => {
     isHeatmapMode = !isHeatmapMode;
     const btn = document.getElementById('viewToggleBtn');
@@ -26,6 +48,9 @@ const LEVEL_MAP = {
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // Sync button label with current theme
+    applyTheme(document.documentElement.getAttribute('data-theme') || 'dark');
+
     try {
         const sessionRes = await fetch('/api/session');
         if (!sessionRes.ok) {
