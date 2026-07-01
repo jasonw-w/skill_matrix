@@ -1,36 +1,42 @@
 /* =====================================================
-   DESIGN TOKENS — Dark Mode (default)
+   DESIGN TOKENS Â— Dark Mode (default)
    ===================================================== */
 :root {
-    --bg-dark:        #0f111a;
-    --bg-panel:       rgba(25, 28, 41, 0.65);
-    --bg-sticky:      #1a1d2d;
-    --border-glass:   rgba(255, 255, 255, 0.08);
-    --text-main:      #f0f2f5;
-    --text-muted:     #9ba1a6;
-    --text-heading:   #fff;
-    --accent-glow:    rgba(99, 102, 241, 0.5);
-    --accent-color:   #6366f1;
-    --accent-soft:    rgba(99, 102, 241, 0.2);
-    --accent-border:  rgba(99, 102, 241, 0.5);
-    --danger-soft:    rgba(239, 68, 68, 0.2);
-    --danger-border:  rgba(239, 68, 68, 0.5);
-    --admin-soft:     rgba(236, 72, 153, 0.2);
-    --admin-border:   rgba(236, 72, 153, 0.5);
+    /* Layered editor surfaces - VS Code Dark */
+    --bg-dark:        #1e1e1e;
+    --bg-panel:       #252526;
+    --bg-sticky:      #252526;
+    --border-glass:   #3e3e42;
+    /* Typography */
+    --text-main:      #d4d4d4;
+    --text-muted:     #858585;
+    --text-heading:   #e8e8e8;
+    /* Accent - VS Code blue */
+    --accent-glow:    rgba(0, 120, 212, 0.0);
+    --accent-color:   #0078d4;
+    --accent-soft:    rgba(0, 120, 212, 0.18);
+    --accent-border:  rgba(0, 120, 212, 0.55);
+    /* Danger */
+    --danger-soft:    rgba(244, 71, 71, 0.15);
+    --danger-border:  rgba(244, 71, 71, 0.45);
+    /* Admin/pink */
+    --admin-soft:     rgba(197, 92, 155, 0.18);
+    --admin-border:   rgba(197, 92, 155, 0.5);
+    /* Matrix surfaces */
     --row-hover:      rgba(255, 255, 255, 0.04);
-    --ws-header-bg:   rgba(255, 255, 255, 0.05);
-    --skill-header-bg:rgba(255, 255, 255, 0.02);
-    --input-bg:       rgba(0, 0, 0, 0.2);
-    --modal-bg:       #0f111a;
-    --tooltip-bg:     rgba(15, 17, 26, 0.95);
-    --shadow-panel:   0 8px 32px rgba(0, 0, 0, 0.25);
-    --heading-gradient: linear-gradient(135deg, #fff, #a5b4fc);
+    --ws-header-bg:   #2d2d2d;
+    --skill-header-bg:#252526;
+    --input-bg:       #3c3c3c;
+    --modal-bg:       #252526;
+    --tooltip-bg:     #1f1f1f;
+    --shadow-panel:   0 2px 8px rgba(0, 0, 0, 0.4);
+    --heading-gradient: linear-gradient(135deg, #e8e8e8 0%, #569cd6 100%);
     --font-family: 'Outfit', sans-serif;
     --zoom-scale: 1;
 }
 
 /* =====================================================
-   DESIGN TOKENS — Light Mode
+   DESIGN TOKENS Â— Light Mode
    ===================================================== */
 [data-theme="light"] {
     --bg-dark:        #f0f2f8;
@@ -88,7 +94,7 @@ body {
     position: absolute;
     border-radius: 50%;
     filter: blur(100px);
-    opacity: 0.5;
+    opacity: 0;           /* suppressed - VS Code uses flat surfaces */
     transition: opacity 0.4s ease;
 }
 
@@ -177,10 +183,14 @@ header {
     background: var(--bg-panel);
     border: 1px solid var(--border-glass);
     border-radius: 16px;
-    backdrop-filter: blur(16px);
     box-shadow: var(--shadow-panel);
     overflow: hidden;
     transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Keep blur only in light mode where it looks clean over a light bg */
+[data-theme="light"] .glass-panel {
+    backdrop-filter: blur(16px);
 }
 
 /* =====================================================
@@ -189,7 +199,7 @@ header {
 .control-panel {
     background: var(--bg-panel);
     padding: 1rem 1.5rem;
-    border-radius: 12px;
+    border-radius: 8px;
     border: 1px solid var(--border-glass);
     display: flex;
     gap: 1rem;
