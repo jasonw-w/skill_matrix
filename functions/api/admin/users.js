@@ -33,8 +33,9 @@ async function requireAdmin(request, env) {
   const cookieHeader = request.headers.get('Cookie');
   if (!cookieHeader) return false;
   
-  const token = cookieHeader.split('; ').find(row => row.startsWith('session='))?.split('=')[1];
-  if (!token) return false;
+  const match = cookieHeader.match(/session=([^;]+)/);
+  if (!match) return false;
+  const token = match[1];
 
   const isValid = await jwt.verify(token, env.JWT_SECRET);
   if (!isValid) return false;

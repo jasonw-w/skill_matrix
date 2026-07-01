@@ -39,8 +39,9 @@ export async function onRequestPost(context) {
   const cookieHeader = request.headers.get('Cookie');
   if (!cookieHeader) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
   
-  const token = cookieHeader.split('; ').find(row => row.startsWith('session='))?.split('=')[1];
-  if (!token) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+  const match = cookieHeader.match(/session=([^;]+)/);
+  if (!match) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+  const token = match[1];
 
   const isValid = await jwt.verify(token, env.JWT_SECRET);
   if (!isValid) return new Response(JSON.stringify({ error: 'Invalid session' }), { status: 401 });

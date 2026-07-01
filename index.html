@@ -96,27 +96,31 @@
         </div>
 
         <main>
-            <div class="glass-panel" style="margin-bottom: 1rem; padding: 1rem; display: flex; gap: 1rem; align-items: center; justify-content: space-between; flex-wrap: wrap;">
-            <div style="display: flex; gap: 1rem; align-items: center; flex: 1; flex-wrap: wrap;">
-                <input type="text" id="searchInput" placeholder="Search team members (e.g. John, Jane)..." style="width: 250px; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-glass); background: rgba(0,0,0,0.2); color: white;">
-                <select id="wsFilterSelect" style="padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-glass); background: rgba(0,0,0,0.2); color: white;">
-                    <option value="all">All Workstations</option>
-                </select>
-                <select id="sortSelect" style="padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-glass); background: rgba(0,0,0,0.2); color: white;">
-                    <option value="name">Sort by Name</option>
-                    <option value="score">Sort by Proficiency Score</option>
-                </select>
-                <!-- Zoom Slider -->
-                <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); font-size: 0.9rem;">
-                    <span>Zoom:</span>
-                    <input type="range" id="zoomSlider" min="45" max="150" value="98" oninput="updateZoom(this.value)">
+            <!-- Controls Bar -->
+            <div class="glass-panel" style="margin-bottom: 1rem; padding: 0.85rem 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                <!-- Row 1: Filters & Zoom -->
+                <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                    <input type="text" id="searchInput" placeholder="Search team members..." style="min-width: 200px; flex: 1; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-glass); background: rgba(0,0,0,0.2); color: white;">
+                    <select id="wsFilterSelect" style="padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-glass); background: rgba(0,0,0,0.2); color: white;">
+                        <option value="all">All Workstations</option>
+                    </select>
+                    <select id="sortSelect" style="padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-glass); background: rgba(0,0,0,0.2); color: white;">
+                        <option value="name">Sort by Name</option>
+                        <option value="score">Sort by Proficiency Score</option>
+                    </select>
+                    <!-- Zoom Slider -->
+                    <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); font-size: 0.9rem;">
+                        <span>Zoom:</span>
+                        <input type="range" id="zoomSlider" min="45" max="150" value="98" oninput="updateZoom(this.value)">
+                    </div>
                 </div>
-            </div>
-            <div style="display: flex; gap: 0.5rem; align-items: center;">
-                <span id="saveStatus" style="font-size: 0.85rem; color: var(--text-muted); margin-right: 0.5rem;"></span>
-                <button class="btn btn-primary" id="saveChangesBtn" onclick="saveChanges()" disabled>Save Changes</button>
-                <button class="btn btn-outline" id="viewToggleBtn" onclick="toggleViewMode()">Switch to Detail View</button>
-                <button class="btn btn-outline" onclick="exportToCSV()">Export CSV</button>
+                <!-- Row 2: Action Buttons -->
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    <span id="saveStatus" style="font-size: 0.85rem; color: var(--text-muted); margin-right: 0.25rem;"></span>
+                    <button class="btn btn-primary" id="saveChangesBtn" onclick="saveChanges()" disabled>Save Changes</button>
+                    <button class="btn btn-outline" id="viewToggleBtn" onclick="toggleViewMode()">Switch Heatmap View</button>
+                    <button class="btn btn-outline" onclick="exportToCSV()">Export CSV</button>
+                </div>
             </div>
         </div>
 

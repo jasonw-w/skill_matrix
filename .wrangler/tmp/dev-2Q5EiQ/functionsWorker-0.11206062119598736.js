@@ -5912,8 +5912,9 @@ async function requireAdmin(request, env) {
   if (!request.headers.get("X-CSRF-Token")) return false;
   const cookieHeader = request.headers.get("Cookie");
   if (!cookieHeader) return false;
-  const token = cookieHeader.split("; ").find((row) => row.startsWith("session="))?.split("=")[1];
-  if (!token) return false;
+  const match2 = cookieHeader.match(/session=([^;]+)/);
+  if (!match2) return false;
+  const token = match2[1];
   const isValid2 = await index_default.verify(token, env.JWT_SECRET);
   if (!isValid2) return false;
   const { payload } = index_default.decode(token);
@@ -6020,8 +6021,9 @@ async function requireAdmin2(request, env) {
   if (!request.headers.get("X-CSRF-Token")) return false;
   const cookieHeader = request.headers.get("Cookie");
   if (!cookieHeader) return false;
-  const token = cookieHeader.split("; ").find((row) => row.startsWith("session="))?.split("=")[1];
-  if (!token) return false;
+  const match2 = cookieHeader.match(/session=([^;]+)/);
+  if (!match2) return false;
+  const token = match2[1];
   const isValid2 = await index_default.verify(token, env.JWT_SECRET);
   if (!isValid2) return false;
   const { payload } = index_default.decode(token);
@@ -6101,8 +6103,9 @@ async function requireAdmin3(request, env) {
   if (!request.headers.get("X-CSRF-Token")) return false;
   const cookieHeader = request.headers.get("Cookie");
   if (!cookieHeader) return false;
-  const token = cookieHeader.split("; ").find((row) => row.startsWith("session="))?.split("=")[1];
-  if (!token) return false;
+  const match2 = cookieHeader.match(/session=([^;]+)/);
+  if (!match2) return false;
+  const token = match2[1];
   const isValid2 = await index_default.verify(token, env.JWT_SECRET);
   if (!isValid2) return false;
   const { payload } = index_default.decode(token);
@@ -6492,8 +6495,9 @@ async function onRequestPost8(context) {
   }
   const cookieHeader = request.headers.get("Cookie");
   if (!cookieHeader) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
-  const token = cookieHeader.split("; ").find((row) => row.startsWith("session="))?.split("=")[1];
-  if (!token) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const match2 = cookieHeader.match(/session=([^;]+)/);
+  if (!match2) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const token = match2[1];
   const isValid2 = await index_default.verify(token, env.JWT_SECRET);
   if (!isValid2) return new Response(JSON.stringify({ error: "Invalid session" }), { status: 401 });
   const { payload } = index_default.decode(token);
@@ -6502,7 +6506,7 @@ async function onRequestPost8(context) {
     return new Response(JSON.stringify({ error: "Invalid payload, expected array of changes" }), { status: 400 });
   }
   for (const change of changes) {
-    if (payload.role !== "admin" && payload.id !== change.memberId) {
+    if (payload.role !== "admin" && String(payload.id) !== String(change.memberId)) {
       return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403 });
     }
   }
@@ -6751,8 +6755,9 @@ async function onRequestPost11(context) {
   }
   const cookieHeader = request.headers.get("Cookie");
   if (!cookieHeader) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
-  const token = cookieHeader.split("; ").find((row) => row.startsWith("session="))?.split("=")[1];
-  if (!token) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const match2 = cookieHeader.match(/session=([^;]+)/);
+  if (!match2) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const token = match2[1];
   const isValid2 = await index_default.verify(token, env.JWT_SECRET);
   if (!isValid2) return new Response(JSON.stringify({ error: "Invalid session" }), { status: 401 });
   const { payload } = index_default.decode(token);
