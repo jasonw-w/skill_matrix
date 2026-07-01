@@ -181,9 +181,9 @@ header {
     border-bottom: 1px solid var(--border-glass);
     font-size: 0.85rem;
     color: var(--text-muted);
-    white-space: nowrap;
+    white-space: normal;
+    word-break: break-word;
     overflow: hidden;
-    text-overflow: ellipsis;
     z-index: 5;
 }
 
