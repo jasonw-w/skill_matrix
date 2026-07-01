@@ -52,7 +52,7 @@ export async function onRequestGet(context) {
 
     const client = createClient({ url: env.TURSO_URL, authToken: env.TURSO_AUTH });
     try {
-        const res = await client.execute('SELECT id, email, first_name, last_name, role, is_verified FROM users');
+        const res = await client.execute("SELECT id, email, first_name, last_name, role, is_verified FROM users WHERE email != 'loisg-dl@fedextest.onmicrosoft.com'");
         return new Response(JSON.stringify(res.rows), { status: 200, headers: { 'Content-Type': 'application/json' } });
     } catch (e) {
         return new Response(JSON.stringify({ error: 'Database error' }), { status: 500 });
