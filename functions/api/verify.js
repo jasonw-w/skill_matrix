@@ -28,7 +28,7 @@ async function hashPassword(password, saltHex = null) {
 
 export async function onRequestPost(context) {
   const { request, env } = context;
-  let { email, code, password, firstName, lastName } = await request.json();
+  let { email, code, password, firstName, lastName, note } = await request.json();
   if (email) email = email.toLowerCase();
 
   if (!email || !code || !password || !firstName || !lastName) {
@@ -78,11 +78,12 @@ export async function onRequestPost(context) {
             password_hash = ?, 
             first_name = ?, 
             last_name = ?,
+            note = ?,
             role = ?,
             verification_code = NULL, 
             code_expires_at = NULL 
             WHERE email = ?`,
-      args: [passwordHash, firstName, lastName, role, email]
+      args: [passwordHash, firstName, lastName, note || null, role, email]
     });
 
     return new Response(JSON.stringify({ message: 'Account verified successfully! You can now log in.' }), { status: 200 });

@@ -182,6 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const firstName = document.getElementById('firstName').value;
         const lastName = document.getElementById('lastName').value;
+        const note = document.getElementById('note').value.trim();
         const password = document.getElementById('regPassword').value;
         const btn = document.getElementById('btnStep3');
         const msg = document.getElementById('s3Msg');
@@ -195,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch('/api/verify', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: currentEmail, code: currentCode, password, firstName, lastName })
+                body: JSON.stringify({ email: currentEmail, code: currentCode, password, firstName, lastName, note })
             });
             if (!res.ok) throw new Error((await res.json()).error);
 

@@ -171,7 +171,10 @@ function renderMatrix() {
     // Member Rows
     displayMembers.forEach(member => {
         html += `<div class="matrix-row">
-            <div class="member-cell">${member.name}</div>`;
+            <div class="member-cell">
+                ${member.name}
+                ${member.note ? `<div class="member-note">${member.note}</div>` : ''}
+            </div>`;
         
         visibleSkills.forEach(skill => {
             if (skill.isEmpty) {

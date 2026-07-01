@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const currentUser = await sessionRes.json();
         document.getElementById('firstName').value = currentUser.first_name || '';
         document.getElementById('lastName').value = currentUser.last_name || '';
+        document.getElementById('note').value = currentUser.note || '';
     } catch (e) {
         window.location.href = 'login.html';
     }
@@ -25,6 +26,7 @@ document.getElementById('settingsForm').addEventListener('submit', async (e) => 
     
     const firstName = document.getElementById('firstName').value.trim();
     const lastName = document.getElementById('lastName').value.trim();
+    const note = document.getElementById('note').value.trim();
     const password = document.getElementById('password').value;
 
     btn.disabled = true;
@@ -34,7 +36,7 @@ document.getElementById('settingsForm').addEventListener('submit', async (e) => 
         const res = await fetch('/api/settings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': 'true' },
-            body: JSON.stringify({ firstName, lastName, password })
+            body: JSON.stringify({ firstName, lastName, note, password })
         });
 
         const data = await res.json();

@@ -97,7 +97,8 @@ export async function onRequestPost(context) {
       email: user.email, 
       role: user.role,
       first_name: user.first_name,
-      last_name: user.last_name
+      last_name: user.last_name,
+      note: user.note || null
     }, env.JWT_SECRET, { expiresIn: '7d' });
 
     // Set HTTP-Only Session Cookie

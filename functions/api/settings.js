@@ -50,7 +50,7 @@ export async function onRequestPost(context) {
   const userId = payload.id;
 
   // Get updates
-  let { firstName, lastName, password } = await request.json();
+  let { firstName, lastName, note, password } = await request.json();
 
   if (!firstName || !lastName) {
     return new Response(JSON.stringify({ error: 'First name and last name are required' }), { status: 400 });
@@ -68,13 +68,13 @@ export async function onRequestPost(context) {
       }
       const hashedPassword = await hashPassword(password);
       await client.execute({
-        sql: 'UPDATE users SET first_name = ?, last_name = ?, password_hash = ? WHERE id = ?',
-        args: [firstName, lastName, hashedPassword, userId]
+        sql: 'UPDATE users SET first_name = ?, last_name = ?, note = ?, password_hash = ? WHERE id = ?',
+        args: [firstName, lastName, note || null, hashedPassword, userId]
       });
     } else {
       await client.execute({
-        sql: 'UPDATE users SET first_name = ?, last_name = ? WHERE id = ?',
-        args: [firstName, lastName, userId]
+        sql: 'UPDATE users SET first_name = ?, last_name = ?, note = ? WHERE id = ?',
+        args: [firstName, lastName, note || null, userId]
       });
     }
 
@@ -84,7 +84,8 @@ export async function onRequestPost(context) {
         email: payload.email, 
         role: payload.role,
         first_name: firstName,
-        last_name: lastName
+        last_name: lastName,
+        note: note || null
       }, env.JWT_SECRET, { expiresIn: '7d' });
   
     const cookie = `session=${newToken}; HttpOnly; Secure; Path=/; Max-Age=${7 * 24 * 60 * 60}; SameSite=Strict`;

@@ -53,6 +53,7 @@ async function setup() {
         email TEXT UNIQUE NOT NULL,
         first_name TEXT,
         last_name TEXT,
+        note TEXT,
         password_hash TEXT,
         role TEXT DEFAULT 'user',
         is_verified BOOLEAN DEFAULT 0,

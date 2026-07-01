@@ -6392,7 +6392,8 @@ async function onRequestPost6(context) {
       email: user.email,
       role: user.role,
       first_name: user.first_name,
-      last_name: user.last_name
+      last_name: user.last_name,
+      note: user.note || null
     }, env.JWT_SECRET, { expiresIn: "7d" });
     const cookie = `session=${token}; HttpOnly; Secure; Path=/; Max-Age=${7 * 24 * 60 * 60}; SameSite=Strict`;
     return new Response(JSON.stringify({ message: "Logged in successfully", role: user.role }), {
@@ -6455,7 +6456,7 @@ async function onRequestGet2(context) {
     });
     const workstationsRes = await client.execute("SELECT * FROM workstations");
     const skillsRes = await client.execute("SELECT * FROM skills");
-    const membersRes = await client.execute("SELECT id, first_name || ' ' || last_name as name FROM users WHERE is_verified = 1");
+    const membersRes = await client.execute("SELECT id, first_name || ' ' || last_name as name, note FROM users WHERE is_verified = 1");
     const proficienciesRes = await client.execute("SELECT * FROM proficiencies");
     const skillsTree = workstationsRes.rows.map((ws) => {
       return {
@@ -6464,7 +6465,7 @@ async function onRequestGet2(context) {
         children: skillsRes.rows.filter((s) => s.workstation_id === ws.id).map((s) => ({ id: s.id, name: s.name }))
       };
     });
-    const members = membersRes.rows.map((m) => ({ id: m.id, name: m.name }));
+    const members = membersRes.rows.map((m) => ({ id: m.id, name: m.name, note: m.note }));
     const proficiencies = {};
     proficienciesRes.rows.forEach((p) => {
       if (!proficiencies[p.member_id]) proficiencies[p.member_id] = {};
@@ -6762,7 +6763,7 @@ async function onRequestPost11(context) {
   if (!isValid2) return new Response(JSON.stringify({ error: "Invalid session" }), { status: 401 });
   const { payload } = index_default.decode(token);
   const userId = payload.id;
-  let { firstName, lastName, password } = await request.json();
+  let { firstName, lastName, note, password } = await request.json();
   if (!firstName || !lastName) {
     return new Response(JSON.stringify({ error: "First name and last name are required" }), { status: 400 });
   }
@@ -6777,13 +6778,13 @@ async function onRequestPost11(context) {
       }
       const hashedPassword = await hashPassword4(password);
       await client.execute({
-        sql: "UPDATE users SET first_name = ?, last_name = ?, password_hash = ? WHERE id = ?",
-        args: [firstName, lastName, hashedPassword, userId]
+        sql: "UPDATE users SET first_name = ?, last_name = ?, note = ?, password_hash = ? WHERE id = ?",
+        args: [firstName, lastName, note || null, hashedPassword, userId]
       });
     } else {
       await client.execute({
-        sql: "UPDATE users SET first_name = ?, last_name = ? WHERE id = ?",
-        args: [firstName, lastName, userId]
+        sql: "UPDATE users SET first_name = ?, last_name = ?, note = ? WHERE id = ?",
+        args: [firstName, lastName, note || null, userId]
       });
     }
     const newToken = await index_default.sign({
@@ -6791,7 +6792,8 @@ async function onRequestPost11(context) {
       email: payload.email,
       role: payload.role,
       first_name: firstName,
-      last_name: lastName
+      last_name: lastName,
+      note: note || null
     }, env.JWT_SECRET, { expiresIn: "7d" });
     const cookie = `session=${newToken}; HttpOnly; Secure; Path=/; Max-Age=${7 * 24 * 60 * 60}; SameSite=Strict`;
     return new Response(JSON.stringify({ message: "Settings updated successfully" }), {
@@ -6844,7 +6846,7 @@ async function hashPassword5(password, saltHex = null) {
 __name(hashPassword5, "hashPassword5");
 async function onRequestPost12(context) {
   const { request, env } = context;
-  let { email, code, password, firstName, lastName } = await request.json();
+  let { email, code, password, firstName, lastName, note } = await request.json();
   if (email) email = email.toLowerCase();
   if (!email || !code || !password || !firstName || !lastName) {
     return new Response(JSON.stringify({ error: "Missing required fields" }), { status: 400 });
@@ -6880,11 +6882,12 @@ async function onRequestPost12(context) {
             password_hash = ?, 
             first_name = ?, 
             last_name = ?,
+            note = ?,
             role = ?,
             verification_code = NULL, 
             code_expires_at = NULL 
             WHERE email = ?`,
-      args: [passwordHash, firstName, lastName, role, email]
+      args: [passwordHash, firstName, lastName, note || null, role, email]
     });
     return new Response(JSON.stringify({ message: "Account verified successfully! You can now log in." }), { status: 200 });
   } catch (err) {
