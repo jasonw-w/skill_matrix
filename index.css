@@ -141,7 +141,7 @@ header {
 .matrix-table {
     display: grid;
     /* First column is sticky Member name. Subsequent columns are fixed width for skills */
-    grid-template-columns: 250px repeat(var(--skill-count), var(--cell-width, 80px));
+    grid-template-columns: 250px repeat(var(--skill-count), var(--cell-width, 98px));
     border-collapse: separate;
 }
 
