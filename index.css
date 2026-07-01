@@ -163,9 +163,10 @@ header {
     border-bottom: 1px solid var(--border-glass);
     font-weight: 600;
     color: #fff;
-    white-space: nowrap;
+    white-space: normal;
+    word-break: break-word;
     overflow: hidden;
-    text-overflow: ellipsis;
+    z-index: 5;
 }
 
 /* Vertical Headers for Skills */
@@ -181,6 +182,9 @@ header {
     font-size: 0.85rem;
     color: var(--text-muted);
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    z-index: 5;
 }
 
 /* Sticky Member Name Column */
@@ -188,7 +192,7 @@ header {
     position: sticky;
     left: 0;
     background: #1a1d2d; /* Solid color so it hides scrolling content */
-    z-index: 10;
+    z-index: 50;
     padding: 0.75rem 1rem;
     border-right: 1px solid var(--border-glass);
     border-bottom: 1px solid var(--border-glass);
@@ -202,7 +206,7 @@ header {
     position: sticky;
     left: 0;
     top: 0;
-    z-index: 11;
+    z-index: 100;
     background: #1a1d2d;
     border-right: 1px solid var(--border-glass);
     border-bottom: 1px solid var(--border-glass);

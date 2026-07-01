@@ -22,11 +22,16 @@ export async function onRequestPost(context) {
   const { payload } = jwt.decode(token);
   
   // 3. Request Data
-  let { memberId, skillId, level } = await request.json();
+  let { changes } = await request.json();
+  if (!changes || !Array.isArray(changes)) {
+      return new Response(JSON.stringify({ error: 'Invalid payload, expected array of changes' }), { status: 400 });
+  }
 
-  // Validate permission (must be admin or modifying own proficiency)
-  if (payload.role !== 'admin' && payload.id !== memberId) {
-      return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403 });
+  // Validate permission for each change
+  for (const change of changes) {
+      if (payload.role !== 'admin' && payload.id !== change.memberId) {
+          return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403 });
+      }
   }
 
   const client = createClient({
@@ -35,23 +40,27 @@ export async function onRequestPost(context) {
   });
 
   try {
-    if (level === 'none') {
-        // Delete the record if it's none
-        await client.execute({
-            sql: 'DELETE FROM proficiencies WHERE member_id = ? AND skill_id = ?',
-            args: [memberId, skillId]
-        });
-    } else {
-        // Upsert the new proficiency
-        await client.execute({
-            sql: `INSERT INTO proficiencies (member_id, skill_id, level) 
-                  VALUES (?, ?, ?)
-                  ON CONFLICT(member_id, skill_id) DO UPDATE SET level=excluded.level`,
-            args: [memberId, skillId, level]
-        });
+    const statements = changes.map(change => {
+        if (change.level === 'none') {
+            return {
+                sql: 'DELETE FROM proficiencies WHERE member_id = ? AND skill_id = ?',
+                args: [change.memberId, change.skillId]
+            };
+        } else {
+            return {
+                sql: `INSERT INTO proficiencies (member_id, skill_id, level) 
+                      VALUES (?, ?, ?)
+                      ON CONFLICT(member_id, skill_id) DO UPDATE SET level=excluded.level`,
+                args: [change.memberId, change.skillId, change.level]
+            };
+        }
+    });
+
+    if (statements.length > 0) {
+        await client.batch(statements, 'write');
     }
 
-    return new Response(JSON.stringify({ message: 'Proficiency updated' }), { status: 200 });
+    return new Response(JSON.stringify({ message: 'Proficiencies updated successfully' }), { status: 200 });
 
   } catch (err) {
     console.error(err);

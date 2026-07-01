@@ -5,6 +5,7 @@ let searchTerm = '';
 let currentWsFilter = 'all';
 let sortBy = 'name';
 let isHeatmapMode = true;
+let pendingChanges = {};
 
 window.toggleViewMode = () => {
     isHeatmapMode = !isHeatmapMode;
@@ -224,21 +225,72 @@ window.toggleProficiency = async (element) => {
     if (!matrixData.proficiencies[memberId]) matrixData.proficiencies[memberId] = {};
     matrixData.proficiencies[memberId][skillId] = nextLevel;
 
+    // Queue change locally
+    const key = `${memberId}_${skillId}`;
+    pendingChanges[key] = { memberId, skillId, level: nextLevel };
+
+    // Update UI
+    const saveBtn = document.getElementById('saveChangesBtn');
+    const saveStatus = document.getElementById('saveStatus');
+    if (saveBtn) saveBtn.disabled = false;
+    if (saveStatus) saveStatus.textContent = 'Unsaved changes...';
+};
+
+window.saveChanges = async () => {
+    const changesArray = Object.values(pendingChanges);
+    if (changesArray.length === 0) return;
+
+    const saveBtn = document.getElementById('saveChangesBtn');
+    const saveStatus = document.getElementById('saveStatus');
+    
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<span class="spinner" style="width: 14px; height: 14px;"></span> Saving...';
+    }
+    if (saveStatus) saveStatus.textContent = 'Saving...';
+
+    // Keep a snapshot and clear pending so user can keep clicking while it saves
+    const snapshot = { ...pendingChanges };
+    pendingChanges = {};
+
     try {
-        await fetch('/api/proficiency', {
+        const res = await fetch('/api/proficiency', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': 'true' },
-            body: JSON.stringify({ memberId, skillId, level: nextLevel })
+            body: JSON.stringify({ changes: changesArray })
         });
+
+        if (!res.ok) throw new Error('Failed to save');
+
+        if (saveBtn) {
+            saveBtn.innerHTML = 'Save Changes';
+            saveBtn.disabled = true;
+        }
+        if (saveStatus) {
+            saveStatus.textContent = 'All changes saved';
+            setTimeout(() => { if (saveStatus.textContent === 'All changes saved') saveStatus.textContent = ''; }, 3000);
+        }
     } catch (e) {
-        console.error('Failed to update proficiency');
-        // Revert UI on failure
-        element.dataset.level = currentLevel;
-        const revertMapped = LEVEL_MAP[currentLevel];
-        element.className = `prof-indicator ${revertMapped.class}`;
-        element.textContent = revertMapped.num;
+        console.error('Failed to update proficiency batch', e);
+        // Put failed changes back into the queue if they weren't overwritten
+        Object.entries(snapshot).forEach(([k, v]) => {
+            if (!pendingChanges[k]) pendingChanges[k] = v;
+        });
+        if (saveBtn) {
+            saveBtn.innerHTML = 'Save Changes';
+            saveBtn.disabled = false;
+        }
+        if (saveStatus) saveStatus.textContent = 'Save failed! Click to retry.';
+        alert('Failed to save changes. Please check your connection and try again.');
     }
 };
+
+// Autosave every 20 seconds
+setInterval(() => {
+    if (Object.keys(pendingChanges).length > 0) {
+        window.saveChanges();
+    }
+}, 20000);
 
 window.exportToCSV = () => {
     let csv = 'Team Member Name,';

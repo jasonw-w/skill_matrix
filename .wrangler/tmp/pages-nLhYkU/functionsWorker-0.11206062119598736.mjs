@@ -6236,29 +6236,39 @@ async function onRequestPost8(context) {
   const isValid2 = await index_default.verify(token, env.JWT_SECRET);
   if (!isValid2) return new Response(JSON.stringify({ error: "Invalid session" }), { status: 401 });
   const { payload } = index_default.decode(token);
-  let { memberId, skillId, level } = await request.json();
-  if (payload.role !== "admin" && payload.id !== memberId) {
-    return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403 });
+  let { changes } = await request.json();
+  if (!changes || !Array.isArray(changes)) {
+    return new Response(JSON.stringify({ error: "Invalid payload, expected array of changes" }), { status: 400 });
+  }
+  for (const change of changes) {
+    if (payload.role !== "admin" && payload.id !== change.memberId) {
+      return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403 });
+    }
   }
   const client = createClient({
     url: env.TURSO_URL,
     authToken: env.TURSO_AUTH
   });
   try {
-    if (level === "none") {
-      await client.execute({
-        sql: "DELETE FROM proficiencies WHERE member_id = ? AND skill_id = ?",
-        args: [memberId, skillId]
-      });
-    } else {
-      await client.execute({
-        sql: `INSERT INTO proficiencies (member_id, skill_id, level) 
-                  VALUES (?, ?, ?)
-                  ON CONFLICT(member_id, skill_id) DO UPDATE SET level=excluded.level`,
-        args: [memberId, skillId, level]
-      });
+    const statements = changes.map((change) => {
+      if (change.level === "none") {
+        return {
+          sql: "DELETE FROM proficiencies WHERE member_id = ? AND skill_id = ?",
+          args: [change.memberId, change.skillId]
+        };
+      } else {
+        return {
+          sql: `INSERT INTO proficiencies (member_id, skill_id, level) 
+                      VALUES (?, ?, ?)
+                      ON CONFLICT(member_id, skill_id) DO UPDATE SET level=excluded.level`,
+          args: [change.memberId, change.skillId, change.level]
+        };
+      }
+    });
+    if (statements.length > 0) {
+      await client.batch(statements, "write");
     }
-    return new Response(JSON.stringify({ message: "Proficiency updated" }), { status: 200 });
+    return new Response(JSON.stringify({ message: "Proficiencies updated successfully" }), { status: 200 });
   } catch (err) {
     console.error(err);
     return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
@@ -6779,10 +6789,10 @@ var init_functionsRoutes_0_12553575875703094 = __esm({
   }
 });
 
-// ../.wrangler/tmp/bundle-BrtwPJ/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-GPIXPH/middleware-loader.entry.ts
 init_functionsRoutes_0_12553575875703094();
 
-// ../.wrangler/tmp/bundle-BrtwPJ/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-GPIXPH/middleware-insertion-facade.js
 init_functionsRoutes_0_12553575875703094();
 
 // ../node_modules/wrangler/templates/pages-template-worker.ts
@@ -7278,7 +7288,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-BrtwPJ/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-GPIXPH/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -7311,7 +7321,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-BrtwPJ/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-GPIXPH/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

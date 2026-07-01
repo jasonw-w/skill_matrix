@@ -112,7 +112,9 @@
                     <input type="range" id="zoomSlider" min="45" max="150" value="45" oninput="updateZoom(this.value)">
                 </div>
             </div>
-            <div style="display: flex; gap: 0.5rem;">
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <span id="saveStatus" style="font-size: 0.85rem; color: var(--text-muted); margin-right: 0.5rem;"></span>
+                <button class="btn btn-primary" id="saveChangesBtn" onclick="saveChanges()" disabled>Save Changes</button>
                 <button class="btn btn-outline" id="viewToggleBtn" onclick="toggleViewMode()">Switch to Detail View</button>
                 <button class="btn btn-outline" onclick="exportToCSV()">Export CSV</button>
             </div>
