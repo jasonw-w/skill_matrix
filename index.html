@@ -96,8 +96,8 @@
         </div>
 
         <main>
-            <div class="glass-panel" style="margin-bottom: 1rem; padding: 1rem; display: flex; gap: 1rem; align-items: center; justify-content: space-between;">
-            <div style="display: flex; gap: 1rem; align-items: center; flex: 1;">
+            <div class="glass-panel" style="margin-bottom: 1rem; padding: 1rem; display: flex; gap: 1rem; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+            <div style="display: flex; gap: 1rem; align-items: center; flex: 1; flex-wrap: wrap;">
                 <input type="text" id="searchInput" placeholder="Search team members (e.g. John, Jane)..." style="width: 250px; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-glass); background: rgba(0,0,0,0.2); color: white;">
                 <select id="wsFilterSelect" style="padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-glass); background: rgba(0,0,0,0.2); color: white;">
                     <option value="all">All Workstations</option>
@@ -109,7 +109,7 @@
                 <!-- Zoom Slider -->
                 <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); font-size: 0.9rem;">
                     <span>Zoom:</span>
-                    <input type="range" id="zoomSlider" min="45" max="150" value="45" oninput="updateZoom(this.value)">
+                    <input type="range" id="zoomSlider" min="45" max="150" value="80" oninput="updateZoom(this.value)">
                 </div>
             </div>
             <div style="display: flex; gap: 0.5rem; align-items: center;">
