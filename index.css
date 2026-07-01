@@ -250,6 +250,18 @@ header {
     transform: scale(0.95);
 }
 
+/* Heatmap Mode Overrides */
+.matrix-table.heatmap-mode .data-cell {
+    padding: 0;
+}
+
+.matrix-table.heatmap-mode .prof-indicator {
+    border-radius: 0;
+    color: transparent; /* Hide text */
+    min-height: 50px; /* Ensure full cell height if empty */
+    border: none;
+}
+
 /* CSS Tooltips */
 .prof-indicator::after {
     content: '';

@@ -99,7 +99,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (data.dev_code) {
                     console.log('Test Mode: Auto-verifying with code:', data.dev_code);
-                    await verifyCodeSilently(data.dev_code);
+                    const res = await fetch('/api/check-code', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: currentEmail, code: data.dev_code })
+                    });
+                    const checkData = await res.json();
+                    if (!res.ok) throw new Error(checkData.error);
+                    
+                    currentCode = data.dev_code;
+                    transitionTo(step1, step3);
+                    setTimeout(() => document.getElementById('firstName').focus(), 350);
                 } else {
                     transitionTo(step1, step2);
                     setTimeout(() => otpInputs[0].focus(), 350);

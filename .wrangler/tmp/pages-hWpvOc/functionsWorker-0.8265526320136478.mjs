@@ -6321,26 +6321,11 @@ async function onRequestPost9(context) {
             code_expires_at=excluded.code_expires_at`,
       args: [id, email, verification_code, expiresAt]
     });
-    const resendRes = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${env.RESEND_AUTH}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        from: env.RESEND_FROM || "onboarding@resend.dev",
-        // Use custom domain if verified
-        to: email,
-        subject: "Skill Matrix - Verification Code",
-        html: `<p>Your verification code is: <strong>${verification_code}</strong></p>`
-      })
-    });
-    if (!resendRes.ok) {
-      const errorText = await resendRes.text();
-      console.error("Resend error", errorText);
-      return new Response(JSON.stringify({ error: "Failed to send email", details: errorText }), { status: 500 });
-    }
-    return new Response(JSON.stringify({ message: "Verification code sent" }), { status: 200 });
+    console.log(`[DEV ONLY] Verification code for ${email} is: ${verification_code}`);
+    return new Response(JSON.stringify({
+      message: "Verification code bypassed for testing. Check network tab for code.",
+      dev_code: verification_code
+    }), { status: 200, headers: { "Content-Type": "application/json" } });
   } catch (err) {
     console.error(err);
     return new Response(JSON.stringify({ error: "Database error" }), { status: 500 });
@@ -6794,10 +6779,10 @@ var init_functionsRoutes_0_5991102772734545 = __esm({
   }
 });
 
-// ../.wrangler/tmp/bundle-1c60qx/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-dYExkL/middleware-loader.entry.ts
 init_functionsRoutes_0_5991102772734545();
 
-// ../.wrangler/tmp/bundle-1c60qx/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-dYExkL/middleware-insertion-facade.js
 init_functionsRoutes_0_5991102772734545();
 
 // ../node_modules/wrangler/templates/pages-template-worker.ts
@@ -7293,7 +7278,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-1c60qx/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-dYExkL/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -7326,7 +7311,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-1c60qx/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-dYExkL/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

@@ -112,7 +112,10 @@
                     <input type="range" id="zoomSlider" min="45" max="150" value="45" oninput="updateZoom(this.value)">
                 </div>
             </div>
-            <button class="btn btn-outline" onclick="exportToCSV()">Export CSV</button>
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-outline" id="viewToggleBtn" onclick="toggleViewMode()">Switch to Detail View</button>
+                <button class="btn btn-outline" onclick="exportToCSV()">Export CSV</button>
+            </div>
         </div>
 
         <div class="glass-panel" style="overflow-x: auto; overflow-y: auto; max-height: 70vh;">

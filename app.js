@@ -4,6 +4,16 @@ let flatSkills = [];
 let searchTerm = '';
 let currentWsFilter = 'all';
 let sortBy = 'name';
+let isHeatmapMode = true;
+
+window.toggleViewMode = () => {
+    isHeatmapMode = !isHeatmapMode;
+    const btn = document.getElementById('viewToggleBtn');
+    if (btn) {
+        btn.textContent = isHeatmapMode ? 'Switch to Detail View' : 'Switch to Heatmap View';
+    }
+    renderMatrix();
+};
 
 // Mapping DB strings to 1-4 levels
 const LEVEL_MAP = {
@@ -106,7 +116,7 @@ function renderMatrix() {
     }
 
     // Prepare grid layout
-    let html = `<div class="matrix-table" style="--skill-count: ${visibleSkills.length}">`;
+    let html = `<div class="matrix-table ${isHeatmapMode ? 'heatmap-mode' : ''}" style="--skill-count: ${visibleSkills.length}">`;
     
     // Row 1: Super Headers (Workstations)
     html += `<div class="matrix-row">
